@@ -31,6 +31,7 @@ from .protocol import (
     ZebraProtocol,
 )
 from .transport import ZebraTransport
+from .zebra_controller import ZebraController
 
 __all__ = [
     "__version__",
@@ -41,4 +42,5 @@ __all__ = [
     "RegisterError",
     "InterruptHandler",
     "PositionCompareData",
+    "ZebraController",
 ]
