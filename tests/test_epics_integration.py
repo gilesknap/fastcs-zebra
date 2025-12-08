@@ -1,147 +1,223 @@
-"""Test script for EPICS integration.
+"""Pytest tests for EPICS integration.
 
-This script helps verify that the FastCS EPICS interface is working correctly.
-It requires a running EPICS IOC (python -m fastcs_zebra) and EPICS tools (caget/caput).
+These tests verify that the FastCS EPICS interface is working correctly.
+They require a running EPICS IOC (python -m fastcs_zebra).
 
-Usage:
-    python tests/test_epics_integration.py --prefix TEST:ZEBRA:
+Run with: pytest tests/test_epics_integration.py -v
 """
 
-import argparse
-import subprocess
-import sys
 import time
 
+import pytest
 
-def run_command(cmd: list[str]) -> tuple[int, str, str]:
-    """Run a shell command and return exit code, stdout, stderr."""
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-    return result.returncode, result.stdout.strip(), result.stderr.strip()
+# Import EPICS clients
+try:
+    from epicscorelibs.ca import cadef  # Channel Access
+except ImportError:
+    cadef = None
 
-
-def check_pv_exists(pv_name: str) -> bool:
-    """Test if a PV exists and can be read."""
-    code, stdout, stderr = run_command(["caget", pv_name])
-    if code == 0:
-        print(f"✓ {pv_name}: {stdout}")
-        return True
-    else:
-        print(f"✗ {pv_name}: FAILED - {stderr}")
-        return False
+try:
+    from p4p.client.thread import Context  # PVAccess
+except ImportError:
+    Context = None
 
 
-def check_pv_write(pv_name: str, value: str) -> bool:
-    """Test if a PV can be written."""
-    code, stdout, stderr = run_command(["caput", pv_name, value])
-    if code == 0:
-        print(f"✓ Write {pv_name} = {value}")
-        return True
-    else:
-        print(f"✗ Write {pv_name} = {value}: FAILED - {stderr}")
-        return False
+# PV prefix can be overridden with pytest --prefix option
+PV_PREFIX = "ZEBRA:"
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Test EPICS integration")
-    parser.add_argument(
+def pytest_addoption(parser):
+    """Add command line option for PV prefix."""
+    parser.addoption(
         "--prefix",
-        type=str,
+        action="store",
         default="ZEBRA:",
         help="EPICS PV prefix (default: ZEBRA:)",
     )
-    args = parser.parse_args()
 
-    prefix = args.prefix
-    passed = 0
-    failed = 0
 
-    print("=" * 60)
-    print("Testing EPICS Integration")
-    print("=" * 60)
+@pytest.fixture(scope="module")
+def pv_prefix(request):
+    """Get the PV prefix from command line or use default."""
+    return request.config.getoption("--prefix")
 
-    # Test read-only PVs
-    print("\n--- Testing Read-Only PVs ---")
-    for pv in ["CONNECTED", "SYS_VER", "SYS_STATERR", "PC_NUM_CAP"]:
-        if check_pv_exists(f"{prefix}{pv}"):
-            passed += 1
-        else:
-            failed += 1
 
-    # Test read-write PVs
-    print("\n--- Testing Read-Write PVs ---")
-    for pv in ["PC_ENC", "PC_TSPRE", "SOFT_IN"]:
-        if check_pv_exists(f"{prefix}{pv}"):
-            passed += 1
-        else:
-            failed += 1
+# Channel Access tests using epicscorelibs
 
-    # Test last captured values
-    print("\n--- Testing Last Captured Value PVs ---")
-    for pv in [
+
+@pytest.fixture(scope="module")
+def ca_context():
+    """Initialize Channel Access context."""
+    if cadef is None:
+        pytest.skip("epicscorelibs not available")
+    cadef.ca_context_create()
+    yield
+    cadef.ca_context_destroy()
+
+
+def ca_get(pv_name: str, timeout: float = 5.0):
+    """Get a PV value using Channel Access."""
+    chid = cadef.ca_create_channel(pv_name.encode())
+    cadef.ca_pend_io(timeout)
+    value = cadef.ca_get(chid)
+    cadef.ca_pend_io(timeout)
+    cadef.ca_clear_channel(chid)
+    return value
+
+
+def ca_put(pv_name: str, value, timeout: float = 5.0):
+    """Put a PV value using Channel Access."""
+    chid = cadef.ca_create_channel(pv_name.encode())
+    cadef.ca_pend_io(timeout)
+    cadef.ca_put(chid, value)
+    cadef.ca_pend_io(timeout)
+    cadef.ca_clear_channel(chid)
+
+
+@pytest.mark.parametrize(
+    "pv_name",
+    ["CONNECTED", "SYS_VER", "SYS_STATERR", "PC_NUM_CAP"],
+)
+def test_ca_read_only_pvs(ca_context, pv_prefix, pv_name):
+    """Test that read-only PVs can be read via Channel Access."""
+    full_pv = f"{pv_prefix}{pv_name}"
+    value = ca_get(full_pv)
+    assert value is not None
+
+
+@pytest.mark.parametrize(
+    "pv_name",
+    ["PC_ENC", "PC_TSPRE", "SOFT_IN"],
+)
+def test_ca_read_write_pvs(ca_context, pv_prefix, pv_name):
+    """Test that read-write PVs can be read via Channel Access."""
+    full_pv = f"{pv_prefix}{pv_name}"
+    value = ca_get(full_pv)
+    assert value is not None
+
+
+@pytest.mark.parametrize(
+    "pv_name",
+    [
         "PC_TIME_LAST",
         "PC_ENC1_LAST",
         "PC_ENC2_LAST",
         "PC_ENC3_LAST",
         "PC_ENC4_LAST",
-    ]:
-        if check_pv_exists(f"{prefix}{pv}"):
-            passed += 1
-        else:
-            failed += 1
-
-    # Test status message
-    print("\n--- Testing Status Message ---")
-    if check_pv_exists(f"{prefix}STATUS_MSG"):
-        passed += 1
-    else:
-        failed += 1
-
-    # Test writes
-    print("\n--- Testing Write Operations ---")
-    if check_pv_write(f"{prefix}SOFT_IN", "5"):
-        passed += 1
-        time.sleep(0.5)
-        check_pv_exists(f"{prefix}SOFT_IN")  # Verify the write
-    else:
-        failed += 1
-
-    if check_pv_write(f"{prefix}PC_ENC", "0"):
-        passed += 1
-        time.sleep(0.5)
-        check_pv_exists(f"{prefix}PC_ENC")  # Verify the write
-    else:
-        failed += 1
-
-    # Test commands (these are write-only, just check they don't error)
-    print("\n--- Testing Command PVs ---")
-    command_pvs = [
-        "PC_ARM",
-        "PC_DISARM",
-        "SAVE_TO_FLASH",
-        "LOAD_FROM_FLASH",
-        "SYS_RESET",
-    ]
-    for pv in command_pvs:
-        # Try to see if the PV exists (it may not respond to caget)
-        code, _, _ = run_command(["caget", f"{prefix}{pv}"])
-        if code == 0:
-            print(f"✓ {prefix}{pv} exists")
-            passed += 1
-        else:
-            # Commands might not be readable, that's OK
-            print(f"? {prefix}{pv} (command PVs may not be readable)")
-
-    # Summary
-    print("\n" + "=" * 60)
-    print(f"Results: {passed} passed, {failed} failed")
-    print("=" * 60)
-
-    if failed > 0:
-        sys.exit(1)
-    else:
-        print("\n✓ All tests passed!")
-        sys.exit(0)
+    ],
+)
+def test_ca_last_captured_pvs(ca_context, pv_prefix, pv_name):
+    """Test that last captured value PVs can be read via Channel Access."""
+    full_pv = f"{pv_prefix}{pv_name}"
+    value = ca_get(full_pv)
+    assert value is not None
 
 
-if __name__ == "__main__":
-    main()
+def test_ca_status_message(ca_context, pv_prefix):
+    """Test that status message PV can be read via Channel Access."""
+    full_pv = f"{pv_prefix}STATUS_MSG"
+    value = ca_get(full_pv)
+    assert value is not None
+
+
+def test_ca_soft_in_write(ca_context, pv_prefix):
+    """Test writing to SOFT_IN via Channel Access."""
+    full_pv = f"{pv_prefix}SOFT_IN"
+    # Write a value
+    ca_put(full_pv, 5)
+    time.sleep(0.5)
+    # Read it back
+    value = ca_get(full_pv)
+    assert value == 5
+
+
+def test_ca_pc_enc_write(ca_context, pv_prefix):
+    """Test writing to PC_ENC via Channel Access."""
+    full_pv = f"{pv_prefix}PC_ENC"
+    # Write a value
+    ca_put(full_pv, 0)
+    time.sleep(0.5)
+    # Read it back
+    value = ca_get(full_pv)
+    assert value == 0
+
+
+# PVAccess tests using p4p
+
+
+@pytest.fixture(scope="module")
+def pva_context():
+    """Initialize PVAccess context."""
+    if Context is None:
+        pytest.skip("p4p not available")
+    ctx = Context("pva")
+    yield ctx
+    ctx.close()
+
+
+@pytest.mark.parametrize(
+    "pv_name",
+    ["CONNECTED", "SYS_VER", "SYS_STATERR", "PC_NUM_CAP"],
+)
+def test_pva_read_only_pvs(pva_context, pv_prefix, pv_name):
+    """Test that read-only PVs can be read via PVAccess."""
+    full_pv = f"{pv_prefix}{pv_name}"
+    value = pva_context.get(full_pv, timeout=5.0)
+    assert value is not None
+
+
+@pytest.mark.parametrize(
+    "pv_name",
+    ["PC_ENC", "PC_TSPRE", "SOFT_IN"],
+)
+def test_pva_read_write_pvs(pva_context, pv_prefix, pv_name):
+    """Test that read-write PVs can be read via PVAccess."""
+    full_pv = f"{pv_prefix}{pv_name}"
+    value = pva_context.get(full_pv, timeout=5.0)
+    assert value is not None
+
+
+@pytest.mark.parametrize(
+    "pv_name",
+    [
+        "PC_TIME_LAST",
+        "PC_ENC1_LAST",
+        "PC_ENC2_LAST",
+        "PC_ENC3_LAST",
+        "PC_ENC4_LAST",
+    ],
+)
+def test_pva_last_captured_pvs(pva_context, pv_prefix, pv_name):
+    """Test that last captured value PVs can be read via PVAccess."""
+    full_pv = f"{pv_prefix}{pv_name}"
+    value = pva_context.get(full_pv, timeout=5.0)
+    assert value is not None
+
+
+def test_pva_status_message(pva_context, pv_prefix):
+    """Test that status message PV can be read via PVAccess."""
+    full_pv = f"{pv_prefix}STATUS_MSG"
+    value = pva_context.get(full_pv, timeout=5.0)
+    assert value is not None
+
+
+def test_pva_soft_in_write(pva_context, pv_prefix):
+    """Test writing to SOFT_IN via PVAccess."""
+    full_pv = f"{pv_prefix}SOFT_IN"
+    # Write a value
+    pva_context.put(full_pv, 5, timeout=5.0)
+    time.sleep(0.5)
+    # Read it back
+    value = pva_context.get(full_pv, timeout=5.0)
+    assert value == 5
+
+
+def test_pva_pc_enc_write(pva_context, pv_prefix):
+    """Test writing to PC_ENC via PVAccess."""
+    full_pv = f"{pv_prefix}PC_ENC"
+    # Write a value
+    pva_context.put(full_pv, 0, timeout=5.0)
+    time.sleep(0.5)
+    # Read it back
+    value = pva_context.get(full_pv, timeout=5.0)
+    assert value == 0

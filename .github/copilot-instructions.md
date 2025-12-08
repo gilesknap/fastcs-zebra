@@ -17,12 +17,15 @@ This project implements a FastCS driver for the Diamond Light Source Zebra posit
 
 **FastCS Integration: INITIAL IMPLEMENTATION ✅**
 - Basic EPICS IOC is functional and ready for hardware testing
+- Dependencies: `fastcs[epics]` provides both CA (Channel Access) and PVA (Process Variable Access) transports
+- Testing: Uses `epicscorelibs` for CA client testing and `p4p` for PVA client testing
 - Completed:
   - `src/fastcs_zebra/zebra_controller.py` - ZebraController with essential PVs
   - `src/fastcs_zebra/__main__.py` - EPICS IOC entry point with FastCS launcher
   - `docs/tutorials/epics-integration.md` - Complete EPICS usage guide
-  - `tests/test_epics_integration.py` - EPICS connectivity test script
+  - `tests/test_epics_integration.py` - Pytest-based EPICS integration tests for CA and PVA
   - Updated README.md with FastCS/EPICS focus
+  - Updated `pyproject.toml` to include `fastcs[epics]` dependency for EPICS transport support
 - Current PV Set (for testing Phase 1 functionality):
   - Connection status, firmware version, system state/error
   - Position compare control (encoder selection, prescaler, arm/disarm)
@@ -46,6 +49,16 @@ The immediate goal is to validate the Phase 1 serial communication layer and bas
 - Implement motor integration and position scaling
 - Add position compare waveform data arrays
 - Achieve full backward compatibility with legacy AreaDetector driver
+
+## Dependencies
+
+- **aioserial**: Asyncio-compatible serial I/O library for non-blocking serial communication
+- **fastcs[epics]**: FastCS framework with EPICS transport extras
+  - Provides CA (Channel Access) transport via `fastcs.transport.epics.ca`
+  - Provides PVA (Process Variable Access) transport via `fastcs.transport.epics.pva`
+  - Required for EPICS IOC functionality (`python -m fastcs_zebra`)
+- **epicscorelibs** (dev): EPICS Channel Access client library for testing
+- **p4p** (dev): EPICS PVAccess client library for testing
 
 ## Key Documentation
 
@@ -177,13 +190,16 @@ These specifications document the complete Zebra serial protocol and EPICS PV in
 
 ### Hardware Testing Procedure
 ```bash
+# Install with EPICS support (if not already installed)
+pip install -e ".[epics]"  # or: pip install fastcs[epics]
+
 # Start the EPICS IOC
 python -m fastcs_zebra --port /dev/ttyUSB0 --pv-prefix TEST:ZEBRA: --log-level DEBUG
 
-# In another terminal, run tests
-python tests/test_epics_integration.py --prefix TEST:ZEBRA:
+# In another terminal, run EPICS integration tests (pytest)
+pytest tests/test_epics_integration.py -v --prefix TEST:ZEBRA:
 
-# Manual EPICS testing
+# Or use EPICS command-line tools for manual testing
 caget TEST:ZEBRA:CONNECTED
 caget TEST:ZEBRA:SYS_VER
 caput TEST:ZEBRA:SOFT_IN 5
@@ -193,6 +209,7 @@ camonitor TEST:ZEBRA:PC_ENC1_LAST
 
 ### CLI Testing (without EPICS)
 ```bash
+# CLI tool only requires aioserial, not fastcs[epics]
 python -m fastcs_zebra.cli /dev/ttyUSB0
 # Interactive commands: r, w, r32, w32, save, load, arm, disarm
 ```
