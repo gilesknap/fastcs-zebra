@@ -10,10 +10,6 @@ import logging
 from argparse import ArgumentParser
 from collections.abc import Sequence
 
-from fastcs.launch import FastCS
-from fastcs.transport.epics.ca import EpicsCATransport
-from fastcs.transport.epics.options import EpicsIOCOptions
-
 from . import __version__
 from .zebra_controller import ZebraController
 
@@ -56,6 +52,16 @@ def main(args: Sequence[str] | None = None) -> None:
         level=getattr(logging, parsed_args.log_level),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
+
+    # Import FastCS components (optional dependency for EPICS)
+    try:
+        from fastcs.launch import FastCS
+        from fastcs.transport.epics.ca import EpicsCATransport
+        from fastcs.transport.epics.options import EpicsIOCOptions
+    except ImportError as e:
+        print(f"Error: FastCS EPICS transport not available: {e}")
+        print("Please install with: pip install 'fastcs[ca]'")
+        return
 
     # Create controller
     controller = ZebraController(port=parsed_args.port)

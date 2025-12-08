@@ -19,7 +19,7 @@ def run_command(cmd: list[str]) -> tuple[int, str, str]:
     return result.returncode, result.stdout.strip(), result.stderr.strip()
 
 
-def test_pv_exists(pv_name: str) -> bool:
+def check_pv_exists(pv_name: str) -> bool:
     """Test if a PV exists and can be read."""
     code, stdout, stderr = run_command(["caget", pv_name])
     if code == 0:
@@ -30,7 +30,7 @@ def test_pv_exists(pv_name: str) -> bool:
         return False
 
 
-def test_pv_write(pv_name: str, value: str) -> bool:
+def check_pv_write(pv_name: str, value: str) -> bool:
     """Test if a PV can be written."""
     code, stdout, stderr = run_command(["caput", pv_name, value])
     if code == 0:
@@ -62,7 +62,7 @@ def main():
     # Test read-only PVs
     print("\n--- Testing Read-Only PVs ---")
     for pv in ["CONNECTED", "SYS_VER", "SYS_STATERR", "PC_NUM_CAP"]:
-        if test_pv_exists(f"{prefix}{pv}"):
+        if check_pv_exists(f"{prefix}{pv}"):
             passed += 1
         else:
             failed += 1
@@ -70,7 +70,7 @@ def main():
     # Test read-write PVs
     print("\n--- Testing Read-Write PVs ---")
     for pv in ["PC_ENC", "PC_TSPRE", "SOFT_IN"]:
-        if test_pv_exists(f"{prefix}{pv}"):
+        if check_pv_exists(f"{prefix}{pv}"):
             passed += 1
         else:
             failed += 1
@@ -84,31 +84,31 @@ def main():
         "PC_ENC3_LAST",
         "PC_ENC4_LAST",
     ]:
-        if test_pv_exists(f"{prefix}{pv}"):
+        if check_pv_exists(f"{prefix}{pv}"):
             passed += 1
         else:
             failed += 1
 
     # Test status message
     print("\n--- Testing Status Message ---")
-    if test_pv_exists(f"{prefix}STATUS_MSG"):
+    if check_pv_exists(f"{prefix}STATUS_MSG"):
         passed += 1
     else:
         failed += 1
 
     # Test writes
     print("\n--- Testing Write Operations ---")
-    if test_pv_write(f"{prefix}SOFT_IN", "5"):
+    if check_pv_write(f"{prefix}SOFT_IN", "5"):
         passed += 1
         time.sleep(0.5)
-        test_pv_exists(f"{prefix}SOFT_IN")  # Verify the write
+        check_pv_exists(f"{prefix}SOFT_IN")  # Verify the write
     else:
         failed += 1
 
-    if test_pv_write(f"{prefix}PC_ENC", "0"):
+    if check_pv_write(f"{prefix}PC_ENC", "0"):
         passed += 1
         time.sleep(0.5)
-        test_pv_exists(f"{prefix}PC_ENC")  # Verify the write
+        check_pv_exists(f"{prefix}PC_ENC")  # Verify the write
     else:
         failed += 1
 
