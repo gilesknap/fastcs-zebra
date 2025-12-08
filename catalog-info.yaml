@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fastcs-zebra
+  title: fastcs-zebra
+  description: An EPICS driver for the zebra box
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/beamline-controls

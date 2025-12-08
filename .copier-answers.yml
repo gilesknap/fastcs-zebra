@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier
+_commit: 5.0.1
+_src_path: https://github.com/DiamondLightSource/python-copier-template
+author_email: giles.knap@diamond.ac.uk
+author_name: Giles Knap
+component_lifecycle: experimental
+component_owner: group:default/beamline-controls
+component_type: service
+description: An EPICS driver for the zebra box
+distribution_name: fastcs-zebra
+docker: true
+docker_debug: false
+docs_type: sphinx
+git_platform: github.com
+github_org: DiamondLightSource
+package_name: fastcs_zebra
+pypi: true
+repo_name: fastcs-zebra
+strict_typing: false
+type_checker: pyright
