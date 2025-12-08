@@ -68,7 +68,8 @@ These specifications document the complete Zebra serial protocol and EPICS PV in
 ## Implementation Strategy
 
 ### Phase 1: Serial Communication Layer
-1. Implement serial port interface (pyserial)
+1. Implement serial port interface using asyncio-compatible library (e.g., `pyserial-asyncio` or `aioserial`)
+   - **Important**: FastCS uses asyncio, so serial communication must be non-blocking
 2. Create request/response handling (R/W commands)
 3. Add interrupt message parsing (P messages)
 4. Implement register read/write with verification
