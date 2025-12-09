@@ -215,23 +215,28 @@ class ZebraController(Controller):
 
     async def _monitor_interrupts(self) -> None:
         """Background task to monitor for interrupt messages."""
-        while self._transport and self._transport.connected:
-            try:
-                # Try to read interrupt with short timeout
-                message = await self._transport.read_interrupt(timeout=0.1)
+        try:
+            while self._transport and self._transport.connected:
+                try:
+                    # Try to read interrupt with short timeout
+                    message = await self._transport.read_interrupt(timeout=0.1)
 
-                # Check if it's an interrupt
-                if message.startswith("P"):
-                    await self._interrupt_handler.handle_message(message)
-                else:
-                    logger.warning(f"Unexpected message: {message!r}")
+                    # Check if it's an interrupt
+                    if message.startswith("P"):
+                        await self._interrupt_handler.handle_message(message)
+                    else:
+                        logger.warning(f"Unexpected message: {message!r}")
 
-            except TimeoutError:
-                # No data available, continue
-                await asyncio.sleep(0.01)
-            except Exception as e:
-                logger.error(f"Error monitoring interrupts: {e}")
-                await asyncio.sleep(0.1)
+                except TimeoutError:
+                    # No data available, continue
+                    await asyncio.sleep(0.01)
+                except Exception as e:
+                    logger.error(f"Error monitoring interrupts: {e}")
+                    await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            # Task was cancelled during shutdown - this is expected
+            logger.debug("Interrupt monitoring task cancelled")
+            raise
 
     # Commands
 

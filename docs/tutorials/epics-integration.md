@@ -14,6 +14,26 @@ Options:
 - `--port`: Serial port path (required)
 - `--pv-prefix`: EPICS PV prefix (default: `ZEBRA:`)
 - `--log-level`: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- `--gui`: Generate Phoebus screen file (e.g., `zebra.bob`)
+
+### Generating Phoebus Screens
+
+To automatically generate a Phoebus operator interface screen:
+
+```bash
+python -m fastcs_zebra --port /dev/ttyUSB0 \
+    --pv-prefix BL99I-EA-ZEBRA-01: \
+    --gui zebra.bob
+```
+
+This creates a `zebra.bob` file that you can open in Phoebus. The screen automatically includes:
+- Connection status indicators
+- System information displays
+- Position compare controls
+- Command buttons
+- Real-time readback values
+
+See [Generate Phoebus Screens](../how-to/generate-phoebus-screens.md) for more details.
 
 ## Available EPICS PVs
 

@@ -28,7 +28,15 @@ Releases        | <https://github.com/DiamondLightSource/fastcs-zebra/releases>
 pip install fastcs-zebra
 
 # Start the EPICS server
-python -m fastcs_zebra --port /dev/ttyUSB0 --pv-prefix BL99I-EA-ZEBRA-01:
+python -m fastcs_zebra --port /dev/ttyUSB0 --pv-prefix BL99I-EA-ZEBRA-01
+
+# Or for a simulation zebra
+python -m fastcs_zebra --port sim://zebra01 --pv-prefix TEST-ZEB
+
+# Generate a Phoebus screen file
+python -m fastcs_zebra --port /dev/ttyUSB0 \
+    --pv-prefix BL99I-EA-ZEBRA-01: \
+    --gui zebra.bob
 ```
 
 ### Testing with EPICS Tools

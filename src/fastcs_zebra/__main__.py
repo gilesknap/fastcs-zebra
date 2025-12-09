@@ -9,6 +9,7 @@ Usage:
 import logging
 from argparse import ArgumentParser
 from collections.abc import Sequence
+from pathlib import Path
 
 from . import __version__
 from .zebra_controller import ZebraController
@@ -44,6 +45,12 @@ def main(args: Sequence[str] | None = None) -> None:
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Logging level (default: INFO)",
     )
+    parser.add_argument(
+        "--gui",
+        type=str,
+        default=None,
+        help="Generate Phoebus screen file (e.g., zebra.bob)",
+    )
 
     parsed_args = parser.parse_args(args)
 
@@ -57,7 +64,10 @@ def main(args: Sequence[str] | None = None) -> None:
     try:
         from fastcs.launch import FastCS
         from fastcs.transports.epics.ca import EpicsCATransport
-        from fastcs.transports.epics.options import EpicsIOCOptions
+        from fastcs.transports.epics.options import (
+            EpicsGUIOptions,
+            EpicsIOCOptions,
+        )
     except ImportError as e:
         print(f"Error: FastCS EPICS transport not available: {e}")
         print("Please install with: pip install 'fastcs[ca]'")
@@ -66,9 +76,19 @@ def main(args: Sequence[str] | None = None) -> None:
     # Create controller
     controller = ZebraController(port=parsed_args.port)
 
+    # Setup GUI options if requested
+    gui_options = None
+    if parsed_args.gui:
+        gui_path = Path(parsed_args.gui)
+        gui_options = EpicsGUIOptions(
+            output_path=gui_path,
+            title="Zebra Position Compare Controller",
+        )
+
     # Create EPICS transport
     transport = EpicsCATransport(
-        epicsca=EpicsIOCOptions(pv_prefix=parsed_args.pv_prefix)
+        gui=gui_options,
+        epicsca=EpicsIOCOptions(pv_prefix=parsed_args.pv_prefix),
     )
 
     # Launch FastCS
