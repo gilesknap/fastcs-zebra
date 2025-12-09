@@ -6,17 +6,75 @@ and logic hardware through the serial protocol layer.
 
 import asyncio
 import logging
+from dataclasses import dataclass
+from typing import TypeVar
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrRW
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
-from fastcs.methods import command, scan
+from fastcs.methods import command
 
 from .interrupts import InterruptHandler, PositionCompareData
 from .protocol import ZebraProtocol
 from .transport import ZebraTransport
 
 logger = logging.getLogger(__name__)
+
+NumberT = TypeVar("NumberT", int, float)
+
+
+@dataclass
+class ZebraRegisterIORef(AttributeIORef):
+    """Reference for Zebra register IO operations."""
+
+    register: int = 0  # Register address (0x00-0xFF)
+    is_32bit: bool = False  # True if this is a 32-bit register pair
+    register_hi: int | None = None  # High register for 32-bit values
+    update_period: float | None = 1.0  # Poll every second by default
+
+
+class ZebraRegisterIO(AttributeIO[NumberT, ZebraRegisterIORef]):
+    """Handles reading from and writing to Zebra registers."""
+
+    def __init__(self, protocol: ZebraProtocol | None):
+        super().__init__()
+        self._protocol = protocol
+
+    async def update(self, attr):
+        """Read value from Zebra register and update attribute."""
+        if not self._protocol:
+            return
+
+        try:
+            if attr.io_ref.is_32bit and attr.io_ref.register_hi is not None:
+                value = await self._protocol.read_register_32bit(
+                    attr.io_ref.register, attr.io_ref.register_hi
+                )
+            else:
+                value = await self._protocol.read_register(attr.io_ref.register)
+
+            await attr.update(attr.dtype(value))
+        except Exception as e:
+            logger.error(f"Error reading register 0x{attr.io_ref.register:02X}: {e}")
+
+    async def send(self, attr):
+        """Write attribute value to Zebra register."""
+        if not self._protocol:
+            return
+
+        try:
+            value = int(attr.get())
+            if attr.io_ref.is_32bit and attr.io_ref.register_hi is not None:
+                # Write 32-bit value as LO/HI pair
+                lo_value = value & 0xFFFF
+                hi_value = (value >> 16) & 0xFFFF
+                await self._protocol.write_register(attr.io_ref.register, lo_value)
+                await self._protocol.write_register(attr.io_ref.register_hi, hi_value)
+            else:
+                await self._protocol.write_register(attr.io_ref.register, value)
+
+        except Exception as e:
+            logger.error(f"Error writing register 0x{attr.io_ref.register:02X}: {e}")
 
 
 class ZebraController(Controller):
@@ -32,46 +90,61 @@ class ZebraController(Controller):
         Args:
             port: Serial port path (e.g., '/dev/ttyUSB0', 'COM3')
         """
-        super().__init__()
-
         self._port = port
         self._transport: ZebraTransport | None = None
         self._protocol: ZebraProtocol | None = None
         self._interrupt_handler = InterruptHandler()
         self._interrupt_task: asyncio.Task | None = None
 
-        # Connection status
+        # Create IO handler (will be set to actual protocol after connect)
+        self._register_io = ZebraRegisterIO(None)
+
+        super().__init__(ios=[self._register_io])
+
+        # Connection status (no IO, updated manually)
         self.connected = AttrR(Bool())
 
         # Firmware version (register 0xF0)
-        self.sys_ver = AttrR(Int())
+        self.sys_ver = AttrR(
+            Int(), io_ref=ZebraRegisterIORef(register=0xF0, update_period=10.0)
+        )
 
         # System state/error (register 0xF1)
-        self.sys_staterr = AttrR(Int())
+        self.sys_staterr = AttrR(
+            Int(), io_ref=ZebraRegisterIORef(register=0xF1, update_period=1.0)
+        )
 
         # Number of position compare captures (registers 0xF6/0xF7)
-        self.pc_num_cap = AttrR(Int())
+        self.pc_num_cap = AttrR(
+            Int(),
+            io_ref=ZebraRegisterIORef(
+                register=0xF6, is_32bit=True, register_hi=0xF7, update_period=1.0
+            ),
+        )
 
         # Position compare encoder selection (register 0x88)
-        self.pc_enc = AttrRW(Int())
-        self.pc_enc.set_on_put_callback(self._on_put_pc_enc)
+        self.pc_enc = AttrRW(
+            Int(), io_ref=ZebraRegisterIORef(register=0x88, update_period=1.0)
+        )
 
         # Position compare timestamp prescaler (register 0x89)
-        self.pc_tspre = AttrRW(Int())
-        self.pc_tspre.set_on_put_callback(self._on_put_pc_tspre)
+        self.pc_tspre = AttrRW(
+            Int(), io_ref=ZebraRegisterIORef(register=0x89, update_period=1.0)
+        )
 
         # Soft inputs (register 0x7F)
-        self.soft_in = AttrRW(Int())
-        self.soft_in.set_on_put_callback(self._on_put_soft_in)
+        self.soft_in = AttrRW(
+            Int(), io_ref=ZebraRegisterIORef(register=0x7F, update_period=1.0)
+        )
 
-        # Last captured position compare data (updated via interrupts)
+        # Last captured position compare data (updated via interrupts, no IO)
         self.pc_time_last = AttrR(Int())
         self.pc_enc1_last = AttrR(Int())
         self.pc_enc2_last = AttrR(Int())
         self.pc_enc3_last = AttrR(Int())
         self.pc_enc4_last = AttrR(Int())
 
-        # Status message
+        # Status message (no IO)
         self.status_msg = AttrR(String())
 
     async def connect(self) -> None:
@@ -81,35 +154,42 @@ class ZebraController(Controller):
             await self._transport.connect()
             self._protocol = ZebraProtocol(self._transport)
 
+            # Update the IO handler with the actual protocol
+            self._register_io._protocol = self._protocol
+
+            # Update connection status
+            await self.connected.update(True)
+            await self.status_msg.update("Connected")
+
             # Setup interrupt handler callbacks
             @self._interrupt_handler.on_reset
             async def on_reset():
                 logger.info("Position compare reset")
-                await self.status_msg.set("PC Reset")
+                await self.status_msg.update("PC Reset")
 
             @self._interrupt_handler.on_data
             async def on_data(data: PositionCompareData):
                 # Update last captured values
-                await self.pc_time_last.set(data.timestamp)
+                await self.pc_time_last.update(data.timestamp)
                 if data.encoder1 is not None:
-                    await self.pc_enc1_last.set(data.encoder1)
+                    await self.pc_enc1_last.update(data.encoder1)
                 if data.encoder2 is not None:
-                    await self.pc_enc2_last.set(data.encoder2)
+                    await self.pc_enc2_last.update(data.encoder2)
                 if data.encoder3 is not None:
-                    await self.pc_enc3_last.set(data.encoder3)
+                    await self.pc_enc3_last.update(data.encoder3)
                 if data.encoder4 is not None:
-                    await self.pc_enc4_last.set(data.encoder4)
+                    await self.pc_enc4_last.update(data.encoder4)
 
             @self._interrupt_handler.on_end
             async def on_end():
                 logger.info("Position compare complete")
-                await self.status_msg.set("PC Complete")
+                await self.status_msg.update("PC Complete")
 
             # Start interrupt monitoring
             self._interrupt_task = asyncio.create_task(self._monitor_interrupts())
 
             logger.info(f"Connected to Zebra on {self._port}")
-            await self.status_msg.set(f"Connected to {self._port}")
+            await self.status_msg.update(f"Connected to {self._port}")
 
         except Exception as e:
             logger.error(f"Failed to connect: {e}")
@@ -131,7 +211,7 @@ class ZebraController(Controller):
             self._protocol = None
 
         logger.info("Disconnected from Zebra")
-        await self.status_msg.set("Disconnected")
+        await self.status_msg.update("Disconnected")
 
     async def _monitor_interrupts(self) -> None:
         """Background task to monitor for interrupt messages."""
@@ -153,83 +233,6 @@ class ZebraController(Controller):
                 logger.error(f"Error monitoring interrupts: {e}")
                 await asyncio.sleep(0.1)
 
-    # Periodic scans to update read-only attributes
-
-    @scan(1.0)  # Update every second
-    async def update_status(self):
-        """Periodically update connection, version, and status attributes."""
-        if self._transport and self._transport.connected:
-            await self.connected.update(True)
-
-            if self._protocol:
-                # Read firmware version
-                try:
-                    version = await self._protocol.read_register(0xF0)
-                    await self.sys_ver.update(version)
-                except Exception as e:
-                    logger.error(f"Error reading sys_ver: {e}")
-
-                # Read system state/error
-                try:
-                    staterr = await self._protocol.read_register(0xF1)
-                    await self.sys_staterr.update(staterr)
-                except Exception as e:
-                    logger.error(f"Error reading sys_staterr: {e}")
-
-                # Read position compare capture count
-                try:
-                    num_cap = await self._protocol.read_register_32bit(0xF6, 0xF7)
-                    await self.pc_num_cap.update(num_cap)
-                except Exception as e:
-                    logger.error(f"Error reading pc_num_cap: {e}")
-
-                # Read current register values for RW attributes
-                try:
-                    pc_enc = await self._protocol.read_register(0x88)
-                    await self.pc_enc.update(pc_enc)
-                except Exception as e:
-                    logger.error(f"Error reading pc_enc: {e}")
-
-                try:
-                    pc_tspre = await self._protocol.read_register(0x89)
-                    await self.pc_tspre.update(pc_tspre)
-                except Exception as e:
-                    logger.error(f"Error reading pc_tspre: {e}")
-
-                try:
-                    soft_in = await self._protocol.read_register(0x7F)
-                    await self.soft_in.update(soft_in)
-                except Exception as e:
-                    logger.error(f"Error reading soft_in: {e}")
-        else:
-            await self.connected.update(False)
-
-    # AttrRW on_put callbacks
-
-    async def _on_put_pc_enc(self, attr: AttrRW, value: int) -> None:
-        """Write position compare encoder selection (0x88)."""
-        if self._protocol:
-            await self._protocol.write_register(0x88, value)
-            # Update the readback value
-            actual = await self._protocol.read_register(0x88)
-            await attr.update(actual)
-
-    async def _on_put_pc_tspre(self, attr: AttrRW, value: int) -> None:
-        """Write position compare timestamp prescaler (0x89)."""
-        if self._protocol:
-            await self._protocol.write_register(0x89, value)
-            # Update the readback value
-            actual = await self._protocol.read_register(0x89)
-            await attr.update(actual)
-
-    async def _on_put_soft_in(self, attr: AttrRW, value: int) -> None:
-        """Write soft inputs register (0x7F)."""
-        if self._protocol:
-            await self._protocol.write_register(0x7F, value & 0x0F)
-            # Update the readback value
-            actual = await self._protocol.read_register(0x7F)
-            await attr.update(actual)
-
     # Commands
 
     @command()
@@ -238,7 +241,7 @@ class ZebraController(Controller):
         if self._protocol:
             await self._protocol.write_register(0x8B, 1)
             logger.info("Position compare armed")
-            await self.status_msg.set("PC Armed")
+            await self.status_msg.update("PC Armed")
 
     @command()
     async def pc_disarm(self) -> None:
@@ -246,7 +249,7 @@ class ZebraController(Controller):
         if self._protocol:
             await self._protocol.write_register(0x8C, 1)
             logger.info("Position compare disarmed")
-            await self.status_msg.set("PC Disarmed")
+            await self.status_msg.update("PC Disarmed")
 
     @command()
     async def save_to_flash(self) -> None:
@@ -254,7 +257,7 @@ class ZebraController(Controller):
         if self._protocol:
             await self._protocol.flash_command("S")
             logger.info("Configuration saved to flash")
-            await self.status_msg.set("Saved to flash")
+            await self.status_msg.update("Saved to flash")
 
     @command()
     async def load_from_flash(self) -> None:
@@ -262,7 +265,7 @@ class ZebraController(Controller):
         if self._protocol:
             await self._protocol.flash_command("L")
             logger.info("Configuration loaded from flash")
-            await self.status_msg.set("Loaded from flash")
+            await self.status_msg.update("Loaded from flash")
 
     @command()
     async def sys_reset(self) -> None:
@@ -270,4 +273,4 @@ class ZebraController(Controller):
         if self._protocol:
             await self._protocol.write_register(0x7E, 1)
             logger.info("System reset")
-            await self.status_msg.set("System reset")
+            await self.status_msg.update("System reset")

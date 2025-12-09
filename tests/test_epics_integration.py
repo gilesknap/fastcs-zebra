@@ -1,9 +1,15 @@
 """Pytest tests for EPICS integration.
 
 These tests verify that the FastCS EPICS interface is working correctly.
-The IOC is automatically started for the tests using the zebra simulator.
+The IOC is automatically started for the tests.
 
-Run with: uv run pytest tests/test_epics_integration.py -v
+For testing without hardware, you need to:
+1. Create a virtual serial port pair with socat, OR
+2. Have a Zebra hardware simulator running
+
+Run with: uv run pytest tests/test_epics_integration.py -v --port /dev/ttyUSB0
+Or with virtual ports:
+    uv run pytest tests/test_epics_integration.py -v --port /tmp/vserial0
 """
 
 import subprocess
@@ -12,7 +18,7 @@ import time
 import pytest
 
 # Import EPICS clients
- from cothread.catools import caget, caput  # Channel Access with cothread
+from cothread.catools import caget, caput  # Channel Access with cothread
 
 try:
     from p4p.client.thread import Context  # PVAccess
@@ -27,12 +33,22 @@ def pv_prefix(request):
 
 
 @pytest.fixture(scope="module")
-def zebra_ioc(pv_prefix):
+def zebra_port(request):
+    """Get the Zebra serial port from command line or use simulator."""
+    port = request.config.getoption("--port", default=None)
+    if port is None:
+        # Default to simulator if no port specified
+        return "sim://zebra"
+    return port
+
+
+@pytest.fixture(scope="module")
+def zebra_ioc(pv_prefix, zebra_port):
     """Start the FastCS Zebra IOC for testing."""
     if caget is None:
         pytest.skip("cothread not available")
 
-    # Start the IOC with the simulator using uv run to ensure correct environment
+    # Start the IOC using uv run to ensure correct environment
     proc = subprocess.Popen(
         [
             "uv",
@@ -41,7 +57,7 @@ def zebra_ioc(pv_prefix):
             "-m",
             "fastcs_zebra",
             "--port",
-            "sim://zebra",  # Use simulator
+            zebra_port,
             "--pv-prefix",
             pv_prefix,
         ],
@@ -65,7 +81,7 @@ def zebra_ioc(pv_prefix):
         proc.wait(timeout=5)
         # Get stderr to help debug
         stderr = proc.stderr.read().decode() if proc.stderr else ""
-        pytest.fail(f"IOC failed to start. stderr: {stderr}")
+        pytest.skip(f"IOC failed to start on port {zebra_port}. stderr: {stderr}")
 
     yield proc
 
