@@ -89,6 +89,7 @@ These specifications document the complete Zebra serial protocol and EPICS PV in
 ### FastCS Framework
 - **FastCS Repository**: https://github.com/DiamondLightSource/FastCS
 - **FastCS Documentation**: https://diamondlightsource.github.io/FastCS/
+- **Create EPICS IOC with CA and PVA**: https://github.com/DiamondLightSource/FastCS/blob/docs-claude/docs/how-to/create-epics-ioc-with-ca-and-pva.md
 
 ## Important Technical Details
 
@@ -191,13 +192,13 @@ These specifications document the complete Zebra serial protocol and EPICS PV in
 ### Hardware Testing Procedure
 ```bash
 # Install with EPICS support (if not already installed)
-pip install -e ".[epics]"  # or: pip install fastcs[epics]
+uv pip install -e ".[epics]"  # or: uv pip install fastcs[epics]
 
 # Start the EPICS IOC
-python -m fastcs_zebra --port /dev/ttyUSB0 --pv-prefix TEST:ZEBRA: --log-level DEBUG
+uv run python -m fastcs_zebra --port /dev/ttyUSB0 --pv-prefix TEST:ZEBRA: --log-level DEBUG
 
 # In another terminal, run EPICS integration tests (pytest)
-pytest tests/test_epics_integration.py -v --prefix TEST:ZEBRA:
+uv run pytest tests/test_epics_integration.py -v --prefix TEST:ZEBRA:
 
 # Or use EPICS command-line tools for manual testing
 caget TEST:ZEBRA:CONNECTED
@@ -210,7 +211,7 @@ camonitor TEST:ZEBRA:PC_ENC1_LAST
 ### CLI Testing (without EPICS)
 ```bash
 # CLI tool only requires aioserial, not fastcs[epics]
-python -m fastcs_zebra.cli /dev/ttyUSB0
+uv run python -m fastcs_zebra.cli /dev/ttyUSB0
 # Interactive commands: r, w, r32, w32, save, load, arm, disarm
 ```
 

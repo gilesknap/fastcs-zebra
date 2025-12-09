@@ -21,6 +21,7 @@ requires-python = ">=3.11"
 [dependency-groups]
 dev = [
     "copier",
+    "cothread",
     "epicscorelibs",
     "myst-parser",
     "p4p",

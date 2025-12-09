@@ -56,8 +56,8 @@ def main(args: Sequence[str] | None = None) -> None:
     # Import FastCS components (optional dependency for EPICS)
     try:
         from fastcs.launch import FastCS
-        from fastcs.transport.epics.ca import EpicsCATransport
-        from fastcs.transport.epics.options import EpicsIOCOptions
+        from fastcs.transports.epics.ca import EpicsCATransport
+        from fastcs.transports.epics.options import EpicsIOCOptions
     except ImportError as e:
         print(f"Error: FastCS EPICS transport not available: {e}")
         print("Please install with: pip install 'fastcs[ca]'")

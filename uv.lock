@@ -249,6 +249,21 @@ wheels = [
 ]
 
 [[package]]
+name = "cothread"
+version = "2.20.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2f/71/5c89814e97f76d89e26314791dedfa199c4a75ce683570a6e300b88a6d56/cothread-2.20.1.tar.gz", hash = "sha256:8bda49ba22e2455d7f85007656aacb8edaffcd8306ea82f5fbcb8640a6ebaeca", size = 385021, upload-time = "2025-05-20T10:30:01.767Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/5e/2c51c6ce1de0d9e856584c04356c9915ffe8fb86cfd80a3f733d80616f24/cothread-2.20.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9d29ffb6dde2ea9ec7d803d9676fd64bdfcd8dbffb3758bc555362db213d4b25", size = 105246, upload-time = "2025-05-20T10:29:52.519Z" },
+    { url = "https://files.pythonhosted.org/packages/52/cc/3f0b2b5a0d10189c8ed4da6da0159da9c90581c04dc0b442476580fe252f/cothread-2.20.1-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:33b8598a4ab4ad0fd00249234daff6fdcde531cb4fa549dd65d8fd2f7284532b", size = 108112, upload-time = "2025-05-20T10:29:53.398Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/e4/7db493cfbb9637578dc7d0f15402633cb278604f6253a06bd83c9d934087/cothread-2.20.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc45c93b4f974f6935af2ab6e4fed43ec39c411c7c69640b8f29f81c05992477", size = 105049, upload-time = "2025-05-20T10:29:54.238Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/6d/6241d8cbac7b2f92a8005182e1fe623dadb12e512b533dd5a00c38891cdf/cothread-2.20.1-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:2e2212ff28470a1100d4a837bf346576c87170e045a04afadcf71b3e62cdf7df", size = 107919, upload-time = "2025-05-20T10:29:55.168Z" },
+]
+
+[[package]]
 name = "coverage"
 version = "7.13.0"
 source = { registry = "https://pypi.org/simple" }
@@ -638,6 +653,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "copier" },
+    { name = "cothread" },
     { name = "epicscorelibs" },
     { name = "myst-parser" },
     { name = "p4p" },
@@ -663,6 +679,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "copier" },
+    { name = "cothread" },
     { name = "epicscorelibs" },
     { name = "myst-parser" },
     { name = "p4p" },
