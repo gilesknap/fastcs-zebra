@@ -8,7 +8,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--prefix",
         action="store",
-        default="ZEBRA:",
+        default="ZEBRA",
         help="EPICS PV prefix (default: ZEBRA:)",
     )
     parser.addoption(

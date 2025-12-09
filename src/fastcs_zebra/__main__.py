@@ -35,8 +35,8 @@ def main(args: Sequence[str] | None = None) -> None:
     parser.add_argument(
         "--pv-prefix",
         type=str,
-        default="ZEBRA:",
-        help="EPICS PV prefix (default: ZEBRA:)",
+        default="ZEBRA",
+        help="EPICS PV prefix (default: ZEBRA)",
     )
     parser.add_argument(
         "--log-level",
