@@ -9,7 +9,7 @@ For testing without hardware, you need to:
 
 Run with: uv run pytest tests/test_epics_integration.py -v --port /dev/ttyUSB0
 Or with virtual ports:
-    uv run pytest tests/test_epics_integration.py -v --port /tmp/vserial0
+    uv run pytest tests/test_epics_integration.py -v
 """
 
 import subprocess
