@@ -99,14 +99,16 @@ class ZebraSimulator:
                 logger.debug(f"Simulator: Write reg 0x{addr:02X} = 0x{value:04X}")
 
                 # Handle special registers
-                response = ""
+                write_response = f"W{addr:02X}OK"
 
                 # PC_ARM (0x8B) - Start position compare
                 if addr == 0x8B and value == 1:
                     logger.info("Simulator: Position compare armed")
                     self._armed = True
                     self._pc_counter = 0
-                    response = "PR\n"  # Reset buffers message
+                    # Send PR (reset buffers) as interrupt message via callback
+                    if self._send_callback:
+                        self._send_callback("PR")
                     # Start generating position compare data
                     if self._pc_task is None or self._pc_task.done():
                         self._pc_task = asyncio.create_task(
@@ -117,11 +119,13 @@ class ZebraSimulator:
                 elif addr == 0x8C and value == 1:
                     logger.info("Simulator: Position compare disarmed")
                     self._armed = False
-                    response = "PX\n"  # End of acquisition message
+                    # Send PX (end of acquisition) as interrupt message via callback
+                    if self._send_callback:
+                        self._send_callback("PX")
                     if self._pc_task and not self._pc_task.done():
                         self._pc_task.cancel()
 
-                return response + f"W{addr:02X}OK"
+                return write_response
 
             except ValueError:
                 return "E0"

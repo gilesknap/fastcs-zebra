@@ -217,8 +217,8 @@ class ZebraController(Controller):
         """Background task to monitor for interrupt messages."""
         while self._transport and self._transport.connected:
             try:
-                # Try to read with short timeout
-                message = await self._transport.read_line(timeout=0.1)
+                # Try to read interrupt with short timeout
+                message = await self._transport.read_interrupt(timeout=0.1)
 
                 # Check if it's an interrupt
                 if message.startswith("P"):

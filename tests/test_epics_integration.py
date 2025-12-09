@@ -49,6 +49,7 @@ def zebra_ioc(pv_prefix, zebra_port):
         pytest.skip("cothread not available")
 
     # Start the IOC using uv run to ensure correct environment
+    # Don't capture stdout/stderr to allow interactive shell to run
     proc = subprocess.Popen(
         [
             "uv",
@@ -61,8 +62,8 @@ def zebra_ioc(pv_prefix, zebra_port):
             "--pv-prefix",
             pv_prefix,
         ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
     # Wait for IOC to be ready (try connecting to a PV)
@@ -79,9 +80,7 @@ def zebra_ioc(pv_prefix, zebra_port):
     if not connected:
         proc.terminate()
         proc.wait(timeout=5)
-        # Get stderr to help debug
-        stderr = proc.stderr.read().decode() if proc.stderr else ""
-        pytest.skip(f"IOC failed to start on port {zebra_port}. stderr: {stderr}")
+        pytest.skip(f"IOC failed to start on port {zebra_port}")
 
     yield proc
 

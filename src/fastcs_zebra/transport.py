@@ -44,8 +44,8 @@ class ZebraTransport:
 
         # Simulation mode components
         self._simulator = None
-        self._sim_rx_queue: asyncio.Queue[str] | None = None
-        self._sim_tx_queue: asyncio.Queue[str] | None = None
+        self._sim_interrupt_queue: asyncio.Queue[str] | None = None
+        self._sim_last_response: str | None = None
 
         if not self._is_simulation and aioserial is None:
             raise ImportError(
@@ -69,13 +69,12 @@ class ZebraTransport:
 
             logger.info(f"Starting Zebra simulator for {self.port}")
             self._simulator = ZebraSimulator()
-            self._sim_rx_queue = asyncio.Queue()
-            self._sim_tx_queue = asyncio.Queue()
+            self._sim_interrupt_queue = asyncio.Queue()
 
             # Set callback for simulator to send interrupt messages
             def send_interrupt(message: str):
-                if self._sim_rx_queue:
-                    self._sim_rx_queue.put_nowait(message)
+                if self._sim_interrupt_queue:
+                    self._sim_interrupt_queue.put_nowait(message)
 
             self._simulator.set_send_callback(send_interrupt)
 
@@ -108,8 +107,8 @@ class ZebraTransport:
             if self._simulator:
                 self._simulator.reset()
                 self._simulator = None
-            self._sim_rx_queue = None
-            self._sim_tx_queue = None
+            self._sim_interrupt_queue = None
+            self._sim_last_response = None
         else:
             if self._serial:
                 self._serial.close()
@@ -143,16 +142,11 @@ class ZebraTransport:
         logger.debug(f"TX: {data!r}")
 
         if self._is_simulation:
-            # Queue command for simulator processing
-            if self._sim_tx_queue:
-                await self._sim_tx_queue.put(data)
-
-                # Process command and get response
-                if self._simulator:
-                    response = await self._simulator.process_command(data)
-                    # Queue response for reading
-                    if response and self._sim_rx_queue:
-                        self._sim_rx_queue.put_nowait(response)
+            # Process command and store response for next read_line
+            if self._simulator:
+                response = await self._simulator.process_command(data)
+                # Store response to be returned by next read_line() call
+                self._sim_last_response = response
         else:
             line = data + "\n"
             await self._serial.write_async(  # type: ignore[union-attr]
@@ -163,6 +157,7 @@ class ZebraTransport:
         """Read a line of text from the Zebra or simulator.
 
         Reads until newline terminator, which is stripped from result.
+        In simulation mode, returns the last command response.
 
         Args:
             timeout: Read timeout in seconds (uses default if None)
@@ -182,11 +177,14 @@ class ZebraTransport:
 
         try:
             if self._is_simulation:
-                # Read from simulator response queue
-                if not self._sim_rx_queue:
-                    raise RuntimeError("Simulator not properly initialized")
-
-                line = await asyncio.wait_for(self._sim_rx_queue.get(), timeout=timeout)
+                # Return the stored response from last write_line
+                if self._sim_last_response is not None:
+                    line = self._sim_last_response
+                    self._sim_last_response = None
+                else:
+                    raise RuntimeError(
+                        "No response available - write_line must be called first"
+                    )
             else:
                 # Read until newline with timeout
                 line_bytes = await asyncio.wait_for(
@@ -202,6 +200,55 @@ class ZebraTransport:
 
         except TimeoutError:
             logger.error(f"Read timeout after {timeout}s")
+            raise
+
+    async def read_interrupt(self, timeout: float | None = None) -> str:
+        """Read an interrupt message (simulation or real hardware).
+
+        This method reads asynchronous interrupt messages like PR, PX, P<data>.
+        In simulation mode, only reads from the interrupt queue.
+        On real hardware, reads any available line.
+
+        Args:
+            timeout: Read timeout in seconds (uses default if None)
+
+        Returns:
+            Interrupt message without newline terminator
+
+        Raises:
+            RuntimeError: If not connected
+            TimeoutError: If read times out
+        """
+        if not self.connected:
+            raise RuntimeError("Not connected to Zebra")
+
+        if timeout is None:
+            timeout = self.TIMEOUT
+
+        try:
+            if self._is_simulation:
+                # Only read from interrupt queue
+                if self._sim_interrupt_queue:
+                    line = await asyncio.wait_for(
+                        self._sim_interrupt_queue.get(), timeout=timeout
+                    )
+                else:
+                    raise RuntimeError("Simulator not properly initialized")
+            else:
+                # Read until newline with timeout
+                line_bytes = await asyncio.wait_for(
+                    self._serial.readline_async(),  # type: ignore[union-attr]
+                    timeout=timeout,
+                )
+
+                # Decode and strip newline
+                line = line_bytes.decode("ascii").rstrip("\n")
+
+            logger.debug(f"RX (interrupt): {line!r}")
+            return line
+
+        except TimeoutError:
+            # Timeouts are normal for interrupt monitoring
             raise
 
     async def __aenter__(self):
