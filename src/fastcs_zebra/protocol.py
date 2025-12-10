@@ -16,6 +16,7 @@ Where:
 - <VVVV> = 4-digit hex value (0000-FFFF, 16-bit)
 """
 
+import asyncio
 import logging
 import re
 from typing import Literal
@@ -63,9 +64,14 @@ class ZebraProtocol:
             transport: Connected ZebraTransport instance
         """
         self.transport = transport
+        # Lock to serialize all register operations - serial requires strict
+        # request-response pairing, only one operation at a time
+        self._lock = asyncio.Lock()
 
-    async def read_register(self, address: int) -> int:
-        """Read a 16-bit register value.
+    async def _read_register_unlocked(self, address: int) -> int:
+        """Read a 16-bit register value without acquiring lock.
+
+        Internal method - caller must hold self._lock.
 
         Args:
             address: Register address (0x00-0xFF)
@@ -92,22 +98,35 @@ class ZebraProtocol:
         response = await self.transport.read_line()
         return self._parse_read_response(address, response)
 
-    async def write_register(
-        self, address: int, value: int, verify: bool = True
-    ) -> int:
-        """Write a 16-bit value to a register.
+    async def read_register(self, address: int) -> int:
+        """Read a 16-bit register value.
+
+        Args:
+            address: Register address (0x00-0xFF)
+
+        Returns:
+            Register value (0x0000-0xFFFF)
+
+        Raises:
+            ValueError: If address out of range
+            ProtocolError: If read fails or response invalid
+        """
+        # Acquire lock to ensure atomic read operation (command + response)
+        async with self._lock:
+            return await self._read_register_unlocked(address)
+
+    async def _write_register_unlocked(self, address: int, value: int) -> None:
+        """Write a 16-bit value to a register without acquiring lock.
+
+        Internal method - caller must hold self._lock.
 
         Args:
             address: Register address (0x00-0xFF)
             value: Value to write (0x0000-0xFFFF)
-            verify: If True, read back value to verify write
-
-        Returns:
-            Verified value if verify=True, else written value
 
         Raises:
             ValueError: If address or value out of range
-            ProtocolError: If write fails or verification mismatch
+            ProtocolError: If write fails
         """
         if not 0 <= address <= 0xFF:
             raise ValueError(
@@ -128,15 +147,36 @@ class ZebraProtocol:
         response = await self.transport.read_line()
         self._parse_write_response(address, response)
 
-        # Optionally verify by reading back
-        if verify:
-            readback = await self.read_register(address)
-            if readback != value:
-                logger.warning(
-                    f"Write verification mismatch at {address:#04x}: "
-                    f"wrote {value:#06x}, read {readback:#06x}"
-                )
-            return readback
+    async def write_register(
+        self, address: int, value: int, verify: bool = True
+    ) -> int:
+        """Write a 16-bit value to a register.
+
+        Args:
+            address: Register address (0x00-0xFF)
+            value: Value to write (0x0000-0xFFFF)
+            verify: If True, read back value to verify write
+
+        Returns:
+            Verified value if verify=True, else written value
+
+        Raises:
+            ValueError: If address or value out of range
+            ProtocolError: If write fails or verification mismatch
+        """
+        # Acquire lock to ensure atomic write+verify operation
+        async with self._lock:
+            await self._write_register_unlocked(address, value)
+
+            # Optionally verify by reading back (still under lock)
+            if verify:
+                readback = await self._read_register_unlocked(address)
+                if readback != value:
+                    logger.warning(
+                        f"Write verification mismatch at {address:#04x}: "
+                        f"wrote {value:#06x}, read {readback:#06x}"
+                    )
+                return readback
 
         return value
 
@@ -150,15 +190,17 @@ class ZebraProtocol:
         Returns:
             32-bit value (HI << 16 | LO)
         """
-        lo = await self.read_register(address_lo)
-        hi = await self.read_register(address_hi)
-        value = (hi << 16) | lo
+        # Hold lock for entire 32-bit read to prevent interleaving
+        async with self._lock:
+            lo = await self._read_register_unlocked(address_lo)
+            hi = await self._read_register_unlocked(address_hi)
+            value = (hi << 16) | lo
 
-        logger.debug(
-            f"Read 32-bit value {value:#010x} from "
-            f"[{address_hi:#04x}:{address_lo:#04x}]"
-        )
-        return value
+            logger.debug(
+                f"Read 32-bit value {value:#010x} from "
+                f"[{address_hi:#04x}:{address_lo:#04x}]"
+            )
+            return value
 
     async def write_register_32bit(
         self,
@@ -194,13 +236,24 @@ class ZebraProtocol:
             f"[{address_hi:#04x}:{address_lo:#04x}]"
         )
 
-        # Write LO then HI
-        await self.write_register(address_lo, lo, verify=False)
-        await self.write_register(address_hi, hi, verify=False)
+        # Hold lock for entire 32-bit write+verify to prevent interleaving
+        async with self._lock:
+            # Write LO then HI
+            await self._write_register_unlocked(address_lo, lo)
+            await self._write_register_unlocked(address_hi, hi)
 
-        # Optionally verify
-        if verify:
-            return await self.read_register_32bit(address_lo, address_hi)
+            # Optionally verify
+            if verify:
+                lo_readback = await self._read_register_unlocked(address_lo)
+                hi_readback = await self._read_register_unlocked(address_hi)
+                readback = (hi_readback << 16) | lo_readback
+                if readback != value:
+                    logger.warning(
+                        f"32-bit write verification mismatch at "
+                        f"[{address_hi:#04x}:{address_lo:#04x}]: "
+                        f"wrote {value:#010x}, read {readback:#010x}"
+                    )
+                return readback
 
         return value
 
@@ -219,18 +272,20 @@ class ZebraProtocol:
         if command not in ("S", "L"):
             raise ValueError(f"Invalid flash command: {command!r}")
 
-        logger.info(f"Executing flash command: {command}")
-        await self.transport.write_line(command)
+        # Acquire lock to ensure atomic flash operation (command + response)
+        async with self._lock:
+            logger.info(f"Executing flash command: {command}")
+            await self.transport.write_line(command)
 
-        # Expect <CMD>OK response
-        response = await self.transport.read_line(timeout=timeout)
-        expected = f"{command}OK"
+            # Expect <CMD>OK response
+            response = await self.transport.read_line(timeout=timeout)
+            expected = f"{command}OK"
 
-        if response != expected:
-            self._check_error_response(response)
-            raise MalformedResponseError(f"Expected {expected!r}, got {response!r}")
+            if response != expected:
+                self._check_error_response(response)
+                raise MalformedResponseError(f"Expected {expected!r}, got {response!r}")
 
-        logger.info(f"Flash command {command} succeeded")
+            logger.info(f"Flash command {command} succeeded")
 
     def _parse_read_response(self, address: int, response: str) -> int:
         """Parse read command response.
