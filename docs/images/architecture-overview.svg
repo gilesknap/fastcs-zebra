@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 730" width="600" height="730">
+  <defs>
+    <style>
+      .box { fill: #f0f0f0; stroke: #333; stroke-width: 2; }
+      .epics { fill: #e3f2fd; }
+      .controller { fill: #fff3e0; }
+      .io { fill: #f3e5f5; }
+      .protocol { fill: #e8f5e9; }
+      .transport { fill: #fce4ec; }
+      .hardware { fill: #e0f2f1; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; }
+      .small-text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .title { font-weight: bold; font-size: 16px; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .double-arrow { stroke: #333; stroke-width: 2; fill: none; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- EPICS Layer -->
+  <rect class="box epics" x="50" y="30" width="500" height="60" rx="5" />
+  <text class="text title" x="300" y="55">EPICS PVs (Channel Access/PVA)</text>
+  <text class="small-text" x="300" y="75">(FastCS Layer)</text>
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="300" y1="90" x2="300" y2="120" />
+
+  <!-- ZebraController -->
+  <rect class="box controller" x="50" y="130" width="500" height="90" rx="5" />
+  <text class="text title" x="300" y="155">ZebraController</text>
+  <text class="small-text" x="300" y="175">- Attribute definitions (AttrR, AttrRW)</text>
+  <text class="small-text" x="300" y="192">- Command methods</text>
+  <text class="small-text" x="300" y="209">- Interrupt handler callbacks</text>
+
+  <!-- Arrow down splits -->
+  <line class="double-arrow" x1="300" y1="220" x2="300" y2="250" />
+  <line class="double-arrow" x1="300" y1="250" x2="180" y2="290" />
+  <line class="double-arrow" x1="300" y1="250" x2="420" y2="290" />
+
+  <!-- ZebraRegisterIO -->
+  <rect class="box io" x="50" y="300" width="260" height="80" rx="5" />
+  <text class="text title" x="180" y="325">ZebraRegisterIO</text>
+  <text class="small-text" x="180" y="345">- Read registers</text>
+  <text class="small-text" x="180" y="362">- Write registers</text>
+
+  <!-- InterruptHandler -->
+  <rect class="box io" x="340" y="300" width="260" height="80" rx="5" />
+  <text class="text title" x="470" y="325">InterruptHandler</text>
+  <text class="small-text" x="470" y="345">- Parse P messages</text>
+  <text class="small-text" x="470" y="362">- Callbacks</text>
+
+  <!-- Arrows converge -->
+  <line class="double-arrow" x1="180" y1="380" x2="180" y2="410" />
+  <line class="double-arrow" x1="470" y1="380" x2="470" y2="410" />
+  <line class="double-arrow" x1="180" y1="410" x2="300" y2="440" />
+  <line class="double-arrow" x1="470" y1="410" x2="300" y2="440" />
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="300" y1="440" x2="300" y2="470" />
+
+  <!-- ZebraProtocol -->
+  <rect class="box protocol" x="150" y="480" width="300" height="60" rx="5" />
+  <text class="text title" x="300" y="505">ZebraProtocol</text>
+  <text class="small-text" x="300" y="525">- R/W commands - Flash ops</text>
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="300" y1="540" x2="300" y2="570" />
+
+  <!-- ZebraTransport -->
+  <rect class="box transport" x="150" y="580" width="300" height="60" rx="5" />
+  <text class="text title" x="300" y="605">ZebraTransport</text>
+  <text class="small-text" x="300" y="625">- Serial I/O - Simulator</text>
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="300" y1="640" x2="300" y2="670" />
+
+  <!-- Hardware -->
+  <rect class="box hardware" x="180" y="680" width="240" height="40" rx="5" />
+  <text class="text title" x="300" y="705">Serial Hardware or Simulator</text>
+</svg>
