@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 740" width="600" height="740">
+  <defs>
+    <style>
+      .box { fill: #f0f8ff; stroke: #4682b4; stroke-width: 2; }
+      .user { fill: #e8f5e9; }
+      .hw { fill: #fff3e0; }
+      .text { font-family: Arial, sans-serif; font-size: 13px; text-anchor: middle; }
+      .code { font-family: 'Courier New', monospace; font-size: 12px; text-anchor: middle; fill: #666; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333" />
+    </marker>
+  </defs>
+
+  <text class="text" x="300" y="20" font-weight="bold" font-size="16">Position Compare Interrupt</text>
+
+  <!-- Zebra Hardware -->
+  <rect class="box hw" x="125" y="40" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="65">Zebra Hardware → Position compare trigger</text>
+  <line class="arrow" x1="300" y1="80" x2="300" y2="105" />
+
+  <!-- Serial Hardware sends -->
+  <rect class="box hw" x="125" y="110" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="135">Serial Hardware sends: "P00012A3000001234\n"</text>
+  <line class="arrow" x1="300" y1="150" x2="300" y2="175" />
+
+  <!-- ZebraTransport.receive_line -->
+  <rect class="box" x="125" y="180" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="205">ZebraTransport.receive_line() → "P00012A3000001234\n"</text>
+  <line class="arrow" x1="300" y1="220" x2="300" y2="245" />
+
+  <!-- ZebraController interrupt monitoring -->
+  <rect class="box" x="125" y="250" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="275">ZebraController interrupt monitoring task</text>
+  <line class="arrow" x1="300" y1="290" x2="300" y2="315" />
+
+  <!-- InterruptHandler.process_message -->
+  <rect class="box" x="125" y="320" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="345">InterruptHandler.process_message()</text>
+  <line class="arrow" x1="300" y1="360" x2="300" y2="385" />
+
+  <!-- Parses -->
+  <rect class="box" x="125" y="390" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="415">Parses: timestamp=0x00012A30, encoder1=0x00001234</text>
+  <line class="arrow" x1="300" y1="430" x2="300" y2="455" />
+
+  <!-- PositionCompareData -->
+  <rect class="box" x="125" y="460" width="350" height="50" rx="5" />
+  <text class="text" x="300" y="480">PositionCompareData(</text>
+  <text class="text" x="300" y="497">timestamp=76336, encoder1=4660, ...)</text>
+  <line class="arrow" x1="300" y1="510" x2="300" y2="535" />
+
+  <!-- Invokes on_data callback -->
+  <rect class="box" x="125" y="530" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="555">Invokes on_data callback</text>
+  <line class="arrow" x1="300" y1="570" x2="300" y2="595" />
+
+  <!-- ZebraController updates attribute -->
+  <rect class="box" x="125" y="600" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="625">ZebraController updates pc_enc1_last attribute</text>
+  <line class="arrow" x1="300" y1="640" x2="300" y2="665" />
+
+  <!-- FastCS updates PV -->
+  <rect class="box" x="125" y="670" width="350" height="40" rx="5" />
+  <text class="text" x="300" y="695">FastCS updates PV: ZEBRA:PcEnc1Last = 4660</text>
+
+  <!-- Arrow to user monitoring -->
+  <line class="arrow" x1="475" y1="690" x2="560" y2="690" />
+  <line class="arrow" x1="560" y1="690" x2="560" y2="60" />
+
+  <!-- User monitors label -->
+  <text class="text" x="520" y="370" font-size="11" text-anchor="start" transform="rotate(-90 520 370)">User: camonitor ZEBRA:PcEnc1Last</text>
+</svg>
