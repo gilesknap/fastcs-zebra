@@ -43,7 +43,7 @@ def zebra_ioc(pv_prefix, zebra_port):
     """Start the FastCS Zebra IOC for testing."""
 
     # Start the IOC using uv run to ensure correct environment
-    # Don't capture stdout/stderr to allow interactive shell to run
+    # Capture stderr to help diagnose startup issues
     proc = subprocess.Popen(
         [
             "uv",
@@ -56,12 +56,13 @@ def zebra_ioc(pv_prefix, zebra_port):
             "--pv-prefix",
             pv_prefix,
         ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
 
     # Wait for IOC to be ready (try connecting to a PV)
-    max_wait = 10
+    # Increase timeout for CI environments
+    max_wait = 30
     connected = False
     for _ in range(max_wait * 10):
         try:
@@ -72,19 +73,30 @@ def zebra_ioc(pv_prefix, zebra_port):
             time.sleep(0.1)
 
     if not connected:
+        # Capture output for debugging
         proc.terminate()
-        proc.wait(timeout=0.1)
-        pytest.fail(f"IOC failed to start on port {zebra_port}")
+        try:
+            stdout, stderr = proc.communicate(timeout=1.0)
+            error_msg = f"IOC failed to start on port {zebra_port}\n"
+            if stderr:
+                error_msg += f"STDERR:\n{stderr.decode()}\n"
+            if stdout:
+                error_msg += f"STDOUT:\n{stdout.decode()}\n"
+            pytest.fail(error_msg)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+            pytest.fail(f"IOC failed to start on port {zebra_port}")
 
     yield proc
 
     # Cleanup
     proc.terminate()
     try:
-        proc.wait(timeout=0.1)
+        stdout, stderr = proc.communicate(timeout=1.0)
     except subprocess.TimeoutExpired:
         proc.kill()
-        proc.wait()
+        stdout, stderr = proc.communicate()
 
 
 # Channel Access tests using cothread
