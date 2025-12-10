@@ -1,0 +1,816 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Zebra Serial Protocol &#8212; fastcs-zebra 0.1.dev7+g13fffb4e9 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e0535c59"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/serial-protocol';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-zebra/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/dls-logo.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fastcs_zebra" href="../_api/fastcs_zebra.html" />
+    <link rel="prev" title="Reference" href="../reference.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="main" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">fastcs-zebra</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-zebra" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-zebra" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-zebra" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-zebra" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Zebra Serial Protocol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/fastcs_zebra.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/DiamondLightSource/fastcs-zebra/releases">Release Notes</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../reference.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Zebra Serial Protocol</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="zebra-serial-protocol">
+<h1>Zebra Serial Protocol<a class="headerlink" href="#zebra-serial-protocol" title="Link to this heading">#</a></h1>
+<p>This document describes the serial communication protocol used by FastCS-Zebra to communicate with the Zebra hardware device.</p>
+<section id="connection-parameters">
+<h2>Connection Parameters<a class="headerlink" href="#connection-parameters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Baud Rate</strong>: 115200</p></li>
+<li><p><strong>Data Bits</strong>: 8</p></li>
+<li><p><strong>Parity</strong>: None</p></li>
+<li><p><strong>Stop Bits</strong>: 1</p></li>
+<li><p><strong>Flow Control</strong>: None</p></li>
+<li><p><strong>Line Terminator</strong>: <code class="docutils literal notranslate"><span class="pre">\n</span></code> (newline, 0x0A)</p></li>
+</ul>
+</section>
+<section id="protocol-characteristics">
+<h2>Protocol Characteristics<a class="headerlink" href="#protocol-characteristics" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Request-Response</strong>: The protocol is primarily request-response based</p></li>
+<li><p><strong>Asynchronous Events</strong>: The device can send unsolicited interrupt messages (position compare data)</p></li>
+<li><p><strong>Text-Based</strong>: All commands and responses are ASCII text</p></li>
+<li><p><strong>Case-Sensitive</strong>: Commands use uppercase letters and hexadecimal notation</p></li>
+</ul>
+</section>
+<section id="command-format">
+<h2>Command Format<a class="headerlink" href="#command-format" title="Link to this heading">#</a></h2>
+<p>All commands are terminated with a newline character (<code class="docutils literal notranslate"><span class="pre">\n</span></code>).</p>
+<section id="read-register-command">
+<h3>Read Register Command<a class="headerlink" href="#read-register-command" title="Link to this heading">#</a></h3>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;\n</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">R</span></code> - Read command identifier</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;AA&gt;</span></code> - 2-digit hexadecimal register address (00-FF)</p></li>
+</ul>
+<p><strong>Response</strong>: <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;&lt;VVVV&gt;\n</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;</span></code> - Echo of register address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;VVVV&gt;</span></code> - 4-digit hexadecimal value (0000-FFFF, representing 16-bit value)</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Command</span><span class="p">:</span>  <span class="n">R88</span>\<span class="n">n</span>
+<span class="n">Response</span><span class="p">:</span> <span class="n">R880003</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>This reads register 0x88 (PC_ENC) and receives value 0x0003.</p>
+<p><strong>Error Response</strong>: <code class="docutils literal notranslate"><span class="pre">E1R&lt;AA&gt;\n</span></code></p>
+<ul class="simple">
+<li><p>Indicates the register address is invalid or cannot be read</p></li>
+</ul>
+</section>
+<section id="write-register-command">
+<h3>Write Register Command<a class="headerlink" href="#write-register-command" title="Link to this heading">#</a></h3>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;\n</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">W</span></code> - Write command identifier</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;AA&gt;</span></code> - 2-digit hexadecimal register address (00-FF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;VVVV&gt;</span></code> - 4-digit hexadecimal value to write (0000-FFFF)</p></li>
+</ul>
+<p><strong>Response</strong>: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;OK\n</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;</span></code> - Echo of register address</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OK</span></code> - Success indicator</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Command</span><span class="p">:</span>  <span class="n">W88001F</span>\<span class="n">n</span>
+<span class="n">Response</span><span class="p">:</span> <span class="n">W88OK</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>This writes value 0x001F to register 0x88 (PC_ENC).</p>
+<p><strong>Error Response</strong>: <code class="docutils literal notranslate"><span class="pre">E1W&lt;AA&gt;\n</span></code></p>
+<ul class="simple">
+<li><p>Indicates the register address is invalid or cannot be written</p></li>
+</ul>
+<p><strong>Note</strong>: Read-only registers will reject write commands.</p>
+</section>
+<section id="flash-storage-commands">
+<h3>Flash Storage Commands<a class="headerlink" href="#flash-storage-commands" title="Link to this heading">#</a></h3>
+<section id="save-to-flash">
+<h4>Save to Flash<a class="headerlink" href="#save-to-flash" title="Link to this heading">#</a></h4>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">S\n</span></code></p>
+<p><strong>Response</strong>: <code class="docutils literal notranslate"><span class="pre">SOK\n</span></code></p>
+<p><strong>Purpose</strong>: Saves the current register configuration to non-volatile flash memory.</p>
+<p><strong>Note</strong>: This command may take ~100ms to complete.</p>
+</section>
+<section id="load-from-flash">
+<h4>Load from Flash<a class="headerlink" href="#load-from-flash" title="Link to this heading">#</a></h4>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">L\n</span></code></p>
+<p><strong>Response</strong>: <code class="docutils literal notranslate"><span class="pre">LOK\n</span></code></p>
+<p><strong>Purpose</strong>: Restores register configuration from non-volatile flash memory.</p>
+</section>
+</section>
+<section id="generic-error-response">
+<h3>Generic Error Response<a class="headerlink" href="#generic-error-response" title="Link to this heading">#</a></h3>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">E0\n</span></code></p>
+<p><strong>Purpose</strong>: Indicates a malformed or unrecognized command.</p>
+</section>
+</section>
+<section id="interrupt-messages-asynchronous">
+<h2>Interrupt Messages (Asynchronous)<a class="headerlink" href="#interrupt-messages-asynchronous" title="Link to this heading">#</a></h2>
+<p>The Zebra sends unsolicited messages when position compare events occur. These messages are distinguished by starting with the letter <code class="docutils literal notranslate"><span class="pre">P</span></code>.</p>
+<section id="position-compare-reset-message">
+<h3>Position Compare Reset Message<a class="headerlink" href="#position-compare-reset-message" title="Link to this heading">#</a></h3>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">PR\n</span></code></p>
+<p><strong>Meaning</strong>: Position compare has been armed. The host should reset its data buffers and prepare to receive position compare data.</p>
+<p><strong>Trigger</strong>: Sent when register <code class="docutils literal notranslate"><span class="pre">PC_ARM</span></code> (0x8B) is written with value 1.</p>
+</section>
+<section id="position-compare-data-message">
+<h3>Position Compare Data Message<a class="headerlink" href="#position-compare-data-message" title="Link to this heading">#</a></h3>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">P&lt;TTTTTTTT&gt;[&lt;EEEEEEEE&gt;]...\n</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">P</span></code> - Interrupt message identifier</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;TTTTTTTT&gt;</span></code> - 8-digit hexadecimal timestamp (32-bit unsigned)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[&lt;EEEEEEEE&gt;]...</span></code> - Zero or more 8-digit hexadecimal encoder/data values (32-bit signed for encoders, unsigned for system bus)</p></li>
+</ul>
+<p><strong>Timestamp Encoding</strong>:</p>
+<ul class="simple">
+<li><p>The timestamp is a 32-bit counter incremented at (50MHz / prescaler)</p></li>
+<li><p>The prescaler is set via register <code class="docutils literal notranslate"><span class="pre">PC_TSPRE</span></code> (0x89)</p>
+<ul>
+<li><p>Prescaler = 5: Each count = 0.1 µs (time units in 0.01 ms increments)</p></li>
+<li><p>Prescaler = 5000: Each count = 100 µs (time units in 0.01 s increments)</p></li>
+</ul>
+</li>
+<li><p>When the counter rolls over at 2^32, add 429496.7296 time units to maintain continuity</p></li>
+</ul>
+<p><strong>Data Fields</strong>:
+The number and meaning of data fields depends on register <code class="docutils literal notranslate"><span class="pre">PC_BIT_CAP</span></code> (0x9F):</p>
+<ul class="simple">
+<li><p>Bit 0: Encoder 1 (signed 32-bit, encoder counts)</p></li>
+<li><p>Bit 1: Encoder 2 (signed 32-bit, encoder counts)</p></li>
+<li><p>Bit 2: Encoder 3 (signed 32-bit, encoder counts)</p></li>
+<li><p>Bit 3: Encoder 4 (signed 32-bit, encoder counts)</p></li>
+<li><p>Bit 4: System Bus 1 (unsigned 32-bit, bit field)</p></li>
+<li><p>Bit 5: System Bus 2 (unsigned 32-bit, bit field)</p></li>
+<li><p>Bit 6: Divider 1 output count (unsigned 32-bit)</p></li>
+<li><p>Bit 7: Divider 2 output count (unsigned 32-bit)</p></li>
+<li><p>Bit 8: Divider 3 output count (unsigned 32-bit)</p></li>
+<li><p>Bit 9: Divider 4 output count (unsigned 32-bit)</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PC_BIT_CAP</span> <span class="o">=</span> <span class="mh">0x0013</span> <span class="p">(</span><span class="n">bits</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="nb">set</span><span class="p">)</span>
+<span class="n">Message</span><span class="p">:</span> <span class="n">P00012A3000001234FFFF5678AB000000</span>\<span class="n">n</span>
+
+<span class="n">Parsed</span><span class="p">:</span>
+  <span class="n">Timestamp</span><span class="p">:</span> <span class="mh">0x00012A30</span> <span class="p">(</span><span class="mi">76336</span> <span class="o">*</span> <span class="mf">0.0001</span> <span class="o">=</span> <span class="mf">7.6336</span> <span class="n">time</span> <span class="n">units</span><span class="p">)</span>
+  <span class="n">Encoder</span> <span class="mi">1</span><span class="p">:</span> <span class="mh">0x00001234</span> <span class="p">(</span><span class="mi">4660</span> <span class="n">counts</span><span class="p">)</span>
+  <span class="n">Encoder</span> <span class="mi">2</span><span class="p">:</span> <span class="mh">0xFFFF5678</span> <span class="p">(</span><span class="o">-</span><span class="mi">43400</span> <span class="n">counts</span><span class="p">,</span> <span class="n">signed</span><span class="p">)</span>
+  <span class="n">Sys</span> <span class="n">Bus</span> <span class="mi">1</span><span class="p">:</span> <span class="mh">0xAB000000</span> <span class="p">(</span><span class="n">bits</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">24</span> <span class="nb">set</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="position-compare-complete-message">
+<h3>Position Compare Complete Message<a class="headerlink" href="#position-compare-complete-message" title="Link to this heading">#</a></h3>
+<p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">PX\n</span></code></p>
+<p><strong>Meaning</strong>: Position compare acquisition has completed. No more data will be sent.</p>
+<p><strong>Trigger</strong>: Sent when:</p>
+<ul class="simple">
+<li><p>Register <code class="docutils literal notranslate"><span class="pre">PC_DISARM</span></code> (0x8C) is written with value 1, OR</p></li>
+<li><p>The configured number of pulses has been generated and captured</p></li>
+</ul>
+</section>
+</section>
+<section id="key-registers">
+<h2>Key Registers<a class="headerlink" href="#key-registers" title="Link to this heading">#</a></h2>
+<section id="position-compare-control">
+<h3>Position Compare Control<a class="headerlink" href="#position-compare-control" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x88</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_ENC</span></code> - Select which encoder to use for position compare</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x89</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_TSPRE</span></code> - Timestamp clock prescaler (5=milliseconds, 5000=seconds)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8A</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_ARM_SEL</span></code> - Arm input source (0=software, 1=external)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8B</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_ARM</span></code> - Software arm command</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8C</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_DISARM</span></code> - Software disarm command</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x9F</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_BIT_CAP</span></code> - Bit mask for data capture (which encoders/divs/sysbus)</p></li>
+</ul>
+</section>
+<section id="system-status-read-only">
+<h3>System Status (Read-Only)<a class="headerlink" href="#system-status-read-only" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF0</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_VER</span></code> - Firmware version</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF1</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STATERR</span></code> - System state/error flags</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF2</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT1LO</span></code> - System bus status bits 0-15</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF3</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT1HI</span></code> - System bus status bits 16-31</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF4</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT2LO</span></code> - System bus status bits 32-47</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF5</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT2HI</span></code> - System bus status bits 48-63</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF6</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_NUM_CAPLO</span></code> - Number of position compare captures (low 16 bits)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF7</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_NUM_CAPHI</span></code> - Number of position compare captures (high 16 bits)</p></li>
+</ul>
+</section>
+<section id="other-key-registers">
+<h3>Other Key Registers<a class="headerlink" href="#other-key-registers" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x7E</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_RESET</span></code> - System reset command</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x7F</span></code> - <code class="docutils literal notranslate"><span class="pre">SOFT_IN</span></code> - Software input register (4 bits for SOFT_IN1-4)</p></li>
+</ul>
+<p><strong>Note</strong>: For a complete register map with all 256 registers, see the <a class="reference external" href="https://github.com/DiamondLightSource/zebra">legacy Zebra repository</a>.</p>
+</section>
+</section>
+<section id="implementation-in-fastcs-zebra">
+<h2>Implementation in FastCS-Zebra<a class="headerlink" href="#implementation-in-fastcs-zebra" title="Link to this heading">#</a></h2>
+<p>The FastCS-Zebra driver implements this protocol through the following classes:</p>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="../_api/fastcs_zebra.html#fastcs_zebra.ZebraTransport" title="fastcs_zebra.transport.ZebraTransport"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZebraTransport</span></code></a></strong> - Handles low-level serial I/O with asyncio</p></li>
+<li><p><strong><a class="reference internal" href="../_api/fastcs_zebra.html#fastcs_zebra.ZebraProtocol" title="fastcs_zebra.protocol.ZebraProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZebraProtocol</span></code></a></strong> - Implements command/response parsing and validation</p></li>
+<li><p><strong><a class="reference internal" href="../_api/fastcs_zebra.html#fastcs_zebra.InterruptHandler" title="fastcs_zebra.interrupts.InterruptHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterruptHandler</span></code></a></strong> - Processes asynchronous position compare data</p></li>
+</ul>
+<p>See the <a class="reference internal" href="../explanations/architecture.html"><span class="std std-doc">Architecture</span></a> documentation for details on how these components interact.</p>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/main/docs/SERIAL_PROTOCOL_SPEC.md">Complete Serial Protocol Specification</a> - Full specification with all registers</p></li>
+<li><p><a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/main/docs/EPICS_PV_SPEC.md">EPICS PV Interface Specification</a> - How EPICS PVs map to registers</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../reference.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../_api/fastcs_zebra.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">fastcs_zebra</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-parameters">Connection Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#protocol-characteristics">Protocol Characteristics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-format">Command Format</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#read-register-command">Read Register Command</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#write-register-command">Write Register Command</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flash-storage-commands">Flash Storage Commands</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#save-to-flash">Save to Flash</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#load-from-flash">Load from Flash</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generic-error-response">Generic Error Response</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interrupt-messages-asynchronous">Interrupt Messages (Asynchronous)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-reset-message">Position Compare Reset Message</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-data-message">Position Compare Data Message</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-complete-message">Position Compare Complete Message</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-registers">Key Registers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-control">Position Compare Control</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-status-read-only">System Status (Read-Only)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-key-registers">Other Key Registers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-in-fastcs-zebra">Implementation in FastCS-Zebra</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/reference/serial-protocol.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/serial-protocol.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
