@@ -62,7 +62,7 @@ class ZebraTransport:
         """Open serial connection to Zebra hardware or simulator.
 
         Raises:
-            aioserial.SerialException: If connection fails (hardware mode)
+            SerialException: If connection fails (hardware mode)
         """
         if self._connected:
             logger.warning(f"Already connected to {self.port}")

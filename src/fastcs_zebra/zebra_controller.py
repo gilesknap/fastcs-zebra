@@ -40,6 +40,10 @@ class ZebraRegisterIO(AttributeIO[NumberT, ZebraRegisterIORef]):
         super().__init__()
         self._protocol = protocol
 
+    def set_protocol(self, protocol: ZebraProtocol) -> None:
+        """Set the protocol instance for register I/O operations."""
+        self._protocol = protocol
+
     async def update(self, attr):
         """Read value from Zebra register and update attribute."""
         if not self._protocol:
@@ -57,21 +61,21 @@ class ZebraRegisterIO(AttributeIO[NumberT, ZebraRegisterIORef]):
         except Exception as e:
             logger.error(f"Error reading register 0x{attr.io_ref.register:02X}: {e}")
 
-    async def send(self, attr):
+    async def send(self, attr, value):
         """Write attribute value to Zebra register."""
         if not self._protocol:
             return
 
         try:
-            value = int(attr.get())
+            int_value = int(value)
             if attr.io_ref.is_32bit and attr.io_ref.register_hi is not None:
                 # Write 32-bit value as LO/HI pair
-                lo_value = value & 0xFFFF
-                hi_value = (value >> 16) & 0xFFFF
+                lo_value = int_value & 0xFFFF
+                hi_value = (int_value >> 16) & 0xFFFF
                 await self._protocol.write_register(attr.io_ref.register, lo_value)
                 await self._protocol.write_register(attr.io_ref.register_hi, hi_value)
             else:
-                await self._protocol.write_register(attr.io_ref.register, value)
+                await self._protocol.write_register(attr.io_ref.register, int_value)
 
         except Exception as e:
             logger.error(f"Error writing register 0x{attr.io_ref.register:02X}: {e}")
@@ -155,7 +159,7 @@ class ZebraController(Controller):
             self._protocol = ZebraProtocol(self._transport)
 
             # Update the IO handler with the actual protocol
-            self._register_io._protocol = self._protocol
+            self._register_io.set_protocol(self._protocol)
 
             # Update connection status
             await self.connected.update(True)
@@ -193,7 +197,7 @@ class ZebraController(Controller):
 
         except Exception as e:
             logger.error(f"Failed to connect: {e}")
-            await self.status_msg.set(f"Connection failed: {e}")
+            await self.status_msg.update(f"Connection failed: {e}")
             raise
 
     async def disconnect(self) -> None:

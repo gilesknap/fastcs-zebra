@@ -1,7 +1,5 @@
 """Pytest configuration for fastcs-zebra tests."""
 
-import pytest
-
 
 def pytest_addoption(parser):
     """Add command line options for testing."""

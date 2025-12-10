@@ -71,6 +71,7 @@ nitpick_ignore = [
     ("py:class", "'object'"),
     ("py:class", "'id'"),
     ("py:class", "typing_extensions.Literal"),
+    ("py:exc", "SerialException"),
 ]
 
 # Both the class’ and the __init__ method’s docstring are concatenated and
