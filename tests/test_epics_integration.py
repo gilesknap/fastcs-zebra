@@ -13,6 +13,7 @@ Or with virtual ports:
 """
 
 import subprocess
+import sys
 import time
 
 import pytest
@@ -42,13 +43,11 @@ def zebra_port(request):
 def zebra_ioc(pv_prefix, zebra_port):
     """Start the FastCS Zebra IOC for testing."""
 
-    # Start the IOC using uv run to ensure correct environment
-    # Capture stderr to help diagnose startup issues
+    # Start the IOC using the same Python interpreter running the tests
+    # This ensures we use the correct environment in CI
     proc = subprocess.Popen(
         [
-            "uv",
-            "run",
-            "python",
+            sys.executable,
             "-m",
             "fastcs_zebra",
             "--port",
@@ -62,7 +61,7 @@ def zebra_ioc(pv_prefix, zebra_port):
 
     # Wait for IOC to be ready (try connecting to a PV)
     # Increase timeout for CI environments
-    max_wait = 30
+    max_wait = 5
     connected = False
     for _ in range(max_wait * 10):
         try:

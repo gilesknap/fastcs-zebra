@@ -91,9 +91,9 @@ def main(args: Sequence[str] | None = None) -> None:
         epicsca=EpicsIOCOptions(pv_prefix=parsed_args.pv_prefix),
     )
 
-    # Launch FastCS
+    # Launch FastCS (non-interactive for daemon mode)
     fastcs = FastCS(controller, [transport])
-    fastcs.run()
+    fastcs.run(interactive=False)
 
 
 if __name__ == "__main__":
