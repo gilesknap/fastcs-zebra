@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Run in a container &#8212; fastcs-zebra 0.1.dev6+g0ac108e51 documentation</title>
+    <title>Generate Phoebus Screens &#8212; fastcs-zebra 0.1.dev6+g0ac108e51 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=30646c52"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'how-to/run-container';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'how-to/generate-phoebus-screens';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-zebra/switcher.json';
@@ -58,8 +58,8 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Explanations" href="../explanations.html" />
-    <link rel="prev" title="Generate Phoebus Screens" href="generate-phoebus-screens.html" />
+    <link rel="next" title="Run in a container" href="run-container.html" />
+    <link rel="prev" title="Contribute to the project" href="contribute.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="main" />
@@ -398,8 +398,8 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contribute to the project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="generate-phoebus-screens.html">Generate Phoebus Screens</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Run in a container</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Generate Phoebus Screens</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run-container.html">Run in a container</a></li>
 </ul>
 </div>
 </nav></div>
@@ -443,7 +443,7 @@
     
     <li class="breadcrumb-item"><a href="../how-to.html" class="nav-link">How-to Guides</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Run in a container</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Generate Phoebus Screens</span></li>
   </ul>
 </nav>
 </div>
@@ -460,17 +460,147 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="run-in-a-container">
-<h1>Run in a container<a class="headerlink" href="#run-in-a-container" title="Link to this heading">#</a></h1>
-<p>Pre-built containers with fastcs-zebra and its dependencies already
-installed are available on <a class="reference external" href="https://ghcr.io/DiamondLightSource/fastcs-zebra">Github Container Registry</a>.</p>
-<section id="starting-the-container">
-<h2>Starting the container<a class="headerlink" href="#starting-the-container" title="Link to this heading">#</a></h2>
-<p>To pull the container from github container registry and run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker run ghcr.io/diamondlightsource/fastcs-zebra:latest --version
+  <section id="generate-phoebus-screens">
+<h1>Generate Phoebus Screens<a class="headerlink" href="#generate-phoebus-screens" title="Link to this heading">#</a></h1>
+<p>FastCS automatically generates Phoebus (CS-Studio) operator interface screens (<code class="docutils literal notranslate"><span class="pre">.bob</span></code> files) for your Zebra controller.</p>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<p>To generate a Phoebus screen when starting the IOC:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--pv-prefix<span class="w"> </span>BL99I-EA-ZEBRA-01:<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gui<span class="w"> </span>zebra.bob
 </pre></div>
 </div>
-<p>To get a released version, use a numbered release instead of <code class="docutils literal notranslate"><span class="pre">latest</span></code>.</p>
+<p>This will create a <code class="docutils literal notranslate"><span class="pre">zebra.bob</span></code> file in the current directory that you can open in Phoebus.</p>
+</section>
+<section id="with-the-simulator">
+<h2>With the Simulator<a class="headerlink" href="#with-the-simulator" title="Link to this heading">#</a></h2>
+<p>For testing with the simulator:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span>sim://zebra01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--pv-prefix<span class="w"> </span>TEST-ZEB<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gui<span class="w"> </span>zebra.bob
+</pre></div>
+</div>
+</section>
+<section id="screen-generation">
+<h2>Screen Generation<a class="headerlink" href="#screen-generation" title="Link to this heading">#</a></h2>
+<p>The screen is generated <strong>automatically</strong> when the IOC starts based on your controller’s attributes and sub-controllers. The screen will include:</p>
+<ul class="simple">
+<li><p><strong>Read-only fields</strong> (from <code class="docutils literal notranslate"><span class="pre">AttrR</span></code>) displayed as text indicators</p></li>
+<li><p><strong>Read-write fields</strong> (from <code class="docutils literal notranslate"><span class="pre">AttrRW</span></code>) displayed as editable text fields with readback</p></li>
+<li><p><strong>Write-only fields</strong> (from <code class="docutils literal notranslate"><span class="pre">AttrW</span></code>) displayed as controls</p></li>
+<li><p><strong>Commands</strong> (from <code class="docutils literal notranslate"><span class="pre">&#64;command</span></code> decorator) displayed as buttons</p></li>
+<li><p><strong>Sub-controllers</strong> displayed as buttons that open sub-screens</p></li>
+</ul>
+</section>
+<section id="screen-layout">
+<h2>Screen Layout<a class="headerlink" href="#screen-layout" title="Link to this heading">#</a></h2>
+<p>The generated Phoebus screen for the Zebra will organize widgets based on the controller structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Zebra Position Compare Controller
+├── Connection Status (LED indicator)
+├── System Info
+│   ├── Firmware Version
+│   └── System State/Error
+├── Position Compare Controls
+│   ├── Encoder Selection
+│   ├── Prescaler
+│   ├── Arm/Disarm commands
+│   └── Last Captured Values
+└── Commands
+    ├── Save to Flash
+    ├── Load from Flash
+    └── System Reset
+</pre></div>
+</div>
+</section>
+<section id="advanced-options">
+<h2>Advanced Options<a class="headerlink" href="#advanced-options" title="Link to this heading">#</a></h2>
+<section id="programmatic-screen-generation">
+<h3>Programmatic Screen Generation<a class="headerlink" href="#programmatic-screen-generation" title="Link to this heading">#</a></h3>
+<p>If you need more control over screen generation, you can create screens programmatically:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.launch</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.options</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra.zebra_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraController</span>
+
+<span class="c1"># Setup GUI options</span>
+<span class="n">gui_options</span> <span class="o">=</span> <span class="n">EpicsGUIOptions</span><span class="p">(</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./opi/zebra.bob&quot;</span><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Diamond Zebra Controller&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create controller and transport</span>
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ZebraController</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="s2">&quot;/dev/ttyUSB0&quot;</span><span class="p">)</span>
+<span class="n">transport</span> <span class="o">=</span> <span class="n">EpicsCATransport</span><span class="p">(</span>
+    <span class="n">gui</span><span class="o">=</span><span class="n">gui_options</span><span class="p">,</span>
+    <span class="n">epicsca</span><span class="o">=</span><span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;BL99I-EA-ZEBRA-01:&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Launch IOC</span>
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="p">[</span><span class="n">transport</span><span class="p">])</span>
+<span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="opening-screens-in-phoebus">
+<h2>Opening Screens in Phoebus<a class="headerlink" href="#opening-screens-in-phoebus" title="Link to this heading">#</a></h2>
+<p>Once the <code class="docutils literal notranslate"><span class="pre">.bob</span></code> file is generated:</p>
+<ol class="arabic simple">
+<li><p>Open Phoebus</p></li>
+<li><p>Navigate to <strong>File → Open</strong> or press <code class="docutils literal notranslate"><span class="pre">Ctrl+O</span></code></p></li>
+<li><p>Select your generated <code class="docutils literal notranslate"><span class="pre">zebra.bob</span></code> file</p></li>
+<li><p>The screen will display with live connections to your running IOC</p></li>
+</ol>
+<p>Alternatively, you can launch Phoebus from the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>phoebus.sh<span class="w"> </span>-resource<span class="w"> </span>zebra.bob
+</pre></div>
+</div>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Link to this heading">#</a></h2>
+<p>The screen layout is automatically determined by your controller structure. To customize:</p>
+<ol class="arabic simple">
+<li><p><strong>Group related attributes</strong>: Use the <code class="docutils literal notranslate"><span class="pre">group</span></code> parameter in attribute definitions</p></li>
+<li><p><strong>Add descriptions</strong>: Set <code class="docutils literal notranslate"><span class="pre">desc</span></code> parameter for tooltips and labels</p></li>
+<li><p><strong>Control visibility</strong>: Attributes marked as <code class="docutils literal notranslate"><span class="pre">INTERNAL</span></code> won’t appear on screens</p></li>
+<li><p><strong>Organize with sub-controllers</strong>: Related functionality in sub-controllers generates sub-screens</p></li>
+</ol>
+</section>
+<section id="screen-updates">
+<h2>Screen Updates<a class="headerlink" href="#screen-updates" title="Link to this heading">#</a></h2>
+<p>The screen file is generated each time the IOC starts. If you modify your controller structure (add/remove attributes, change groups, etc.), simply restart the IOC to regenerate the updated screen.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="screen-not-generated">
+<h3>Screen not generated<a class="headerlink" href="#screen-not-generated" title="Link to this heading">#</a></h3>
+<p>If the screen file isn’t created:</p>
+<ol class="arabic simple">
+<li><p>Check file permissions in the output directory</p></li>
+<li><p>Verify the path is valid (parent directories must exist or will be created)</p></li>
+<li><p>Check the IOC startup logs for errors</p></li>
+</ol>
+</section>
+<section id="widgets-not-displaying-correctly">
+<h3>Widgets not displaying correctly<a class="headerlink" href="#widgets-not-displaying-correctly" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Ensure your FastCS version is up to date: <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">'fastcs[epics]'</span></code></p></li>
+<li><p>Check that attribute types are supported (String, Int, Float, Bool, Enum, Waveform)</p></li>
+<li><p>Verify PV prefix matches between IOC and Phoebus</p></li>
+</ul>
+</section>
+<section id="pvs-not-connecting">
+<h3>PVs not connecting<a class="headerlink" href="#pvs-not-connecting" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Check that the IOC is running</p></li>
+<li><p>Verify <code class="docutils literal notranslate"><span class="pre">EPICS_CA_ADDR_LIST</span></code> is configured correctly</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">caget</span></code> to test PV connectivity: <code class="docutils literal notranslate"><span class="pre">caget</span> <span class="pre">&lt;PV_PREFIX&gt;:Connected</span></code></p></li>
+</ol>
+</section>
 </section>
 </section>
 
@@ -485,20 +615,20 @@ installed are available on <a class="reference external" href="https://ghcr.io/D
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="generate-phoebus-screens.html"
+       href="contribute.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Generate Phoebus Screens</p>
+        <p class="prev-next-title">Contribute to the project</p>
       </div>
     </a>
     <a class="right-next"
-       href="../explanations.html"
+       href="run-container.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Explanations</p>
+        <p class="prev-next-title">Run in a container</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -521,7 +651,23 @@ installed are available on <a class="reference external" href="https://ghcr.io/D
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-the-container">Starting the container</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#with-the-simulator">With the Simulator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#screen-generation">Screen Generation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#screen-layout">Screen Layout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-options">Advanced Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#programmatic-screen-generation">Programmatic Screen Generation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#opening-screens-in-phoebus">Opening Screens in Phoebus</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customization">Customization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#screen-updates">Screen Updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#screen-not-generated">Screen not generated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#widgets-not-displaying-correctly">Widgets not displaying correctly</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pvs-not-connecting">PVs not connecting</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -529,7 +675,7 @@ installed are available on <a class="reference external" href="https://ghcr.io/D
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/how-to/run-container.md">
+    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/how-to/generate-phoebus-screens.md">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -545,7 +691,7 @@ installed are available on <a class="reference external" href="https://ghcr.io/D
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/how-to/run-container.md.txt"
+      <li><a href="../_sources/how-to/generate-phoebus-screens.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

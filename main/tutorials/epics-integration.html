@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installation &#8212; fastcs-zebra 0.1.dev6+g0ac108e51 documentation</title>
+    <title>FastCS Zebra EPICS Integration &#8212; fastcs-zebra 0.1.dev6+g0ac108e51 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=30646c52"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/installation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/epics-integration';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-zebra/switcher.json';
@@ -58,8 +58,8 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How-to Guides" href="../how-to.html" />
-    <link rel="prev" title="FastCS Zebra EPICS Integration" href="epics-integration.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="Tutorials" href="../tutorials.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="main" />
@@ -397,8 +397,8 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="epics-integration.html">FastCS Zebra EPICS Integration</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">FastCS Zebra EPICS Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
 </div>
 </nav></div>
@@ -442,7 +442,7 @@
     
     <li class="breadcrumb-item"><a href="../tutorials.html" class="nav-link">Tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Installation</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FastCS Zebra EPICS Integration</span></li>
   </ul>
 </nav>
 </div>
@@ -459,41 +459,220 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<section id="check-your-version-of-python">
-<h2>Check your version of python<a class="headerlink" href="#check-your-version-of-python" title="Link to this heading">#</a></h2>
-<p>You will need python 3.11 or later. You can check your version of python by
-typing into a terminal:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 --version
+  <section id="fastcs-zebra-epics-integration">
+<h1>FastCS Zebra EPICS Integration<a class="headerlink" href="#fastcs-zebra-epics-integration" title="Link to this heading">#</a></h1>
+<p>This document describes how to use the EPICS interface to control and monitor the Zebra hardware.</p>
+<section id="starting-the-epics-ioc">
+<h2>Starting the EPICS IOC<a class="headerlink" href="#starting-the-epics-ioc" title="Link to this heading">#</a></h2>
+<p>Run the FastCS server with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span>--pv-prefix<span class="w"> </span>BL99I-EA-ZEBRA-01:
+</pre></div>
+</div>
+<p>Options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--port</span></code>: Serial port path (required)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pv-prefix</span></code>: EPICS PV prefix (default: <code class="docutils literal notranslate"><span class="pre">ZEBRA:</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--log-level</span></code>: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--gui</span></code>: Generate Phoebus screen file (e.g., <code class="docutils literal notranslate"><span class="pre">zebra.bob</span></code>)</p></li>
+</ul>
+<section id="generating-phoebus-screens">
+<h3>Generating Phoebus Screens<a class="headerlink" href="#generating-phoebus-screens" title="Link to this heading">#</a></h3>
+<p>To automatically generate a Phoebus operator interface screen:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--pv-prefix<span class="w"> </span>BL99I-EA-ZEBRA-01:<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gui<span class="w"> </span>zebra.bob
+</pre></div>
+</div>
+<p>This creates a <code class="docutils literal notranslate"><span class="pre">zebra.bob</span></code> file that you can open in Phoebus. The screen automatically includes:</p>
+<ul class="simple">
+<li><p>Connection status indicators</p></li>
+<li><p>System information displays</p></li>
+<li><p>Position compare controls</p></li>
+<li><p>Command buttons</p></li>
+<li><p>Real-time readback values</p></li>
+</ul>
+<p>See <a class="reference internal" href="../how-to/generate-phoebus-screens.html"><span class="std std-doc">Generate Phoebus Screens</span></a> for more details.</p>
+</section>
+</section>
+<section id="available-epics-pvs">
+<h2>Available EPICS PVs<a class="headerlink" href="#available-epics-pvs" title="Link to this heading">#</a></h2>
+<section id="connection-status">
+<h3>Connection Status<a class="headerlink" href="#connection-status" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)CONNECTED</span></code>: Boolean - Connection status to Zebra hardware</p></li>
+</ul>
+</section>
+<section id="firmware-and-status">
+<h3>Firmware and Status<a class="headerlink" href="#firmware-and-status" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)SYS_VER</span></code>: Integer - Firmware version (register 0xF0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)SYS_STATERR</span></code>: Integer - System state/error flags (register 0xF1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)STATUS_MSG</span></code>: String - Human-readable status message</p></li>
+</ul>
+</section>
+<section id="position-compare-control">
+<h3>Position Compare Control<a class="headerlink" href="#position-compare-control" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_ENC</span></code>: Integer RW - Encoder selection (register 0x88)</p>
+<ul>
+<li><p>0: Encoder 1</p></li>
+<li><p>1: Encoder 2</p></li>
+<li><p>2: Encoder 3</p></li>
+<li><p>3: Encoder 4</p></li>
+<li><p>4: Encoder 1+2+3+4 (sum)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_TSPRE</span></code>: Integer RW - Timestamp prescaler (register 0x89)</p>
+<ul>
+<li><p>5: Millisecond units</p></li>
+<li><p>5000: Second units</p></li>
+<li><p>500000: 10-second units</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_NUM_CAP</span></code>: Integer - Number of position compare captures (registers 0xF6/0xF7)</p></li>
+</ul>
+</section>
+<section id="position-compare-commands">
+<h3>Position Compare Commands<a class="headerlink" href="#position-compare-commands" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_ARM</span></code>: Command - Arm position compare (write 0x8B)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_DISARM</span></code>: Command - Disarm position compare (write 0x8C)</p></li>
+</ul>
+</section>
+<section id="last-captured-data-updated-via-interrupts">
+<h3>Last Captured Data (Updated via Interrupts)<a class="headerlink" href="#last-captured-data-updated-via-interrupts" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_TIME_LAST</span></code>: Integer - Last captured timestamp</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_ENC1_LAST</span></code>: Integer - Last captured encoder 1 value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_ENC2_LAST</span></code>: Integer - Last captured encoder 2 value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_ENC3_LAST</span></code>: Integer - Last captured encoder 3 value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)PC_ENC4_LAST</span></code>: Integer - Last captured encoder 4 value</p></li>
+</ul>
+</section>
+<section id="soft-inputs">
+<h3>Soft Inputs<a class="headerlink" href="#soft-inputs" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)SOFT_IN</span></code>: Integer RW - Software input bits (register 0x7F)</p>
+<ul>
+<li><p>Bits 0-3 correspond to SOFT_IN1-4 on system bus</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="flash-storage-commands">
+<h3>Flash Storage Commands<a class="headerlink" href="#flash-storage-commands" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)SAVE_TO_FLASH</span></code>: Command - Save configuration to flash memory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)LOAD_FROM_FLASH</span></code>: Command - Load configuration from flash memory</p></li>
+</ul>
+</section>
+<section id="system-control">
+<h3>System Control<a class="headerlink" href="#system-control" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(PREFIX)SYS_RESET</span></code>: Command - Reset Zebra system (write 0x7E)</p></li>
+</ul>
+</section>
+</section>
+<section id="testing-with-epics-tools">
+<h2>Testing with EPICS Tools<a class="headerlink" href="#testing-with-epics-tools" title="Link to this heading">#</a></h2>
+<section id="reading-values">
+<h3>Reading Values<a class="headerlink" href="#reading-values" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check connection status</span>
+caget<span class="w"> </span>BL99I-EA-ZEBRA-01:CONNECTED
+
+<span class="c1"># Read firmware version</span>
+caget<span class="w"> </span>BL99I-EA-ZEBRA-01:SYS_VER
+
+<span class="c1"># Check status message</span>
+caget<span class="w"> </span>BL99I-EA-ZEBRA-01:STATUS_MSG
+
+<span class="c1"># Monitor position compare captures</span>
+camonitor<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_NUM_CAP
 </pre></div>
 </div>
 </section>
-<section id="create-a-virtual-environment">
-<h2>Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Link to this heading">#</a></h2>
-<p>It is recommended that you install into a “virtual environment” so this
-installation will not interfere with any existing Python software:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m venv /path/to/venv
-$ source /path/to/venv/bin/activate
+<section id="writing-values">
+<h3>Writing Values<a class="headerlink" href="#writing-values" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set soft inputs</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:SOFT_IN<span class="w"> </span><span class="m">5</span><span class="w">  </span><span class="c1"># Set bits 0 and 2</span>
+
+<span class="c1"># Select encoder 1 for position compare</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_ENC<span class="w"> </span><span class="m">0</span>
+
+<span class="c1"># Set timestamp prescaler to seconds</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_TSPRE<span class="w"> </span><span class="m">5000</span>
 </pre></div>
 </div>
 </section>
-<section id="installing-the-library">
-<h2>Installing the library<a class="headerlink" href="#installing-the-library" title="Link to this heading">#</a></h2>
-<p>You can now use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install the library and its dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install fastcs-zebra
+<section id="executing-commands">
+<h3>Executing Commands<a class="headerlink" href="#executing-commands" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Arm position compare</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_ARM<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Monitor last captured values</span>
+camonitor<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_TIME_LAST
+camonitor<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_ENC1_LAST
+
+<span class="c1"># Disarm position compare</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_DISARM<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Save configuration to flash</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:SAVE_TO_FLASH<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
-<p>If you require a feature that is not currently released you can also install
-from github:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install git+https://github.com/DiamondLightSource/fastcs-zebra.git
+</section>
+</section>
+<section id="example-session">
+<h2>Example Session<a class="headerlink" href="#example-session" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start the IOC</span>
+python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span>--pv-prefix<span class="w"> </span>TEST:ZEBRA:
+
+<span class="c1"># In another terminal, test the connection</span>
+caget<span class="w"> </span>TEST:ZEBRA:CONNECTED
+<span class="c1"># Should return: TEST:ZEBRA:CONNECTED 1</span>
+
+<span class="c1"># Read firmware version</span>
+caget<span class="w"> </span>TEST:ZEBRA:SYS_VER
+<span class="c1"># Example: TEST:ZEBRA:SYS_VER 32  (0x20)</span>
+
+<span class="c1"># Set soft input bits</span>
+caput<span class="w"> </span>TEST:ZEBRA:SOFT_IN<span class="w"> </span><span class="m">3</span>
+<span class="c1"># Sets SOFT_IN1 and SOFT_IN2 high</span>
+
+<span class="c1"># Configure position compare</span>
+caput<span class="w"> </span>TEST:ZEBRA:PC_ENC<span class="w"> </span><span class="m">0</span><span class="w">        </span><span class="c1"># Use encoder 1</span>
+caput<span class="w"> </span>TEST:ZEBRA:PC_TSPRE<span class="w"> </span><span class="m">5</span><span class="w">      </span><span class="c1"># Millisecond timestamps</span>
+
+<span class="c1"># Monitor captures in real-time</span>
+camonitor<span class="w"> </span>TEST:ZEBRA:PC_NUM_CAP<span class="w"> </span>TEST:ZEBRA:PC_ENC1_LAST<span class="w"> </span><span class="p">&amp;</span>
+
+<span class="c1"># Arm position compare (starts capturing)</span>
+caput<span class="w"> </span>TEST:ZEBRA:PC_ARM<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Wait for data...</span>
+
+<span class="c1"># Disarm when done</span>
+caput<span class="w"> </span>TEST:ZEBRA:PC_DISARM<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
-<p>The library should now be installed and the commandline interface on your path.
-You can check the version that has been installed by typing:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fastcs-zebra --version
-</pre></div>
-</div>
+</section>
+<section id="architecture-notes">
+<h2>Architecture Notes<a class="headerlink" href="#architecture-notes" title="Link to this heading">#</a></h2>
+<p>The EPICS integration uses:</p>
+<ul class="simple">
+<li><p><strong>FastCS</strong>: Modern Python framework for EPICS device support</p></li>
+<li><p><strong>Channel Access Transport</strong>: Standard EPICS protocol (CA)</p></li>
+<li><p><strong>Asyncio</strong>: Non-blocking serial I/O with interrupt monitoring</p></li>
+<li><p><strong>Background Task</strong>: Monitors for position compare interrupts and updates PVs</p></li>
+</ul>
+<p>When position compare is armed, the controller:</p>
+<ol class="arabic simple">
+<li><p>Monitors serial port for interrupt messages (PR, P<data>, PX)</p></li>
+<li><p>Parses position compare data from P messages</p></li>
+<li><p>Updates <code class="docutils literal notranslate"><span class="pre">PC_*_LAST</span></code> PVs with latest captured values</p></li>
+<li><p>Updates <code class="docutils literal notranslate"><span class="pre">STATUS_MSG</span></code> on reset/complete events</p></li>
+</ol>
+<p>All register I/O happens asynchronously without blocking EPICS operations.</p>
 </section>
 </section>
 
@@ -508,20 +687,20 @@ You can check the version that has been installed by typing:</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="epics-integration.html"
+       href="../tutorials.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">FastCS Zebra EPICS Integration</p>
+        <p class="prev-next-title">Tutorials</p>
       </div>
     </a>
     <a class="right-next"
-       href="../how-to.html"
+       href="installation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">How-to Guides</p>
+        <p class="prev-next-title">Installation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -544,9 +723,29 @@ You can check the version that has been installed by typing:</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-your-version-of-python">Check your version of python</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-virtual-environment">Create a virtual environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-library">Installing the library</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-the-epics-ioc">Starting the EPICS IOC</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-phoebus-screens">Generating Phoebus Screens</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-epics-pvs">Available EPICS PVs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-status">Connection Status</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#firmware-and-status">Firmware and Status</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-control">Position Compare Control</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-commands">Position Compare Commands</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#last-captured-data-updated-via-interrupts">Last Captured Data (Updated via Interrupts)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soft-inputs">Soft Inputs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flash-storage-commands">Flash Storage Commands</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-control">System Control</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-with-epics-tools">Testing with EPICS Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-values">Reading Values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-values">Writing Values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-commands">Executing Commands</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-session">Example Session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture-notes">Architecture Notes</a></li>
 </ul>
   </nav></div>
 
@@ -554,7 +753,7 @@ You can check the version that has been installed by typing:</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/tutorials/installation.md">
+    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/tutorials/epics-integration.md">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -570,7 +769,7 @@ You can check the version that has been installed by typing:</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/installation.md.txt"
+      <li><a href="../_sources/tutorials/epics-integration.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

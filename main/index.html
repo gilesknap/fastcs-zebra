@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>fastcs_zebra &#8212; fastcs-zebra 0.1.dev4+g00d5e0d98 documentation</title>
+    <title>fastcs_zebra &#8212; fastcs-zebra 0.1.dev6+g0ac108e51 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=e7ef2ccb"></script>
+    <script src="_static/documentation_options.js?v=34e969c1"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -422,9 +422,11 @@
 <a class="reference external" href="https://www.apache.org/licenses/LICENSE-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a></p>
 <section id="fastcs-zebra">
 <h1>fastcs_zebra<a class="headerlink" href="#fastcs-zebra" title="Link to this heading">#</a></h1>
-<p>An EPICS driver for the zebra box</p>
-<p>This is where you should write a short paragraph that describes what your module does,
-how it does it, and why people should use it.</p>
+<p>FastCS driver for Diamond Light Source Zebra position compare and logic hardware.</p>
+<p>This driver provides EPICS PVs to control and monitor the Zebra hardware through
+a modern asyncio-based Python implementation using the FastCS framework. It communicates
+directly with the Zebra via serial port (115200 baud ASCII protocol), replacing the
+legacy AreaDetector/Asyn-based driver.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head text-center"><p>Source</p></th>
@@ -447,18 +449,94 @@ how it does it, and why people should use it.</p>
 </tbody>
 </table>
 </div>
-<p>This is where you should put some images or code snippets that illustrate
-some relevant examples. If it is a library then you might put some
-introductory code here:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<section id="running-the-epics-ioc">
+<h3>Running the EPICS IOC<a class="headerlink" href="#running-the-epics-ioc" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install</span>
+pip<span class="w"> </span>install<span class="w"> </span>fastcs-zebra
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello fastcs_zebra </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># Start the EPICS server</span>
+python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span>--pv-prefix<span class="w"> </span>BL99I-EA-ZEBRA-01
+
+<span class="c1"># Or for a simulation zebra</span>
+python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span>--port<span class="w"> </span>sim://zebra01<span class="w"> </span>--pv-prefix<span class="w"> </span>TEST-ZEB
+
+<span class="c1"># Generate a Phoebus screen file</span>
+python<span class="w"> </span>-m<span class="w"> </span>fastcs_zebra<span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--pv-prefix<span class="w"> </span>BL99I-EA-ZEBRA-01:<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gui<span class="w"> </span>zebra.bob
 </pre></div>
 </div>
-<p>Or if it is a commandline tool then you might put some example commands here:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">fastcs_zebra</span> <span class="o">--</span><span class="n">version</span>
+</section>
+<section id="testing-with-epics-tools">
+<h3>Testing with EPICS Tools<a class="headerlink" href="#testing-with-epics-tools" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check connection</span>
+caget<span class="w"> </span>BL99I-EA-ZEBRA-01:CONNECTED
+
+<span class="c1"># Read firmware version</span>
+caget<span class="w"> </span>BL99I-EA-ZEBRA-01:SYS_VER
+
+<span class="c1"># Set soft inputs</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:SOFT_IN<span class="w"> </span><span class="m">5</span>
+
+<span class="c1"># Arm position compare</span>
+caput<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_ARM<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Monitor captured data</span>
+camonitor<span class="w"> </span>BL99I-EA-ZEBRA-01:PC_ENC1_LAST
 </pre></div>
 </div>
+</section>
+<section id="using-the-python-api">
+<h3>Using the Python API<a class="headerlink" href="#using-the-python-api" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraTransport</span><span class="p">,</span> <span class="n">ZebraProtocol</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">ZebraTransport</span><span class="p">(</span><span class="s2">&quot;/dev/ttyUSB0&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">transport</span><span class="p">:</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="n">ZebraProtocol</span><span class="p">(</span><span class="n">transport</span><span class="p">)</span>
+
+    <span class="c1"># Read firmware version</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="k">await</span> <span class="n">protocol</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="mh">0xF0</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Firmware: </span><span class="si">{</span><span class="n">version</span><span class="si">:</span><span class="s2">#06x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Write soft inputs</span>
+    <span class="k">await</span> <span class="n">protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x7F</span><span class="p">,</span> <span class="mh">0x05</span><span class="p">)</span>
+
+    <span class="c1"># Read 32-bit register</span>
+    <span class="n">captures</span> <span class="o">=</span> <span class="k">await</span> <span class="n">protocol</span><span class="o">.</span><span class="n">read_register_32bit</span><span class="p">(</span><span class="mh">0xF6</span><span class="p">,</span> <span class="mh">0xF7</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Captures: </span><span class="si">{</span><span class="n">captures</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Async Serial Communication</strong>: Non-blocking I/O using aioserial</p></li>
+<li><p><strong>EPICS Integration</strong>: Automatic PV creation via FastCS framework</p></li>
+<li><p><strong>Position Compare</strong>: Interrupt-driven capture of encoder positions</p></li>
+<li><p><strong>Complete Protocol</strong>: All Zebra serial commands supported (R/W/S/L)</p></li>
+<li><p><strong>Modern Python</strong>: Type hints, asyncio, dataclasses</p></li>
+</ul>
+</section>
+<section id="current-implementation-status">
+<h2>Current Implementation Status<a class="headerlink" href="#current-implementation-status" title="Link to this heading">#</a></h2>
+<p>✅ <strong>Phase 1 Complete</strong>: Serial communication layer</p>
+<ul class="simple">
+<li><p>ZebraTransport: Asyncio serial I/O</p></li>
+<li><p>ZebraProtocol: Register read/write, flash commands</p></li>
+<li><p>InterruptHandler: Position compare data parsing</p></li>
+<li><p>CLI: Interactive testing tool</p></li>
+</ul>
+<p>🚧 <strong>Phase 2 In Progress</strong>: FastCS EPICS integration</p>
+<ul class="simple">
+<li><p>ZebraController: Basic PVs for testing Phase 1 functionality</p></li>
+<li><p>EPICS IOC entry point</p></li>
+</ul>
+<p>⏳ <strong>Phase 3 Planned</strong>: Complete register abstraction and PV mapping
+⏳ <strong>Phase 4 Planned</strong>: Full controller hierarchy
+⏳ <strong>Phase 5 Planned</strong>: Motor integration and position compare arrays</p>
+</section>
 <section id="how-the-documentation-is-structured">
 <h2>How the documentation is structured<a class="headerlink" href="#how-the-documentation-is-structured" title="Link to this heading">#</a></h2>
 <p>Documentation is split into <a class="reference external" href="https://diataxis.fr">four categories</a>, also accessible from links in the top bar.</p>
@@ -473,6 +551,7 @@ introductory code here:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/epics-integration.html">FastCS Zebra EPICS Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html">Installation</a></li>
 </ul>
 </li>
@@ -493,6 +572,7 @@ introductory code here:</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="how-to.html">How-to Guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="how-to/contribute.html">Contribute to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/generate-phoebus-screens.html">Generate Phoebus Screens</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/run-container.html">Run in a container</a></li>
 </ul>
 </li>

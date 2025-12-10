@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>fastcs_zebra &#8212; fastcs-zebra 0.1.dev4+g00d5e0d98 documentation</title>
+    <title>fastcs_zebra &#8212; fastcs-zebra 0.1.dev6+g0ac108e51 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=e7ef2ccb"></script>
+    <script src="../_static/documentation_options.js?v=34e969c1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -463,10 +463,413 @@
   <section id="module-fastcs_zebra">
 <span id="fastcs-zebra"></span><h1><code class="docutils literal notranslate"><span class="pre">fastcs_zebra</span></code><a class="headerlink" href="#module-fastcs_zebra" title="Link to this heading">#</a></h1>
 <p>Top level API.</p>
+<p>This package provides asyncio-based serial communication with Diamond Light
+Source Zebra position compare and logic hardware.</p>
+<p>Phase 1 implementation includes:
+- ZebraTransport: Low-level serial I/O
+- ZebraProtocol: Register read/write and command execution
+- InterruptHandler: Position compare data parsing
+- CLI: Interactive testing interface</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraTransport</span><span class="p">,</span> <span class="n">ZebraProtocol</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">ZebraTransport</span><span class="p">(</span><span class="s2">&quot;/dev/ttyUSB0&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">transport</span><span class="p">:</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="n">ZebraProtocol</span><span class="p">(</span><span class="n">transport</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">protocol</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="mh">0xF0</span><span class="p">)</span>  <span class="c1"># Read firmware version</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Firmware version: </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">#06x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="py data">
 <dt class="sig sig-object py" id="fastcs_zebra.__version__">
 <span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">__version__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#fastcs_zebra.__version__" title="Link to this definition">#</a></dt>
 <dd><p>Version number as calculated by <a class="github reference external" href="https://github.com/pypa/setuptools_scm">pypa/setuptools_scm</a></p>
+</dd></dl>
+
+<p class="rubric">Members</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.ZebraTransport" title="fastcs_zebra.ZebraTransport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZebraTransport</span></code></a></p></td>
+<td><p>Asyncio-based serial transport for Zebra hardware.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.ZebraProtocol" title="fastcs_zebra.ZebraProtocol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZebraProtocol</span></code></a></p></td>
+<td><p>Zebra serial protocol handler.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.ProtocolError" title="fastcs_zebra.ProtocolError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProtocolError</span></code></a></p></td>
+<td><p>Base exception for protocol-level errors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.MalformedResponseError" title="fastcs_zebra.MalformedResponseError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MalformedResponseError</span></code></a></p></td>
+<td><p>Raised when response doesn't match expected format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.RegisterError" title="fastcs_zebra.RegisterError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterError</span></code></a></p></td>
+<td><p>Raised when register operation fails (E1 response).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.InterruptHandler" title="fastcs_zebra.InterruptHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InterruptHandler</span></code></a></p></td>
+<td><p>Handles asynchronous interrupt messages from Zebra.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.PositionCompareData" title="fastcs_zebra.PositionCompareData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PositionCompareData</span></code></a></p></td>
+<td><p>Position compare capture data point.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.ZebraController" title="fastcs_zebra.ZebraController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZebraController</span></code></a></p></td>
+<td><p>Top-level controller for Zebra hardware.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ZebraTransport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/transport.html#ZebraTransport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraTransport" title="Link to this definition">#</a></dt>
+<dd><p>Asyncio-based serial transport for Zebra hardware.</p>
+<p>Provides low-level serial communication with the Zebra device using
+asyncio for non-blocking I/O. Handles connection management, line-based
+reading/writing, and proper cleanup.</p>
+<p>Supports simulation mode: Use port=”sim://name” to use software simulator
+instead of real hardware.</p>
+<p>The Zebra uses:
+- 115200 baud, 8N1, no flow control
+- Newline (n) line termination
+- ASCII text protocol</p>
+<p>Initialize transport for given serial port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>port</strong> – Serial port path (e.g., ‘/dev/ttyUSB0’, ‘COM3’)
+or ‘sim://name’ for simulator</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport.connect">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/transport.html#ZebraTransport.connect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraTransport.connect" title="Link to this definition">#</a></dt>
+<dd><p>Open serial connection to Zebra hardware or simulator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>SerialException</strong> – If connection fails (hardware mode)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport.connected">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connected</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#fastcs_zebra.ZebraTransport.connected" title="Link to this definition">#</a></dt>
+<dd><p>Check if transport is connected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport.disconnect">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/transport.html#ZebraTransport.disconnect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraTransport.disconnect" title="Link to this definition">#</a></dt>
+<dd><p>Close serial connection or stop simulator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport.read_interrupt">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_interrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/transport.html#ZebraTransport.read_interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraTransport.read_interrupt" title="Link to this definition">#</a></dt>
+<dd><p>Read an interrupt message (simulation or real hardware).</p>
+<p>This method reads asynchronous interrupt messages like PR, PX, P&lt;data&gt;.
+In simulation mode, only reads from the interrupt queue.
+On real hardware, reads any available line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> – Read timeout in seconds (uses default if None)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interrupt message without newline terminator</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If not connected</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TimeoutError" title="(in Python v3.14)"><strong>TimeoutError</strong></a> – If read times out</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport.read_line">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/transport.html#ZebraTransport.read_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraTransport.read_line" title="Link to this definition">#</a></dt>
+<dd><p>Read a line of text from the Zebra or simulator.</p>
+<p>Reads until newline terminator, which is stripped from result.
+In simulation mode, returns the last command response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> – Read timeout in seconds (uses default if None)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Received line without newline terminator</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If not connected</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TimeoutError" title="(in Python v3.14)"><strong>TimeoutError</strong></a> – If read times out</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraTransport.write_line">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/transport.html#ZebraTransport.write_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraTransport.write_line" title="Link to this definition">#</a></dt>
+<dd><p>Write a line of text to the Zebra or simulator.</p>
+<p>Automatically appends newline terminator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – ASCII text command (without newline)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If not connected</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraProtocol">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ZebraProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraTransport" title="fastcs_zebra.transport.ZebraTransport"><span class="pre">ZebraTransport</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ZebraProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraProtocol" title="Link to this definition">#</a></dt>
+<dd><p>Zebra serial protocol handler.</p>
+<p>Provides high-level register read/write operations and command execution
+using the Zebra text-based serial protocol. Handles response parsing,
+error detection, and verification.</p>
+<p>Initialize protocol handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transport</strong> – Connected ZebraTransport instance</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraProtocol.flash_command">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flash_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'S'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'L'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ZebraProtocol.flash_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraProtocol.flash_command" title="Link to this definition">#</a></dt>
+<dd><p>Execute a flash storage command.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> – ‘S’ to save, ‘L’ to load</p></li>
+<li><p><strong>timeout</strong> – Command timeout (flash ops can be slow)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#fastcs_zebra.ProtocolError" title="fastcs_zebra.ProtocolError"><strong>ProtocolError</strong></a> – If command fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraProtocol.read_register">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ZebraProtocol.read_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraProtocol.read_register" title="Link to this definition">#</a></dt>
+<dd><p>Read a 16-bit register value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – Register address (0x00-0xFF)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Register value (0x0000-0xFFFF)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If address out of range</p></li>
+<li><p><a class="reference internal" href="#fastcs_zebra.ProtocolError" title="fastcs_zebra.ProtocolError"><strong>ProtocolError</strong></a> – If read fails or response invalid</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraProtocol.read_register_32bit">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_register_32bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address_lo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_hi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ZebraProtocol.read_register_32bit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraProtocol.read_register_32bit" title="Link to this definition">#</a></dt>
+<dd><p>Read a 32-bit value from LO/HI register pair.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>address_lo</strong> – Address of low 16 bits</p></li>
+<li><p><strong>address_hi</strong> – Address of high 16 bits</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>32-bit value (HI &lt;&lt; 16 | LO)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraProtocol.write_register">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ZebraProtocol.write_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraProtocol.write_register" title="Link to this definition">#</a></dt>
+<dd><p>Write a 16-bit value to a register.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>address</strong> – Register address (0x00-0xFF)</p></li>
+<li><p><strong>value</strong> – Value to write (0x0000-0xFFFF)</p></li>
+<li><p><strong>verify</strong> – If True, read back value to verify write</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Verified value if verify=True, else written value</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If address or value out of range</p></li>
+<li><p><a class="reference internal" href="#fastcs_zebra.ProtocolError" title="fastcs_zebra.ProtocolError"><strong>ProtocolError</strong></a> – If write fails or verification mismatch</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraProtocol.write_register_32bit">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_register_32bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address_lo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_hi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ZebraProtocol.write_register_32bit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraProtocol.write_register_32bit" title="Link to this definition">#</a></dt>
+<dd><p>Write a 32-bit value to LO/HI register pair.</p>
+<p>Writes LO register first, then HI register.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>address_lo</strong> – Address of low 16 bits</p></li>
+<li><p><strong>address_hi</strong> – Address of high 16 bits</p></li>
+<li><p><strong>value</strong> – 32-bit value to write</p></li>
+<li><p><strong>verify</strong> – If True, read back to verify</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Verified value if verify=True, else written value</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If value out of range</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="fastcs_zebra.ProtocolError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ProtocolError</span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#ProtocolError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ProtocolError" title="Link to this definition">#</a></dt>
+<dd><p>Base exception for protocol-level errors.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="fastcs_zebra.MalformedResponseError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">MalformedResponseError</span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#MalformedResponseError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.MalformedResponseError" title="Link to this definition">#</a></dt>
+<dd><p>Raised when response doesn’t match expected format.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="fastcs_zebra.RegisterError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">RegisterError</span></span><a class="reference internal" href="../_modules/fastcs_zebra/protocol.html#RegisterError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.RegisterError" title="Link to this definition">#</a></dt>
+<dd><p>Raised when register operation fails (E1 response).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.InterruptHandler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">InterruptHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bit_cap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#InterruptHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.InterruptHandler" title="Link to this definition">#</a></dt>
+<dd><p>Handles asynchronous interrupt messages from Zebra.</p>
+<p>Monitors serial port for ‘P’ messages, parses position compare data,
+and dispatches to registered callbacks.</p>
+<p>Initialize interrupt handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bit_cap</strong> – PC_BIT_CAP register value (which fields are captured)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.InterruptHandler.handle_message">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#InterruptHandler.handle_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.InterruptHandler.handle_message" title="Link to this definition">#</a></dt>
+<dd><p>Parse and dispatch interrupt message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> – Raw message line from Zebra</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if message was an interrupt, False otherwise</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If interrupt message format invalid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.InterruptHandler.on_data">
+<span class="sig-name descname"><span class="pre">on_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastcs_zebra.PositionCompareData" title="fastcs_zebra.interrupts.PositionCompareData"><span class="pre">PositionCompareData</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="(in Python v3.14)"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastcs_zebra.PositionCompareData" title="fastcs_zebra.interrupts.PositionCompareData"><span class="pre">PositionCompareData</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="(in Python v3.14)"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#InterruptHandler.on_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.InterruptHandler.on_data" title="Link to this definition">#</a></dt>
+<dd><p>Register callback for data capture (P&lt;data&gt; message).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>callback</strong> – Async function called with each data point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The callback (for use as decorator)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.InterruptHandler.on_end">
+<span class="sig-name descname"><span class="pre">on_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="(in Python v3.14)"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="(in Python v3.14)"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#InterruptHandler.on_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.InterruptHandler.on_end" title="Link to this definition">#</a></dt>
+<dd><p>Register callback for acquisition end (PX message).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>callback</strong> – Async function called on end</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The callback (for use as decorator)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.InterruptHandler.on_reset">
+<span class="sig-name descname"><span class="pre">on_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="(in Python v3.14)"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Awaitable" title="(in Python v3.14)"><span class="pre">Awaitable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#InterruptHandler.on_reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.InterruptHandler.on_reset" title="Link to this definition">#</a></dt>
+<dd><p>Register callback for acquisition reset (PR message).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>callback</strong> – Async function called on reset</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The callback (for use as decorator)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.InterruptHandler.set_bit_cap">
+<span class="sig-name descname"><span class="pre">set_bit_cap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bit_cap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#InterruptHandler.set_bit_cap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.InterruptHandler.set_bit_cap" title="Link to this definition">#</a></dt>
+<dd><p>Update PC_BIT_CAP configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bit_cap</strong> – New PC_BIT_CAP register value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareData">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">PositionCompareData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder4</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sysbus1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sysbus2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">div1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">div2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">div3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">div4</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/interrupts.html#PositionCompareData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.PositionCompareData" title="Link to this definition">#</a></dt>
+<dd><p>Position compare capture data point.</p>
+<p>Contains timestamp and up to 10 data fields (4 encoders, 2 system bus,
+4 dividers) depending on PC_BIT_CAP configuration.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ZebraController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/zebra_controller.html#ZebraController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraController" title="Link to this definition">#</a></dt>
+<dd><p>Top-level controller for Zebra hardware.</p>
+<p>Exposes connection management, firmware version, and register access
+for testing Phase 1 serial communication functionality.</p>
+<p>Initialize Zebra controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>port</strong> – Serial port path (e.g., ‘/dev/ttyUSB0’, ‘COM3’)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.connect">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/zebra_controller.html#ZebraController.connect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraController.connect" title="Link to this definition">#</a></dt>
+<dd><p>Connect to Zebra hardware via serial port.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.disconnect">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/zebra_controller.html#ZebraController.disconnect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraController.disconnect" title="Link to this definition">#</a></dt>
+<dd><p>Disconnect from Zebra hardware.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -519,6 +922,40 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.__version__"><code class="docutils literal notranslate"><span class="pre">__version__</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport"><code class="docutils literal notranslate"><span class="pre">ZebraTransport</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport.connect"><code class="docutils literal notranslate"><span class="pre">ZebraTransport.connect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport.connected"><code class="docutils literal notranslate"><span class="pre">ZebraTransport.connected</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport.disconnect"><code class="docutils literal notranslate"><span class="pre">ZebraTransport.disconnect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport.read_interrupt"><code class="docutils literal notranslate"><span class="pre">ZebraTransport.read_interrupt()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport.read_line"><code class="docutils literal notranslate"><span class="pre">ZebraTransport.read_line()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraTransport.write_line"><code class="docutils literal notranslate"><span class="pre">ZebraTransport.write_line()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraProtocol"><code class="docutils literal notranslate"><span class="pre">ZebraProtocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraProtocol.flash_command"><code class="docutils literal notranslate"><span class="pre">ZebraProtocol.flash_command()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraProtocol.read_register"><code class="docutils literal notranslate"><span class="pre">ZebraProtocol.read_register()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraProtocol.read_register_32bit"><code class="docutils literal notranslate"><span class="pre">ZebraProtocol.read_register_32bit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraProtocol.write_register"><code class="docutils literal notranslate"><span class="pre">ZebraProtocol.write_register()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraProtocol.write_register_32bit"><code class="docutils literal notranslate"><span class="pre">ZebraProtocol.write_register_32bit()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ProtocolError"><code class="docutils literal notranslate"><span class="pre">ProtocolError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.MalformedResponseError"><code class="docutils literal notranslate"><span class="pre">MalformedResponseError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.RegisterError"><code class="docutils literal notranslate"><span class="pre">RegisterError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.InterruptHandler"><code class="docutils literal notranslate"><span class="pre">InterruptHandler</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.InterruptHandler.handle_message"><code class="docutils literal notranslate"><span class="pre">InterruptHandler.handle_message()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.InterruptHandler.on_data"><code class="docutils literal notranslate"><span class="pre">InterruptHandler.on_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.InterruptHandler.on_end"><code class="docutils literal notranslate"><span class="pre">InterruptHandler.on_end()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.InterruptHandler.on_reset"><code class="docutils literal notranslate"><span class="pre">InterruptHandler.on_reset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.InterruptHandler.set_bit_cap"><code class="docutils literal notranslate"><span class="pre">InterruptHandler.set_bit_cap()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareData"><code class="docutils literal notranslate"><span class="pre">PositionCompareData</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController"><code class="docutils literal notranslate"><span class="pre">ZebraController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.connect"><code class="docutils literal notranslate"><span class="pre">ZebraController.connect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.disconnect"><code class="docutils literal notranslate"><span class="pre">ZebraController.disconnect()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
