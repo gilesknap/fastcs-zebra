@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "fastcs-zebra Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "fastcs_zebra",
+            "args": [
+                "--port",
+                "/dev/ttyUSB0",
+                "--gui",
+                "/tmp/zebra.bob",
+                "--log-leve",
+                "DEBUG"
+            ]
+        },
+        {
             "name": "Debug Unit Test",
             "type": "debugpy",
             "request": "launch",

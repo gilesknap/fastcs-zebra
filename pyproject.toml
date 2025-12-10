@@ -12,7 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 description = "An EPICS driver for the zebra box"
-dependencies = [] # Add project dependencies here, e.g. ["click", "numpy"]
+dependencies = ["aioserial", "fastcs[epics]>=0.9.0"]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
@@ -21,7 +21,10 @@ requires-python = ">=3.11"
 [dependency-groups]
 dev = [
     "copier",
+    "cothread",
+    "epicscorelibs",
     "myst-parser",
+    "p4p",
     "pre-commit",
     "pydata-sphinx-theme>=0.12",
     "pyright",
@@ -50,7 +53,7 @@ version_file = "src/fastcs_zebra/_version.py"
 
 [tool.pyright]
 typeCheckingMode = "standard"
-reportMissingImports = false # Ignore missing stubs in imported modules
+reportMissingImports = false  # Ignore missing stubs in imported modules
 
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
@@ -110,7 +113,7 @@ commands = [
 description = "Run tests with coverage"
 commands = [
     [
-        "pytest", 
+        "pytest",
         "--cov=fastcs_zebra",
         "--cov-report",
         "term",

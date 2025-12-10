@@ -9,12 +9,14 @@ Phase 1 implementation includes:
 - InterruptHandler: Position compare data parsing
 - CLI: Interactive testing interface
 
-Example usage:
-    >>> from fastcs_zebra import ZebraTransport, ZebraProtocol
-    >>> async with ZebraTransport("/dev/ttyUSB0") as transport:
-    ...     protocol = ZebraProtocol(transport)
-    ...     value = await protocol.read_register(0xF0)  # Read firmware version
-    ...     print(f"Firmware version: {value:#06x}")
+Example usage::
+
+    from fastcs_zebra import ZebraTransport, ZebraProtocol
+
+    async with ZebraTransport("/dev/ttyUSB0") as transport:
+        protocol = ZebraProtocol(transport)
+        value = await protocol.read_register(0xF0)  # Read firmware version
+        print(f"Firmware version: {value:#06x}")
 
 .. data:: __version__
     :type: str
@@ -31,6 +33,7 @@ from .protocol import (
     ZebraProtocol,
 )
 from .transport import ZebraTransport
+from .zebra_controller import ZebraController
 
 __all__ = [
     "__version__",
@@ -41,4 +44,5 @@ __all__ = [
     "RegisterError",
     "InterruptHandler",
     "PositionCompareData",
+    "ZebraController",
 ]

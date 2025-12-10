@@ -18,6 +18,9 @@ class ZebraTransport:
     asyncio for non-blocking I/O. Handles connection management, line-based
     reading/writing, and proper cleanup.
 
+    Supports simulation mode: Use port="sim://name" to use software simulator
+    instead of real hardware.
+
     The Zebra uses:
     - 115200 baud, 8N1, no flow control
     - Newline (\\n) line termination
@@ -32,51 +35,102 @@ class ZebraTransport:
 
         Args:
             port: Serial port path (e.g., '/dev/ttyUSB0', 'COM3')
+                  or 'sim://name' for simulator
         """
-        if aioserial is None:
+        self.port = port
+        self._is_simulation = port.startswith("sim://")
+        self._serial: aioserial.AioSerial | None = None  # type: ignore[name-defined]
+        self._connected = False
+
+        # Message routing queues (for real hardware)
+        self._response_queue: asyncio.Queue[str] = asyncio.Queue()
+        self._interrupt_queue: asyncio.Queue[str] = asyncio.Queue()
+        self._reader_task: asyncio.Task | None = None
+
+        # Simulation mode components
+        self._simulator = None
+        self._sim_interrupt_queue: asyncio.Queue[str] | None = None
+        self._sim_last_response: str | None = None
+
+        if not self._is_simulation and aioserial is None:
             raise ImportError(
                 "aioserial is required for serial communication. "
                 "Install with: pip install aioserial"
             )
 
-        self.port = port
-        self._serial: aioserial.AioSerial | None = None  # type: ignore[name-defined]
-        self._connected = False
-
     async def connect(self) -> None:
-        """Open serial connection to Zebra hardware.
+        """Open serial connection to Zebra hardware or simulator.
 
         Raises:
-            aioserial.SerialException: If connection fails
+            SerialException: If connection fails (hardware mode)
         """
         if self._connected:
             logger.warning(f"Already connected to {self.port}")
             return
 
-        logger.info(f"Connecting to Zebra on {self.port} at {self.BAUD_RATE} baud")
+        if self._is_simulation:
+            # Import simulator locally to avoid dependency
+            from .simulator import ZebraSimulator
 
-        self._serial = aioserial.AioSerial(  # type: ignore[union-attr]
-            port=self.port,
-            baudrate=self.BAUD_RATE,
-            bytesize=aioserial.EIGHTBITS,  # type: ignore[union-attr]
-            parity=aioserial.PARITY_NONE,  # type: ignore[union-attr]
-            stopbits=aioserial.STOPBITS_ONE,  # type: ignore[union-attr]
-            timeout=self.TIMEOUT,
-        )
+            logger.info(f"Starting Zebra simulator for {self.port}")
+            self._simulator = ZebraSimulator()
+            self._sim_interrupt_queue = asyncio.Queue()
 
-        self._connected = True
-        logger.info(f"Connected to Zebra on {self.port}")
+            # Set callback for simulator to send interrupt messages
+            def send_interrupt(message: str):
+                if self._sim_interrupt_queue:
+                    self._sim_interrupt_queue.put_nowait(message)
+
+            self._simulator.set_send_callback(send_interrupt)
+
+            self._connected = True
+            logger.info(f"Simulator ready for {self.port}")
+
+        else:
+            logger.info(f"Connecting to Zebra on {self.port} at {self.BAUD_RATE} baud")
+
+            self._serial = aioserial.AioSerial(  # type: ignore[union-attr]
+                port=self.port,
+                baudrate=self.BAUD_RATE,
+                bytesize=aioserial.EIGHTBITS,  # type: ignore[union-attr]
+                parity=aioserial.PARITY_NONE,  # type: ignore[union-attr]
+                stopbits=aioserial.STOPBITS_ONE,  # type: ignore[union-attr]
+                timeout=self.TIMEOUT,
+            )
+
+            self._connected = True
+
+            # Start background reader task to route messages
+            self._reader_task = asyncio.create_task(self._read_and_route_messages())
+
+            logger.info(f"Connected to Zebra on {self.port}")
 
     async def disconnect(self) -> None:
-        """Close serial connection."""
+        """Close serial connection or stop simulator."""
         if not self._connected:
             return
 
         logger.info(f"Disconnecting from {self.port}")
 
-        if self._serial:
-            self._serial.close()
-            self._serial = None
+        if self._is_simulation:
+            if self._simulator:
+                self._simulator.reset()
+                self._simulator = None
+            self._sim_interrupt_queue = None
+            self._sim_last_response = None
+        else:
+            # Stop reader task
+            if self._reader_task:
+                self._reader_task.cancel()
+                try:
+                    await self._reader_task
+                except asyncio.CancelledError:
+                    pass
+                self._reader_task = None
+
+            if self._serial:
+                self._serial.close()
+                self._serial = None
 
         self._connected = False
         logger.info("Disconnected from Zebra")
@@ -84,10 +138,51 @@ class ZebraTransport:
     @property
     def connected(self) -> bool:
         """Check if transport is connected."""
-        return self._connected and self._serial is not None
+        if self._is_simulation:
+            return self._connected and self._simulator is not None
+        else:
+            return self._connected and self._serial is not None
+
+    async def _read_and_route_messages(self) -> None:
+        """Background task to read from serial and route messages to queues.
+
+        Routes messages based on first character:
+        - Messages starting with 'P' go to interrupt queue
+        - All other messages go to response queue
+        """
+        try:
+            while self._connected and self._serial:
+                try:
+                    # Read line from serial port (blocking)
+                    line_bytes = await self._serial.readline_async()  # type: ignore[union-attr]
+
+                    # Decode and strip newline
+                    line = line_bytes.decode("ascii").rstrip("\r\n")
+
+                    if not line:  # Empty line, skip
+                        continue
+
+                    # Route based on message type
+                    if line.startswith("P"):
+                        # Interrupt message
+                        logger.debug(f"RX (interrupt): {line!r}")
+                        await self._interrupt_queue.put(line)
+                    else:
+                        # Command response
+                        logger.debug(f"RX: {line!r}")
+                        await self._response_queue.put(line)
+
+                except Exception as e:
+                    if self._connected:
+                        logger.error(f"Error in reader task: {e}")
+                    break
+
+        except asyncio.CancelledError:
+            logger.debug("Reader task cancelled")
+            raise
 
     async def write_line(self, data: str) -> None:
-        """Write a line of text to the Zebra.
+        """Write a line of text to the Zebra or simulator.
 
         Automatically appends newline terminator.
 
@@ -100,15 +195,25 @@ class ZebraTransport:
         if not self.connected:
             raise RuntimeError("Not connected to Zebra")
 
-        line = data + "\n"
         logger.debug(f"TX: {data!r}")
 
-        await self._serial.write_async(line.encode("ascii"))  # type: ignore[union-attr]
+        if self._is_simulation:
+            # Process command and store response for next read_line
+            if self._simulator:
+                response = await self._simulator.process_command(data)
+                # Store response to be returned by next read_line() call
+                self._sim_last_response = response
+        else:
+            line = data + "\n"
+            await self._serial.write_async(  # type: ignore[union-attr]
+                line.encode("ascii")
+            )
 
     async def read_line(self, timeout: float | None = None) -> str:
-        """Read a line of text from the Zebra.
+        """Read a line of text from the Zebra or simulator.
 
         Reads until newline terminator, which is stripped from result.
+        In simulation mode, returns the last command response.
 
         Args:
             timeout: Read timeout in seconds (uses default if None)
@@ -127,20 +232,73 @@ class ZebraTransport:
             timeout = self.TIMEOUT
 
         try:
-            # Read until newline with timeout
-            line_bytes = await asyncio.wait_for(
-                self._serial.readline_async(),  # type: ignore[union-attr]
-                timeout=timeout,
-            )
-
-            # Decode and strip newline
-            line = line_bytes.decode("ascii").rstrip("\n")
-            logger.debug(f"RX: {line!r}")
+            if self._is_simulation:
+                # Return the stored response from last write_line
+                if self._sim_last_response is not None:
+                    line = self._sim_last_response
+                    self._sim_last_response = None
+                    logger.debug(f"RX: {line!r}")
+                else:
+                    raise RuntimeError(
+                        "No response available - write_line must be called first"
+                    )
+            else:
+                # Read from response queue (populated by reader task)
+                line = await asyncio.wait_for(
+                    self._response_queue.get(),
+                    timeout=timeout,
+                )
 
             return line
 
         except TimeoutError:
             logger.error(f"Read timeout after {timeout}s")
+            raise
+
+    async def read_interrupt(self, timeout: float | None = None) -> str:
+        """Read an interrupt message (simulation or real hardware).
+
+        This method reads asynchronous interrupt messages like PR, PX, P<data>.
+        In simulation mode, only reads from the interrupt queue.
+        On real hardware, reads any available line.
+
+        Args:
+            timeout: Read timeout in seconds (uses default if None)
+
+        Returns:
+            Interrupt message without newline terminator
+
+        Raises:
+            RuntimeError: If not connected
+            TimeoutError: If read times out
+        """
+        if not self.connected:
+            raise RuntimeError("Not connected to Zebra")
+
+        if timeout is None:
+            timeout = self.TIMEOUT
+
+        try:
+            if self._is_simulation:
+                # Only read from interrupt queue
+                if self._sim_interrupt_queue:
+                    line = await asyncio.wait_for(
+                        self._sim_interrupt_queue.get(), timeout=timeout
+                    )
+                    logger.debug(f"RX (interrupt): {line!r}")
+                else:
+                    raise RuntimeError("Simulator not properly initialized")
+            else:
+                # Read from interrupt queue (populated by reader task)
+                line = await asyncio.wait_for(
+                    self._interrupt_queue.get(),
+                    timeout=timeout,
+                )
+
+            return line
+
+        except TimeoutError:
+            # Timeouts are normal for interrupt monitoring
             raise
 
     async def __aenter__(self):
