@@ -51,6 +51,11 @@ def main(args: Sequence[str] | None = None) -> None:
         default=None,
         help="Generate Phoebus screen file (e.g., zebra.bob)",
     )
+    parser.add_argument(
+        "--no-interactive",
+        action="store_true",
+        help="Run in interactive mode (default: True)",
+    )
 
     parsed_args = parser.parse_args(args)
 
@@ -93,7 +98,7 @@ def main(args: Sequence[str] | None = None) -> None:
 
     # Launch FastCS (non-interactive for daemon mode)
     fastcs = FastCS(controller, [transport])
-    fastcs.run(interactive=False)
+    fastcs.run(interactive=not parsed_args.no_interactive)
 
 
 if __name__ == "__main__":

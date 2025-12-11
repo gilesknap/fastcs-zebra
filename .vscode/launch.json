@@ -11,10 +11,10 @@
             "module": "fastcs_zebra",
             "args": [
                 "--port",
-                "/dev/ttyUSB0",
+                "/dev/ttyUSB1",
                 "--gui",
                 "/tmp/zebra.bob",
-                "--log-leve",
+                "--log-level",
                 "DEBUG"
             ]
         },

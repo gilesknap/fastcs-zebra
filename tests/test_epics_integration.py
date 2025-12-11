@@ -54,6 +54,8 @@ def zebra_ioc(pv_prefix, zebra_port):
             zebra_port,
             "--pv-prefix",
             pv_prefix,
+            "--interactive",
+            "False",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
