@@ -99,6 +99,7 @@ class ZebraController(Controller):
         self._protocol: ZebraProtocol | None = None
         self._interrupt_handler = InterruptHandler()
         self._interrupt_task: asyncio.Task | None = None
+        self._callbacks_registered = False
 
         # Create IO handler (will be set to actual protocol after connect)
         self._register_io = ZebraRegisterIO(None)
@@ -165,29 +166,10 @@ class ZebraController(Controller):
             await self.connected.update(True)
             await self.status_msg.update("Connected")
 
-            # Setup interrupt handler callbacks
-            @self._interrupt_handler.on_reset
-            async def on_reset():
-                logger.info("Position compare reset")
-                await self.status_msg.update("PC Reset")
-
-            @self._interrupt_handler.on_data
-            async def on_data(data: PositionCompareData):
-                # Update last captured values
-                await self.pc_time_last.update(data.timestamp)
-                if data.encoder1 is not None:
-                    await self.pc_enc1_last.update(data.encoder1)
-                if data.encoder2 is not None:
-                    await self.pc_enc2_last.update(data.encoder2)
-                if data.encoder3 is not None:
-                    await self.pc_enc3_last.update(data.encoder3)
-                if data.encoder4 is not None:
-                    await self.pc_enc4_last.update(data.encoder4)
-
-            @self._interrupt_handler.on_end
-            async def on_end():
-                logger.info("Position compare complete")
-                await self.status_msg.update("PC Complete")
+            # Setup interrupt handler callbacks (only once)
+            if not self._callbacks_registered:
+                self._setup_interrupt_callbacks()
+                self._callbacks_registered = True
 
             # Start interrupt monitoring
             self._interrupt_task = asyncio.create_task(self._monitor_interrupts())
@@ -208,14 +190,42 @@ class ZebraController(Controller):
                 await self._interrupt_task
             except asyncio.CancelledError:
                 pass
+            self._interrupt_task = None
 
         if self._transport:
             await self._transport.disconnect()
             self._transport = None
             self._protocol = None
 
+        await self.connected.update(False)
         logger.info("Disconnected from Zebra")
         await self.status_msg.update("Disconnected")
+
+    def _setup_interrupt_callbacks(self) -> None:
+        """Setup interrupt handler callbacks. Called once during first connect."""
+
+        @self._interrupt_handler.on_reset
+        async def on_reset():
+            logger.info("Position compare reset")
+            await self.status_msg.update("PC Reset")
+
+        @self._interrupt_handler.on_data
+        async def on_data(data: PositionCompareData):
+            # Update last captured values
+            await self.pc_time_last.update(data.timestamp)
+            if data.encoder1 is not None:
+                await self.pc_enc1_last.update(data.encoder1)
+            if data.encoder2 is not None:
+                await self.pc_enc2_last.update(data.encoder2)
+            if data.encoder3 is not None:
+                await self.pc_enc3_last.update(data.encoder3)
+            if data.encoder4 is not None:
+                await self.pc_enc4_last.update(data.encoder4)
+
+        @self._interrupt_handler.on_end
+        async def on_end():
+            logger.info("Position compare complete")
+            await self.status_msg.update("PC Complete")
 
     async def _monitor_interrupts(self) -> None:
         """Background task to monitor for interrupt messages."""
@@ -242,44 +252,49 @@ class ZebraController(Controller):
             logger.debug("Interrupt monitoring task cancelled")
             raise
 
+    def _check_connected(self) -> None:
+        """Check if connected and raise RuntimeError if not."""
+        if not self._protocol:
+            raise RuntimeError("Not connected to Zebra hardware")
+
     # Commands
 
     @command()
     async def pc_arm(self) -> None:
         """Arm position compare (write 0x8B)."""
-        if self._protocol:
-            await self._protocol.write_register(0x8B, 1)
-            logger.info("Position compare armed")
-            await self.status_msg.update("PC Armed")
+        self._check_connected()
+        await self._protocol.write_register(0x8B, 1)  # type: ignore[union-attr]
+        logger.info("Position compare armed")
+        await self.status_msg.update("PC Armed")
 
     @command()
     async def pc_disarm(self) -> None:
         """Disarm position compare (write 0x8C)."""
-        if self._protocol:
-            await self._protocol.write_register(0x8C, 1)
-            logger.info("Position compare disarmed")
-            await self.status_msg.update("PC Disarmed")
+        self._check_connected()
+        await self._protocol.write_register(0x8C, 1)  # type: ignore[union-attr]
+        logger.info("Position compare disarmed")
+        await self.status_msg.update("PC Disarmed")
 
     @command()
     async def save_to_flash(self) -> None:
         """Save configuration to flash memory."""
-        if self._protocol:
-            await self._protocol.flash_command("S")
-            logger.info("Configuration saved to flash")
-            await self.status_msg.update("Saved to flash")
+        self._check_connected()
+        await self._protocol.flash_command("S")  # type: ignore[union-attr]
+        logger.info("Configuration saved to flash")
+        await self.status_msg.update("Saved to flash")
 
     @command()
     async def load_from_flash(self) -> None:
         """Load configuration from flash memory."""
-        if self._protocol:
-            await self._protocol.flash_command("L")
-            logger.info("Configuration loaded from flash")
-            await self.status_msg.update("Loaded from flash")
+        self._check_connected()
+        await self._protocol.flash_command("L")  # type: ignore[union-attr]
+        logger.info("Configuration loaded from flash")
+        await self.status_msg.update("Loaded from flash")
 
     @command()
     async def sys_reset(self) -> None:
         """Reset Zebra system (write 0x7E)."""
-        if self._protocol:
-            await self._protocol.write_register(0x7E, 1)
-            logger.info("System reset")
-            await self.status_msg.update("System reset")
+        self._check_connected()
+        await self._protocol.write_register(0x7E, 1)  # type: ignore[union-attr]
+        logger.info("System reset")
+        await self.status_msg.update("System reset")

@@ -95,6 +95,13 @@ class ZebraSimulator:
                     logger.warning(f"Simulator: Invalid write address 0x{addr:02X}")
                     return f"E1W{addr:02X}"
 
+                # Reject writes to read-only registers (0xF0-0xF7)
+                if 0xF0 <= addr <= 0xF7:
+                    logger.warning(
+                        f"Simulator: Cannot write to read-only register 0x{addr:02X}"
+                    )
+                    return f"E1W{addr:02X}"
+
                 self.memory[addr] = value
                 logger.debug(f"Simulator: Write reg 0x{addr:02X} = 0x{value:04X}")
 
