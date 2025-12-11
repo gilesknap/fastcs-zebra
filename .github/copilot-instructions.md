@@ -65,14 +65,14 @@ The immediate goal is to validate the Phase 1 serial communication layer and bas
 ### Zebra Hardware Specifications
 These specifications document the complete Zebra serial protocol and EPICS PV interface from the legacy driver:
 
-- **Serial Protocol Specification**: [SERIAL_PROTOCOL_SPEC.md](https://github.com/DiamondLightSource/zebra/blob/fastcs-experiment/docs/SERIAL_PROTOCOL_SPEC.md)
+- **Serial Protocol Specification**: [serial-protocol.md](../docs/reference/serial-protocol.md)
   - Complete serial command set (read/write registers, flash operations, interrupts)
   - All 256 registers (0x00-0xFF) with addresses and types
   - 64-signal system bus routing matrix
   - Position compare interrupt protocol
   - Implementation guidelines and timing constraints
 
-- **EPICS PV Interface Specification**: [EPICS_PV_SPEC.md](https://github.com/DiamondLightSource/zebra/blob/fastcs-experiment/docs/EPICS_PV_SPEC.md)
+- **EPICS PV Interface Specification**: [epics-pv-spec.md](../docs/reference/epics-pv-spec.md)
   - Complete PV naming conventions and patterns
   - Mapping of all PVs to serial protocol operations
   - Register access patterns (16-bit, 32-bit, mux, bitfield, prescaler)
