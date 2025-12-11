@@ -3,13 +3,20 @@
 Launches a FastCS server that exposes Zebra hardware control via EPICS PVs.
 
 Usage:
-    python -m fastcs_zebra --port /dev/ttyUSB0 --pv-prefix BL99I-EA-ZEBRA-01:
+  uv run fastcs_zebra --port /dev/ttyUSB0 --pv-prefix BL99I-EA-ZEBRA-01:
 """
 
 import logging
 from argparse import ArgumentParser
 from collections.abc import Sequence
 from pathlib import Path
+
+from fastcs.launch import FastCS
+from fastcs.transports.epics.ca import EpicsCATransport
+from fastcs.transports.epics.options import (
+    EpicsGUIOptions,
+    EpicsIOCOptions,
+)
 
 from . import __version__
 from .zebra_controller import ZebraController
@@ -54,7 +61,7 @@ def main(args: Sequence[str] | None = None) -> None:
     parser.add_argument(
         "--no-interactive",
         action="store_true",
-        help="Run in interactive mode (default: True)",
+        help="Don't run in interactive mode (default: True)",
     )
 
     parsed_args = parser.parse_args(args)
@@ -65,19 +72,6 @@ def main(args: Sequence[str] | None = None) -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    # Import FastCS components (optional dependency for EPICS)
-    try:
-        from fastcs.launch import FastCS
-        from fastcs.transports.epics.ca import EpicsCATransport
-        from fastcs.transports.epics.options import (
-            EpicsGUIOptions,
-            EpicsIOCOptions,
-        )
-    except ImportError as e:
-        print(f"Error: FastCS EPICS transport not available: {e}")
-        print("Please install with: pip install 'fastcs[ca]'")
-        return
-
     # Create controller
     controller = ZebraController(port=parsed_args.port)
 
@@ -87,7 +81,7 @@ def main(args: Sequence[str] | None = None) -> None:
         gui_path = Path(parsed_args.gui)
         gui_options = EpicsGUIOptions(
             output_path=gui_path,
-            title="Zebra Position Compare Controller",
+            title="Zebra Controller",
         )
 
     # Create EPICS transport

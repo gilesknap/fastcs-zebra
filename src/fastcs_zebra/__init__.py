@@ -7,7 +7,6 @@ Phase 1 implementation includes:
 - ZebraTransport: Low-level serial I/O
 - ZebraProtocol: Register read/write and command execution
 - InterruptHandler: Position compare data parsing
-- CLI: Interactive testing interface
 
 Example usage::
 
