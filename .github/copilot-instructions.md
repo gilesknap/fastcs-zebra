@@ -4,50 +4,66 @@
 
 This project implements a FastCS driver for the Diamond Light Source Zebra position compare and logic control hardware. It replaces the legacy AreaDetector/Asyn-based driver with a modern FastCS implementation that communicates directly with the Zebra hardware over serial.
 
-## Current Status (December 2025)
+## Current Status (January 2025)
 
 **Phase 1: COMPLETE ✅**
 - Serial communication layer fully implemented using `aioserial`
 - All modules have zero linting errors and follow modern Python patterns
 - Completed modules:
-  - `src/fastcs_zebra/transport.py` - ZebraTransport with asyncio serial I/O
-  - `src/fastcs_zebra/protocol.py` - ZebraProtocol for register R/W and flash commands
-  - `src/fastcs_zebra/interrupts.py` - InterruptHandler for position compare data parsing
-  - `src/fastcs_zebra/cli.py` - Interactive CLI for hardware testing
+  - [`src/fastcs_zebra/transport.py`](../src/fastcs_zebra/transport.py) - ZebraTransport with asyncio serial I/O
+  - [`src/fastcs_zebra/protocol.py`](../src/fastcs_zebra/protocol.py) - ZebraProtocol for register R/W and flash commands
+  - [`src/fastcs_zebra/interrupts.py`](../src/fastcs_zebra/interrupts.py) - InterruptHandler for position compare data parsing
+  - [`src/fastcs_zebra/cli.py`](../src/fastcs_zebra/cli.py) - Interactive CLI for hardware testing
 
-**FastCS Integration: INITIAL IMPLEMENTATION ✅**
+**Phase 2: FastCS Integration ✅ COMPLETE**
 - Basic EPICS IOC is functional and ready for hardware testing
 - Dependencies: `fastcs[epics]` provides both CA (Channel Access) and PVA (Process Variable Access) transports
 - Testing: Uses `epicscorelibs` for CA client testing and `p4p` for PVA client testing
 - Completed:
-  - `src/fastcs_zebra/zebra_controller.py` - ZebraController with essential PVs
-  - `src/fastcs_zebra/__main__.py` - EPICS IOC entry point with FastCS launcher
-  - `docs/tutorials/epics-integration.md` - Complete EPICS usage guide
-  - `tests/test_epics_integration.py` - Pytest-based EPICS integration tests for CA and PVA
+  - [`src/fastcs_zebra/zebra_controller.py`](../src/fastcs_zebra/zebra_controller.py) - ZebraController with essential PVs
+  - [`src/fastcs_zebra/__main__.py`](../src/fastcs_zebra/__main__.py) - EPICS IOC entry point with FastCS launcher
+  - [`docs/tutorials/epics-integration.md`](../docs/tutorials/epics-integration.md) - Complete EPICS usage guide
+  - [`tests/test_epics_integration.py`](../tests/test_epics_integration.py) - Pytest-based EPICS integration tests for CA and PVA
   - Updated README.md with FastCS/EPICS focus
   - Updated `pyproject.toml` to include `fastcs[epics]` dependency for EPICS transport support
-- Current PV Set (for testing Phase 1 functionality):
-  - Connection status, firmware version, system state/error
-  - Position compare control (encoder selection, prescaler, arm/disarm)
-  - Soft inputs (read-write testing)
-  - Last captured values (interrupt-driven updates)
-  - Flash save/load, system reset commands
+
+**Phase 3: Full FastCS Controller Hierarchy ✅ COMPLETE**
+- Complete controller hierarchy implemented matching legacy EPICS interface
+- 28 sub-controllers covering all hardware subsystems
+- 118 tests passing (including 37 sub-controller tests)
+- Completed modules:
+  - [`src/fastcs_zebra/register_io.py`](../src/fastcs_zebra/register_io.py) - ZebraRegisterIO abstraction for attribute-to-register binding
+  - [`src/fastcs_zebra/controllers/__init__.py`](../src/fastcs_zebra/controllers/__init__.py) - Sub-controller package exports
+  - [`src/fastcs_zebra/controllers/logic.py`](../src/fastcs_zebra/controllers/logic.py) - AndGateController, OrGateController (AND1-4, OR1-4)
+  - [`src/fastcs_zebra/controllers/gates.py`](../src/fastcs_zebra/controllers/gates.py) - GateController (GATE1-4)
+  - [`src/fastcs_zebra/controllers/pulses.py`](../src/fastcs_zebra/controllers/pulses.py) - PulseController (PULSE1-4)
+  - [`src/fastcs_zebra/controllers/dividers.py`](../src/fastcs_zebra/controllers/dividers.py) - DividerController (DIV1-4)
+  - [`src/fastcs_zebra/controllers/outputs.py`](../src/fastcs_zebra/controllers/outputs.py) - OutputController (OUT1-8)
+  - [`src/fastcs_zebra/controllers/position_compare.py`](../src/fastcs_zebra/controllers/position_compare.py) - PositionCompareController (PC)
+  - [`tests/test_subcontrollers.py`](../tests/test_subcontrollers.py) - Comprehensive sub-controller tests
+- Sub-controller PVs:
+  - Logic gates: INP1-4 (mux), ENA/INV (bitfield), OUT (status)
+  - Gate generators: INP1/INP2 (trigger/reset), OUT (status)
+  - Pulse generators: INP (mux), DLY/WID (time), PRE (prescaler), OUT (status)
+  - Dividers: INP (mux), DIV (32-bit), OUTD/OUTN (status)
+  - Outputs: Signal-type-specific routing (TTL, NIM, LVDS, PECL, OC, ENCA/B/Z/CONN)
+  - Position compare: ENC, GATE_SEL/INP/START/WID/NGATE/STEP, PULSE_SEL/INP/START/WID/STEP/MAX/DLY, BIT_CAP, DIR
 
 **Next Steps:**
 - Test with real Zebra hardware via EPICS
-- Expand PV coverage based on testing results
-- Begin Phase 2: Complete register abstraction
-- Phase 3: Full controller hierarchy (logic gates, pulse generators, etc.)
-- Phase 4: Motor integration
-- Phase 5: Position compare waveform arrays
+- Phase 4: Motor integration (ERES, OFF scaling, POS1-4_SET)
+- Phase 5: Position compare waveform arrays (PC_TIME, PC_ENC1-4, PC_SYS1-2, PC_DIV1-4)
 
 ## Current Goal
 
-The immediate goal is to validate the Phase 1 serial communication layer and basic EPICS integration with real hardware. Once validated, we will:
-- Add complete register abstraction layer
-- Build full FastCS controller hierarchy matching the legacy EPICS interface
-- Implement motor integration and position scaling
-- Add position compare waveform data arrays
+The immediate goal is to test the complete controller hierarchy with real Zebra hardware via EPICS. With Phase 3 complete, the driver now has:
+- Full serial communication layer (Phase 1)
+- Basic EPICS IOC with FastCS (Phase 2)
+- Complete controller hierarchy with 28 sub-controllers (Phase 3)
+
+Next implementation priorities:
+- Phase 4: Motor integration (ERES, OFF scaling, POS1-4_SET)
+- Phase 5: Position compare waveform arrays (PC_TIME, PC_ENC1-4, PC_SYS1-2, PC_DIV1-4)
 - Achieve full backward compatibility with legacy AreaDetector driver
 
 ## Dependencies
@@ -124,48 +140,46 @@ These specifications document the complete Zebra serial protocol and EPICS PV in
 5. ✅ Flash storage commands (S/L)
 6. ✅ Interactive CLI testing tool
 
-**Files**: `transport.py`, `protocol.py`, `interrupts.py`, `cli.py`
+**Files**: [`transport.py`](../src/fastcs_zebra/transport.py), [`protocol.py`](../src/fastcs_zebra/protocol.py), [`interrupts.py`](../src/fastcs_zebra/interrupts.py), [`cli.py`](../src/fastcs_zebra/cli.py)
 
-### Phase 2: FastCS Integration ✅ INITIAL IMPLEMENTATION
+### Phase 2: FastCS Integration ✅ COMPLETE
 1. ✅ Basic ZebraController with essential PVs
 2. ✅ EPICS IOC entry point (`__main__.py`)
 3. ✅ Interrupt monitoring background task
 4. ✅ Connection lifecycle (connect/disconnect)
 5. ✅ Documentation and test scripts
 
-**Files**: `zebra_controller.py`, `__main__.py`, `docs/tutorials/epics-integration.md`
+**Files**: [`zebra_controller.py`](../src/fastcs_zebra/zebra_controller.py), [`__main__.py`](../src/fastcs_zebra/__main__.py), [`docs/tutorials/epics-integration.md`](../docs/tutorials/epics-integration.md)
 
-**Current PVs**:
-- `CONNECTED`, `SYS_VER`, `SYS_STATERR` (read-only)
-- `PC_ENC`, `PC_TSPRE`, `SOFT_IN` (read-write)
-- `PC_NUM_CAP` (32-bit read-only)
-- `PC_TIME_LAST`, `PC_ENC1-4_LAST` (interrupt updates)
-- `STATUS_MSG` (status string)
-- Commands: `PC_ARM`, `PC_DISARM`, `SAVE_TO_FLASH`, `LOAD_FROM_FLASH`, `SYS_RESET`
+### Phase 3: Full FastCS Controller Hierarchy ✅ COMPLETE
+1. ✅ Design controller hierarchy matching hardware structure
+2. ✅ Implement logic gates (AND1-4, OR1-4) as sub-controllers
+3. ✅ Implement pulse generators (PULSE1-4) with delay/width/prescaler
+4. ✅ Implement dividers (DIV1-4) with 32-bit divisor
+5. ✅ Implement gate generators (GATE1-4)
+6. ✅ Implement output routing (OUT1-8) with multiplexer selection
+7. ✅ Implement position compare subsystem (encoder, gate, pulse, capture config)
+8. ✅ Create ZebraRegisterIO abstraction for deferred protocol binding
+9. ✅ Add comprehensive sub-controller tests
 
-### Phase 3: Complete Register Abstraction ⏳ PLANNED
-1. Create complete register definitions from zebraRegs.h
-2. Implement system bus signal mapping (64-signal lookup)
-3. Add comprehensive 32-bit register handling
-4. Create type-specific register accessors (RW, RO, Mux, Cmd)
-5. Build register name/address bidirectional lookup
+**Files**:
+- [`register_io.py`](../src/fastcs_zebra/register_io.py) - Register I/O abstraction
+- [`controllers/__init__.py`](../src/fastcs_zebra/controllers/__init__.py) - Package exports
+- [`controllers/logic.py`](../src/fastcs_zebra/controllers/logic.py) - AND/OR gate controllers
+- [`controllers/gates.py`](../src/fastcs_zebra/controllers/gates.py) - Gate generator controllers
+- [`controllers/pulses.py`](../src/fastcs_zebra/controllers/pulses.py) - Pulse generator controllers
+- [`controllers/dividers.py`](../src/fastcs_zebra/controllers/dividers.py) - Divider controllers
+- [`controllers/outputs.py`](../src/fastcs_zebra/controllers/outputs.py) - Output routing controllers
+- [`controllers/position_compare.py`](../src/fastcs_zebra/controllers/position_compare.py) - Position compare controller
+- [`tests/test_subcontrollers.py`](../tests/test_subcontrollers.py) - Sub-controller tests
 
-### Phase 4: Full FastCS Controller Hierarchy ⏳ PLANNED
-1. Design controller hierarchy matching hardware structure
-2. Implement logic gates (AND1-4, OR1-4) as sub-controllers
-3. Implement pulse generators (PULSE1-4) with delay/width/prescaler
-4. Implement dividers (DIV1-4) with 32-bit divisor
-5. Implement gate generators (GATE1-4)
-6. Implement output routing (OUT1-8) with multiplexer selection
-7. Implement complete position compare subsystem
-
-### Phase 5: Motor Integration ⏳ PLANNED
+### Phase 4: Motor Integration ⏳ PLANNED
 1. Add motor record links for scaling (ERES, OFF)
 2. Implement encoder position setting (POS1-4_SET)
 3. Add position/time unit conversions
 4. Handle motor direction and scaling multipliers
 
-### Phase 6: Position Compare Data Arrays ⏳ PLANNED
+### Phase 5: Position Compare Data Arrays ⏳ PLANNED
 1. Implement waveform data arrays (PC_TIME, PC_ENC1-4, PC_SYS1-2, PC_DIV1-4)
 2. Add filtered system bus extraction (PC_FILT1-4)
 3. Handle buffer management and rollover
