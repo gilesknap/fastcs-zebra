@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Zebra Serial Protocol &#8212; fastcs-zebra 0.1.dev7+g13fffb4e9 documentation</title>
+    <title>Zebra Serial Protocol Specification &#8212; fastcs-zebra 0.1.dev8+g7327b36e2 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=e0535c59"></script>
+    <script src="../_static/documentation_options.js?v=864b65f2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="fastcs_zebra" href="../_api/fastcs_zebra.html" />
+    <link rel="next" title="Zebra EPICS PV Interface Specification" href="epics-pv-spec.html" />
     <link rel="prev" title="Reference" href="../reference.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -397,7 +397,8 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Zebra Serial Protocol</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Zebra Serial Protocol Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="epics-pv-spec.html">Zebra EPICS PV Interface Specification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_api/fastcs_zebra.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/DiamondLightSource/fastcs-zebra/releases">Release Notes</a></li>
@@ -444,7 +445,7 @@
     
     <li class="breadcrumb-item"><a href="../reference.html" class="nav-link">Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Zebra Serial Protocol</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Zebra Serial Protocol Specification</span></li>
   </ul>
 </nav>
 </div>
@@ -461,9 +462,12 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="zebra-serial-protocol">
-<h1>Zebra Serial Protocol<a class="headerlink" href="#zebra-serial-protocol" title="Link to this heading">#</a></h1>
-<p>This document describes the serial communication protocol used by FastCS-Zebra to communicate with the Zebra hardware device.</p>
+  <section id="zebra-serial-protocol-specification">
+<h1>Zebra Serial Protocol Specification<a class="headerlink" href="#zebra-serial-protocol-specification" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>This document specifies the serial communication protocol used to control and monitor the Zebra.</p>
+</section>
 <section id="connection-parameters">
 <h2>Connection Parameters<a class="headerlink" href="#connection-parameters" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -488,7 +492,7 @@
 <h2>Command Format<a class="headerlink" href="#command-format" title="Link to this heading">#</a></h2>
 <p>All commands are terminated with a newline character (<code class="docutils literal notranslate"><span class="pre">\n</span></code>).</p>
 <section id="read-register-command">
-<h3>Read Register Command<a class="headerlink" href="#read-register-command" title="Link to this heading">#</a></h3>
+<h3>1. Read Register Command<a class="headerlink" href="#read-register-command" title="Link to this heading">#</a></h3>
 <p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;\n</span></code></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">R</span></code> - Read command identifier</p></li>
@@ -510,8 +514,9 @@
 <li><p>Indicates the register address is invalid or cannot be read</p></li>
 </ul>
 </section>
+<hr class="docutils" />
 <section id="write-register-command">
-<h3>Write Register Command<a class="headerlink" href="#write-register-command" title="Link to this heading">#</a></h3>
+<h3>2. Write Register Command<a class="headerlink" href="#write-register-command" title="Link to this heading">#</a></h3>
 <p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;\n</span></code></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">W</span></code> - Write command identifier</p></li>
@@ -533,10 +538,11 @@
 <ul class="simple">
 <li><p>Indicates the register address is invalid or cannot be written</p></li>
 </ul>
-<p><strong>Note</strong>: Read-only registers will reject write commands.</p>
+<p><strong>Note</strong>: Read-only registers (type <code class="docutils literal notranslate"><span class="pre">regRO</span></code>) will reject write commands.</p>
 </section>
+<hr class="docutils" />
 <section id="flash-storage-commands">
-<h3>Flash Storage Commands<a class="headerlink" href="#flash-storage-commands" title="Link to this heading">#</a></h3>
+<h3>3. Flash Storage Commands<a class="headerlink" href="#flash-storage-commands" title="Link to this heading">#</a></h3>
 <section id="save-to-flash">
 <h4>Save to Flash<a class="headerlink" href="#save-to-flash" title="Link to this heading">#</a></h4>
 <p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">S\n</span></code></p>
@@ -551,12 +557,14 @@
 <p><strong>Purpose</strong>: Restores register configuration from non-volatile flash memory.</p>
 </section>
 </section>
+<hr class="docutils" />
 <section id="generic-error-response">
-<h3>Generic Error Response<a class="headerlink" href="#generic-error-response" title="Link to this heading">#</a></h3>
+<h3>4. Generic Error Response<a class="headerlink" href="#generic-error-response" title="Link to this heading">#</a></h3>
 <p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">E0\n</span></code></p>
 <p><strong>Purpose</strong>: Indicates a malformed or unrecognized command.</p>
 </section>
 </section>
+<hr class="docutils" />
 <section id="interrupt-messages-asynchronous">
 <h2>Interrupt Messages (Asynchronous)<a class="headerlink" href="#interrupt-messages-asynchronous" title="Link to this heading">#</a></h2>
 <p>The Zebra sends unsolicited messages when position compare events occur. These messages are distinguished by starting with the letter <code class="docutils literal notranslate"><span class="pre">P</span></code>.</p>
@@ -566,6 +574,7 @@
 <p><strong>Meaning</strong>: Position compare has been armed. The host should reset its data buffers and prepare to receive position compare data.</p>
 <p><strong>Trigger</strong>: Sent when register <code class="docutils literal notranslate"><span class="pre">PC_ARM</span></code> (0x8B) is written with value 1.</p>
 </section>
+<hr class="docutils" />
 <section id="position-compare-data-message">
 <h3>Position Compare Data Message<a class="headerlink" href="#position-compare-data-message" title="Link to this heading">#</a></h3>
 <p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">P&lt;TTTTTTTT&gt;[&lt;EEEEEEEE&gt;]...\n</span></code></p>
@@ -611,6 +620,7 @@ The number and meaning of data fields depends on register <code class="docutils 
 </pre></div>
 </div>
 </section>
+<hr class="docutils" />
 <section id="position-compare-complete-message">
 <h3>Position Compare Complete Message<a class="headerlink" href="#position-compare-complete-message" title="Link to this heading">#</a></h3>
 <p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">PX\n</span></code></p>
@@ -622,56 +632,493 @@ The number and meaning of data fields depends on register <code class="docutils 
 </ul>
 </section>
 </section>
-<section id="key-registers">
-<h2>Key Registers<a class="headerlink" href="#key-registers" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="register-map">
+<h2>Register Map<a class="headerlink" href="#register-map" title="Link to this heading">#</a></h2>
+<p>The Zebra has a 256-byte register space (addresses 0x00-0xFF). Each register is 16 bits wide.</p>
+<section id="register-types">
+<h3>Register Types<a class="headerlink" href="#register-types" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>regRW</strong>: Read-Write register (configuration)</p></li>
+<li><p><strong>regRO</strong>: Read-Only register (status/version)</p></li>
+<li><p><strong>regCmd</strong>: Command register (write-only, triggers actions)</p></li>
+<li><p><strong>regMux</strong>: Multiplexer register (selects from system bus, see System Bus section)</p></li>
+</ol>
+</section>
+<section id="key-register-categories">
+<h3>Key Register Categories<a class="headerlink" href="#key-register-categories" title="Link to this heading">#</a></h3>
+<section id="logic-gates-and-or">
+<h4>Logic Gates (AND/OR)<a class="headerlink" href="#logic-gates-and-or" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x00-0x07</span></code>: AND gate 1-4 inversion and enable bits</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x08-0x17</span></code>: AND gate 1-4 inputs (4 inputs × 4 gates)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x18-0x1F</span></code>: OR gate 1-4 inversion and enable bits</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x20-0x2F</span></code>: OR gate 1-4 inputs (4 inputs × 4 gates)</p></li>
+</ul>
+</section>
+<section id="gate-generator">
+<h4>Gate Generator<a class="headerlink" href="#gate-generator" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x30-0x33</span></code>: GATE 1-4 input 1 (trigger)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x34-0x37</span></code>: GATE 1-4 input 2 (reset)</p></li>
+</ul>
+</section>
+<section id="pulse-dividers">
+<h4>Pulse Dividers<a class="headerlink" href="#pulse-dividers" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x38-0x3F</span></code>: DIV 1-4 divisor (LO/HI pairs for 32-bit values)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x40-0x43</span></code>: DIV 1-4 input select</p></li>
+</ul>
+</section>
+<section id="pulse-generators">
+<h4>Pulse Generators<a class="headerlink" href="#pulse-generators" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x44-0x47</span></code>: PULSE 1-4 delay</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x48-0x4B</span></code>: PULSE 1-4 width</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x4C-0x4F</span></code>: PULSE 1-4 prescaler</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x50-0x53</span></code>: PULSE 1-4 input select</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x54</span></code>: POLARITY - Output polarity control</p></li>
+</ul>
+</section>
+<section id="quadrature-encoder">
+<h4>Quadrature Encoder<a class="headerlink" href="#quadrature-encoder" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x55</span></code>: QUAD_DIR - Direction input</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x56</span></code>: QUAD_STEP - Step input</p></li>
+</ul>
+</section>
 <section id="position-compare-control">
-<h3>Position Compare Control<a class="headerlink" href="#position-compare-control" title="Link to this heading">#</a></h3>
+<h4>Position Compare Control<a class="headerlink" href="#position-compare-control" title="Link to this heading">#</a></h4>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0x88</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_ENC</span></code> - Select which encoder to use for position compare</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x89</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_TSPRE</span></code> - Timestamp clock prescaler (5=milliseconds, 5000=seconds)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x8A</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_ARM_SEL</span></code> - Arm input source (0=software, 1=external)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x8B</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_ARM</span></code> - Software arm command</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x8C</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_DISARM</span></code> - Software disarm command</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x9F</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_BIT_CAP</span></code> - Bit mask for data capture (which encoders/divs/sysbus)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x57</span></code>: PC_ARM_INP - External arm input select</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x58</span></code>: PC_GATE_INP - External gate input select</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x59</span></code>: PC_PULSE_INP - External pulse input select</p></li>
 </ul>
 </section>
-<section id="system-status-read-only">
-<h3>System Status (Read-Only)<a class="headerlink" href="#system-status-read-only" title="Link to this heading">#</a></h3>
+<section id="output-multiplexers">
+<h4>Output Multiplexers<a class="headerlink" href="#output-multiplexers" title="Link to this heading">#</a></h4>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF0</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_VER</span></code> - Firmware version</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF1</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STATERR</span></code> - System state/error flags</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF2</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT1LO</span></code> - System bus status bits 0-15</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF3</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT1HI</span></code> - System bus status bits 16-31</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF4</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT2LO</span></code> - System bus status bits 32-47</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF5</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_STAT2HI</span></code> - System bus status bits 48-63</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF6</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_NUM_CAPLO</span></code> - Number of position compare captures (low 16 bits)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0xF7</span></code> - <code class="docutils literal notranslate"><span class="pre">PC_NUM_CAPHI</span></code> - Number of position compare captures (high 16 bits)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x60-0x7B</span></code>: Output channel routing (28 outputs × 1 register each)</p>
+<ul>
+<li><p>OUT1-4: Multiple output types per connector (TTL, NIM, LVDS, PECL, OC)</p></li>
+<li><p>OUT5-8: Encoder outputs (ENCA, ENCB, ENCZ, CONN enable)</p></li>
+</ul>
+</li>
 </ul>
 </section>
-<section id="other-key-registers">
-<h3>Other Key Registers<a class="headerlink" href="#other-key-registers" title="Link to this heading">#</a></h3>
+<section id="system-control">
+<h4>System Control<a class="headerlink" href="#system-control" title="Link to this heading">#</a></h4>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0x7E</span></code> - <code class="docutils literal notranslate"><span class="pre">SYS_RESET</span></code> - System reset command</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x7F</span></code> - <code class="docutils literal notranslate"><span class="pre">SOFT_IN</span></code> - Software input register (4 bits for SOFT_IN1-4)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x7C</span></code>: DIV_FIRST - Select first pulse behavior for dividers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x7E</span></code>: SYS_RESET - System reset command</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x7F</span></code>: SOFT_IN - Software input register (4 bits for SOFT_IN1-4)</p></li>
 </ul>
-<p><strong>Note</strong>: For a complete register map with all 256 registers, see the <a class="reference external" href="https://github.com/DiamondLightSource/zebra">legacy Zebra repository</a>.</p>
 </section>
-</section>
-<section id="implementation-in-fastcs-zebra">
-<h2>Implementation in FastCS-Zebra<a class="headerlink" href="#implementation-in-fastcs-zebra" title="Link to this heading">#</a></h2>
-<p>The FastCS-Zebra driver implements this protocol through the following classes:</p>
+<section id="position-compare-parameters">
+<h4>Position Compare Parameters<a class="headerlink" href="#position-compare-parameters" title="Link to this heading">#</a></h4>
 <ul class="simple">
-<li><p><strong><a class="reference internal" href="../_api/fastcs_zebra.html#fastcs_zebra.ZebraTransport" title="fastcs_zebra.transport.ZebraTransport"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZebraTransport</span></code></a></strong> - Handles low-level serial I/O with asyncio</p></li>
-<li><p><strong><a class="reference internal" href="../_api/fastcs_zebra.html#fastcs_zebra.ZebraProtocol" title="fastcs_zebra.protocol.ZebraProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZebraProtocol</span></code></a></strong> - Implements command/response parsing and validation</p></li>
-<li><p><strong><a class="reference internal" href="../_api/fastcs_zebra.html#fastcs_zebra.InterruptHandler" title="fastcs_zebra.interrupts.InterruptHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterruptHandler</span></code></a></strong> - Processes asynchronous position compare data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x80-0x87</span></code>: POS1-4 SET (LO/HI pairs) - Load encoder counters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x88</span></code>: PC_ENC - Select which encoder to use for position compare</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x89</span></code>: PC_TSPRE - Timestamp clock prescaler (5=milliseconds, 5000=seconds)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8A</span></code>: PC_ARM_SEL - Arm input source (0=software, 1=external)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8B</span></code>: PC_ARM - Software arm command</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8C</span></code>: PC_DISARM - Software disarm command</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8D</span></code>: PC_GATE_SEL - Gate source (0=position, 1=time, 2=external)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x8E-0x95</span></code>: PC_GATE parameters (START, WID, NGATE, STEP - all LO/HI pairs)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x96</span></code>: PC_PULSE_SEL - Pulse source (0=position, 1=time, 2=external)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x97-0x9E</span></code>: PC_PULSE parameters (START, WID, STEP, MAX - all LO/HI pairs)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x9F</span></code>: PC_BIT_CAP - Bit mask for data capture (which encoders/divs/sysbus)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xA0</span></code>: PC_DIR - Position compare direction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xA1-0xA2</span></code>: PC_PULSE_DLY (LO/HI) - Pulse delay</p></li>
 </ul>
-<p>See the <a class="reference internal" href="../explanations/architecture.html"><span class="std std-doc">Architecture</span></a> documentation for details on how these components interact.</p>
 </section>
-<section id="see-also">
-<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<section id="status-registers-read-only">
+<h4>Status Registers (Read-Only)<a class="headerlink" href="#status-registers-read-only" title="Link to this heading">#</a></h4>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/main/docs/SERIAL_PROTOCOL_SPEC.md">Complete Serial Protocol Specification</a> - Full specification with all registers</p></li>
-<li><p><a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/main/docs/EPICS_PV_SPEC.md">EPICS PV Interface Specification</a> - How EPICS PVs map to registers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF0</span></code>: SYS_VER - Firmware version</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF1</span></code>: SYS_STATERR - System state/error flags</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF2-0xF3</span></code>: SYS_STAT1 (LO/HI) - System bus status bits 0-31</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF4-0xF5</span></code>: SYS_STAT2 (LO/HI) - System bus status bits 32-63</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0xF6-0xF7</span></code>: PC_NUM_CAP (LO/HI) - Number of position compare captures</p></li>
+</ul>
+<p><strong>Note</strong>: Registers with “LO/HI” pairs represent 32-bit values:</p>
+<ul class="simple">
+<li><p>LO register contains bits 0-15</p></li>
+<li><p>HI register contains bits 16-31</p></li>
+<li><p>Combined value = (HI &lt;&lt; 16) | LO</p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="system-bus">
+<h2>System Bus<a class="headerlink" href="#system-bus" title="Link to this heading">#</a></h2>
+<p>The System Bus is a 64-signal routing matrix that connects inputs, logic gates, and outputs. Each signal has an index (0-63) and a name.</p>
+<section id="system-bus-signal-index">
+<h3>System Bus Signal Index<a class="headerlink" href="#system-bus-signal-index" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Index</p></th>
+<th class="head"><p>Signal Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>DISCONNECT</p></td>
+<td><p>No connection</p></td>
+</tr>
+<tr class="row-odd"><td><p>1-3</p></td>
+<td><p>IN1_TTL, IN1_NIM, IN1_LVDS</p></td>
+<td><p>Input 1 variants</p></td>
+</tr>
+<tr class="row-even"><td><p>4-6</p></td>
+<td><p>IN2_TTL, IN2_NIM, IN2_LVDS</p></td>
+<td><p>Input 2 variants</p></td>
+</tr>
+<tr class="row-odd"><td><p>7-9</p></td>
+<td><p>IN3_TTL, IN3_OC, IN3_LVDS</p></td>
+<td><p>Input 3 variants</p></td>
+</tr>
+<tr class="row-even"><td><p>10-12</p></td>
+<td><p>IN4_TTL, IN4_CMP, IN4_PECL</p></td>
+<td><p>Input 4 variants</p></td>
+</tr>
+<tr class="row-odd"><td><p>13-16</p></td>
+<td><p>IN5_ENCA/B/Z, IN5_CONN</p></td>
+<td><p>Encoder input 5</p></td>
+</tr>
+<tr class="row-even"><td><p>17-20</p></td>
+<td><p>IN6_ENCA/B/Z, IN6_CONN</p></td>
+<td><p>Encoder input 6</p></td>
+</tr>
+<tr class="row-odd"><td><p>21-24</p></td>
+<td><p>IN7_ENCA/B/Z, IN7_CONN</p></td>
+<td><p>Encoder input 7</p></td>
+</tr>
+<tr class="row-even"><td><p>25-28</p></td>
+<td><p>IN8_ENCA/B/Z, IN8_CONN</p></td>
+<td><p>Encoder input 8</p></td>
+</tr>
+<tr class="row-odd"><td><p>29-31</p></td>
+<td><p>PC_ARM, PC_GATE, PC_PULSE</p></td>
+<td><p>Position compare signals</p></td>
+</tr>
+<tr class="row-even"><td><p>32-35</p></td>
+<td><p>AND1, AND2, AND3, AND4</p></td>
+<td><p>AND gate outputs</p></td>
+</tr>
+<tr class="row-odd"><td><p>36-39</p></td>
+<td><p>OR1, OR2, OR3, OR4</p></td>
+<td><p>OR gate outputs</p></td>
+</tr>
+<tr class="row-even"><td><p>40-43</p></td>
+<td><p>GATE1, GATE2, GATE3, GATE4</p></td>
+<td><p>Gate generator outputs</p></td>
+</tr>
+<tr class="row-odd"><td><p>44-47</p></td>
+<td><p>DIV1-4_OUTD</p></td>
+<td><p>Divider outputs (divided)</p></td>
+</tr>
+<tr class="row-even"><td><p>48-51</p></td>
+<td><p>DIV1-4_OUTN</p></td>
+<td><p>Divider outputs (not divided)</p></td>
+</tr>
+<tr class="row-odd"><td><p>52-55</p></td>
+<td><p>PULSE1, PULSE2, PULSE3, PULSE4</p></td>
+<td><p>Pulse generator outputs</p></td>
+</tr>
+<tr class="row-even"><td><p>56-57</p></td>
+<td><p>QUAD_OUTA, QUAD_OUTB</p></td>
+<td><p>Quadrature encoder outputs</p></td>
+</tr>
+<tr class="row-odd"><td><p>58-59</p></td>
+<td><p>CLOCK_1KHZ, CLOCK_1MHZ</p></td>
+<td><p>Internal clocks</p></td>
+</tr>
+<tr class="row-even"><td><p>60-63</p></td>
+<td><p>SOFT_IN1, SOFT_IN2, SOFT_IN3, SOFT_IN4</p></td>
+<td><p>Software inputs</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="using-multiplexer-registers">
+<h3>Using Multiplexer Registers<a class="headerlink" href="#using-multiplexer-registers" title="Link to this heading">#</a></h3>
+<p>When writing to a <code class="docutils literal notranslate"><span class="pre">regMux</span></code> type register:</p>
+<ul class="simple">
+<li><p>Write the index (0-63) of the desired system bus signal</p></li>
+<li><p>Example: To route IN1_TTL to OUT1_TTL:</p>
+<ul>
+<li><p>OUT1_TTL is register 0x60</p></li>
+<li><p>IN1_TTL has system bus index 1</p></li>
+<li><p>Command: <code class="docutils literal notranslate"><span class="pre">W600001\n</span></code></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="reading-system-bus-status">
+<h3>Reading System Bus Status<a class="headerlink" href="#reading-system-bus-status" title="Link to this heading">#</a></h3>
+<p>The current state of all 64 system bus signals can be read from registers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STAT1LO</span></code> (0xF2): Bits 0-15 of signals 0-31</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STAT1HI</span></code> (0xF3): Bits 16-31 of signals 0-31</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STAT2LO</span></code> (0xF4): Bits 0-15 of signals 32-63</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STAT2HI</span></code> (0xF5): Bits 16-31 of signals 32-63</p></li>
+</ul>
+<p>To read signal N:</p>
+<ol class="arabic simple">
+<li><p>Determine register: <code class="docutils literal notranslate"><span class="pre">SYS_STAT1LO/HI</span></code> for N&lt;32, <code class="docutils literal notranslate"><span class="pre">SYS_STAT2LO/HI</span></code> for N≥32</p></li>
+<li><p>Determine bit offset: N % 16</p></li>
+<li><p>Read register and check bit: <code class="docutils literal notranslate"><span class="pre">(value</span> <span class="pre">&gt;&gt;</span> <span class="pre">bit_offset)</span> <span class="pre">&amp;</span> <span class="pre">1</span></code></p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="typical-usage-sequences">
+<h2>Typical Usage Sequences<a class="headerlink" href="#typical-usage-sequences" title="Link to this heading">#</a></h2>
+<section id="connect-and-read-firmware-version">
+<h3>1. Connect and Read Firmware Version<a class="headerlink" href="#connect-and-read-firmware-version" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>→ R F0
+← R F0 0020
+</pre></div>
+</div>
+<p>Firmware version is 0x0020.</p>
+</section>
+<section id="configure-a-simple-logic-gate">
+<h3>2. Configure a Simple Logic Gate<a class="headerlink" href="#configure-a-simple-logic-gate" title="Link to this heading">#</a></h3>
+<p>Route IN1_TTL through AND1 gate to OUT1_TTL:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>→ W08 0001    # AND1_INP1 = IN1_TTL (index 1)
+← W08OK
+→ W04 0001    # AND1_ENA = enable input 1 only
+← W04OK
+→ W00 0000    # AND1_INV = don&#39;t invert
+← W00OK
+→ W60 0020    # OUT1_TTL = AND1 (index 32)
+← W60OK
+</pre></div>
+</div>
+</section>
+<section id="configure-position-compare-acquisition">
+<h3>3. Configure Position Compare Acquisition<a class="headerlink" href="#configure-position-compare-acquisition" title="Link to this heading">#</a></h3>
+<p>Setup to capture encoder 1 position at 1kHz:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>→ W8C 0001    # PC_DISARM (clear any previous state)
+← W8COK
+→ W9F 0001    # PC_BIT_CAP = bit 0 (capture encoder 1)
+← W9FOK
+→ W89 1388    # PC_TSPRE = 5000 (for seconds units)
+← W89OK
+→ W88 0000    # PC_ENC = 0 (use encoder 1)
+← W88OK
+→ W8D 0001    # PC_GATE_SEL = 1 (time-based gate)
+← W8DOK
+→ W8E 0000    # PC_GATE_STARTLO = 0
+← W8EOK
+→ W8F 0000    # PC_GATE_STARTHI = 0
+← W8FOK
+→ W90 03E8    # PC_GATE_WIDLO = 1000 (1 second at 1kHz)
+← W90OK
+→ W91 0000    # PC_GATE_WIDHI = 0
+← W91OK
+→ W96 0001    # PC_PULSE_SEL = 1 (time-based pulse)
+← W96OK
+→ W97 0000    # PC_PULSE_STARTLO = 0
+← W97OK
+→ W98 0000    # PC_PULSE_STARTHI = 0
+← W98OK
+→ W99 0001    # PC_PULSE_WIDLO = 1 (minimal width)
+← W99OK
+→ W9A 0000    # PC_PULSE_WIDHI = 0
+← W9AOK
+→ W9B 000A    # PC_PULSE_STEPLO = 10 (10ms between pulses = 100Hz)
+← W9BOK
+→ W9C 0000    # PC_PULSE_STEPHI = 0
+← W9COK
+→ W8B 0001    # PC_ARM (start acquisition)
+← W8BOK
+← PR          # Unsolicited: buffers reset
+← P00000000 12345678   # Data: time=0, enc1=0x12345678
+← P0000000A 12345680   # Data: time=10ms, enc1=0x12345680
+...
+← PX          # Unsolicited: acquisition complete
+</pre></div>
+</div>
+</section>
+<section id="poll-status-registers">
+<h3>4. Poll Status Registers<a class="headerlink" href="#poll-status-registers" title="Link to this heading">#</a></h3>
+<p>Typical polling sequence for fast-changing values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>→ RF1         # Read SYS_STATERR
+← RF1 0000
+→ RF2         # Read SYS_STAT1LO
+← RF2 00A3
+→ RF3         # Read SYS_STAT1HI
+← RF3 0000
+→ RF4         # Read SYS_STAT2LO
+← RF4 1200
+→ RF5         # Read SYS_STAT2HI
+← RF5 0001
+→ RF6         # Read PC_NUM_CAPLO
+← RF6 00C8
+→ RF7         # Read PC_NUM_CAPHI
+← RF7 0000
+</pre></div>
+</div>
+<p>Result: 200 (0x00C8) position compare captures have occurred.</p>
+</section>
+<section id="save-configuration-to-flash">
+<h3>5. Save Configuration to Flash<a class="headerlink" href="#save-configuration-to-flash" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>→ S
+← SOK
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
+<section id="timeouts">
+<h3>Timeouts<a class="headerlink" href="#timeouts" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>If no response is received within a reasonable timeout (1-10 seconds), the connection may be lost</p></li>
+<li><p>The driver should attempt to reconnect or alert the user</p></li>
+<li><p>During flash operations (S, L), allow longer timeouts (~100-200ms)</p></li>
+</ul>
+</section>
+<section id="error-responses">
+<h3>Error Responses<a class="headerlink" href="#error-responses" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">E0</span></code> - Malformed command: Check command syntax</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">E1R&lt;AA&gt;</span></code> - Read error: Register may not exist or is not readable</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">E1W&lt;AA&gt;</span></code> - Write error: Register may not exist, is read-only, or value is invalid</p></li>
+</ul>
+</section>
+<section id="connection-loss-detection">
+<h3>Connection Loss Detection<a class="headerlink" href="#connection-loss-detection" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Failed writes or timeouts indicate disconnection</p></li>
+<li><p>Implementation should track connection state and notify when lost/restored</p></li>
+</ul>
+</section>
+<section id="message-queue-overflow">
+<h3>Message Queue Overflow<a class="headerlink" href="#message-queue-overflow" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The host must process interrupt messages quickly to avoid buffer overflow</p></li>
+<li><p>If messages arrive faster than they can be processed, some may be dropped</p></li>
+<li><p>Implementation should use a sufficiently large queue (e.g., 10,000 messages)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="implementation-considerations-for-fastcs-driver">
+<h2>Implementation Considerations for FastCS Driver<a class="headerlink" href="#implementation-considerations-for-fastcs-driver" title="Link to this heading">#</a></h2>
+<section id="threading-model">
+<h3>Threading Model<a class="headerlink" href="#threading-model" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Read Thread</strong>: Continuously reads from serial port, dispatching messages to:</p>
+<ul class="simple">
+<li><p>Response queue (for <code class="docutils literal notranslate"><span class="pre">R</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span></code>, <code class="docutils literal notranslate"><span class="pre">S</span></code>, <code class="docutils literal notranslate"><span class="pre">L</span></code> responses)</p></li>
+<li><p>Interrupt queue (for <code class="docutils literal notranslate"><span class="pre">P</span></code> messages)</p></li>
+</ul>
+</li>
+<li><p><strong>Poll Thread</strong>: Periodically reads status registers (at ~4Hz recommended)</p>
+<ul class="simple">
+<li><p>Fast registers (0xF1-0xF7): Every iteration</p></li>
+<li><p>Slow registers (configuration): Every 4th iteration</p></li>
+<li><p>Use non-blocking reads (send multiple R commands, then collect responses)</p></li>
+</ul>
+</li>
+<li><p><strong>Interrupt Thread</strong>: Processes position compare data from interrupt queue</p>
+<ul class="simple">
+<li><p>Parses <code class="docutils literal notranslate"><span class="pre">P</span></code> messages</p></li>
+<li><p>Updates NDArray or equivalent data structures</p></li>
+<li><p>Handles <code class="docutils literal notranslate"><span class="pre">PR</span></code> (reset) and <code class="docutils literal notranslate"><span class="pre">PX</span></code> (complete) events</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="register-synchronization">
+<h3>Register Synchronization<a class="headerlink" href="#register-synchronization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>After writing a configuration register, read it back to get the actual value</p></li>
+<li><p>Some registers are command-type and don’t return a value</p></li>
+<li><p>Handle 32-bit registers by writing/reading LO then HI components</p></li>
+</ul>
+</section>
+<section id="system-bus-mapping">
+<h3>System Bus Mapping<a class="headerlink" href="#system-bus-mapping" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Maintain bidirectional lookup: index ↔ name</p></li>
+<li><p>When reading <code class="docutils literal notranslate"><span class="pre">regMux</span></code> registers, translate index to name for display</p></li>
+<li><p>When writing <code class="docutils literal notranslate"><span class="pre">regMux</span></code> registers, translate name to index</p></li>
+</ul>
+</section>
+<section id="position-compare-data-processing">
+<h3>Position Compare Data Processing<a class="headerlink" href="#position-compare-data-processing" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Parse <code class="docutils literal notranslate"><span class="pre">PC_BIT_CAP</span></code> to determine which fields are present in <code class="docutils literal notranslate"><span class="pre">P</span></code> messages</p></li>
+<li><p>Handle timestamp rollover by detecting backwards time jumps</p></li>
+<li><p>Apply scaling and offset transformations to encoder values</p></li>
+<li><p>Encoder values are <strong>signed</strong> 32-bit integers (use two’s complement)</p></li>
+<li><p>System bus and divider values are <strong>unsigned</strong> 32-bit integers</p></li>
+</ul>
+</section>
+<section id="configuration-files">
+<h3>Configuration Files<a class="headerlink" href="#configuration-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Support reading/writing INI-format configuration files</p></li>
+<li><p>Use 4-phase process for robust configuration upload:</p>
+<ol class="arabic simple">
+<li><p>Send all W commands</p></li>
+<li><p>Collect all W responses</p></li>
+<li><p>Send all R commands (verification)</p></li>
+<li><p>Collect all R responses and verify values match</p></li>
+</ol>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="protocol-limitations">
+<h2>Protocol Limitations<a class="headerlink" href="#protocol-limitations" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>No Command Pipelining</strong>: Each write command must wait for its <code class="docutils literal notranslate"><span class="pre">OK</span></code> response before sending the next (except during batch operations)</p></li>
+<li><p><strong>Fixed Baud Rate</strong>: 115200 is hardcoded in firmware</p></li>
+<li><p><strong>No Flow Control</strong>: Host must manage message queues to prevent overflow</p></li>
+<li><p><strong>No Checksums</strong>: Protocol has no built-in error detection beyond command format validation</p></li>
+<li><p><strong>Limited Error Information</strong>: Error codes don’t provide detailed failure reasons</p></li>
+<li><p><strong>Interrupt Priority</strong>: Interrupt messages (<code class="docutils literal notranslate"><span class="pre">P</span></code>) are interleaved with command responses on the same serial stream</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Date</p></th>
+<th class="head"><p>Author</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.0</p></td>
+<td><p>2025-12-08</p></td>
+<td><p>Auto-generated</p></td>
+<td><p>Initial specification from zebra driver source code</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Source: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/src/zebra.cpp"><code class="docutils literal notranslate"><span class="pre">zebra.cpp</span></code></a></p></li>
+<li><p>Source: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/src/zebraRegs.h"><code class="docutils literal notranslate"><span class="pre">zebraRegs.h</span></code></a></p></li>
+<li><p>Source: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/src/zebraTool.py"><code class="docutils literal notranslate"><span class="pre">zebraTool.py</span></code></a></p></li>
+<li><p>Source: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/src/zebra_sim.py"><code class="docutils literal notranslate"><span class="pre">zebra_sim.py</span></code></a></p></li>
 </ul>
 </section>
 </section>
@@ -696,11 +1143,11 @@ The number and meaning of data fields depends on register <code class="docutils 
       </div>
     </a>
     <a class="right-next"
-       href="../_api/fastcs_zebra.html"
+       href="epics-pv-spec.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">fastcs_zebra</span></code></p>
+        <p class="prev-next-title">Zebra EPICS PV Interface Specification</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -723,17 +1170,18 @@ The number and meaning of data fields depends on register <code class="docutils 
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-parameters">Connection Parameters</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#protocol-characteristics">Protocol Characteristics</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-format">Command Format</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#read-register-command">Read Register Command</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#write-register-command">Write Register Command</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flash-storage-commands">Flash Storage Commands</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#read-register-command">1. Read Register Command</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#write-register-command">2. Write Register Command</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flash-storage-commands">3. Flash Storage Commands</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#save-to-flash">Save to Flash</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#load-from-flash">Load from Flash</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generic-error-response">Generic Error Response</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generic-error-response">4. Generic Error Response</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interrupt-messages-asynchronous">Interrupt Messages (Asynchronous)</a><ul class="nav section-nav flex-column">
@@ -742,14 +1190,55 @@ The number and meaning of data fields depends on register <code class="docutils 
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-complete-message">Position Compare Complete Message</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-registers">Key Registers</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-control">Position Compare Control</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-status-read-only">System Status (Read-Only)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-key-registers">Other Key Registers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#register-map">Register Map</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-types">Register Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-register-categories">Key Register Categories</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#logic-gates-and-or">Logic Gates (AND/OR)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gate-generator">Gate Generator</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pulse-dividers">Pulse Dividers</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pulse-generators">Pulse Generators</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quadrature-encoder">Quadrature Encoder</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-control">Position Compare Control</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#output-multiplexers">Output Multiplexers</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#system-control">System Control</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-parameters">Position Compare Parameters</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#status-registers-read-only">Status Registers (Read-Only)</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-in-fastcs-zebra">Implementation in FastCS-Zebra</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-bus">System Bus</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-bus-signal-index">System Bus Signal Index</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiplexer-registers">Using Multiplexer Registers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-system-bus-status">Reading System Bus Status</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-sequences">Typical Usage Sequences</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-and-read-firmware-version">1. Connect and Read Firmware Version</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-a-simple-logic-gate">2. Configure a Simple Logic Gate</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-position-compare-acquisition">3. Configure Position Compare Acquisition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#poll-status-registers">4. Poll Status Registers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#save-configuration-to-flash">5. Save Configuration to Flash</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#timeouts">Timeouts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-responses">Error Responses</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-loss-detection">Connection Loss Detection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#message-queue-overflow">Message Queue Overflow</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-considerations-for-fastcs-driver">Implementation Considerations for FastCS Driver</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#threading-model">Threading Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-synchronization">Register Synchronization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-bus-mapping">System Bus Mapping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-data-processing">Position Compare Data Processing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-files">Configuration Files</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#protocol-limitations">Protocol Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revision-history">Revision History</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
   </nav></div>
 

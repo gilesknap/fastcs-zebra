@@ -1,0 +1,2441 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Zebra EPICS PV Interface Specification &#8212; fastcs-zebra 0.1.dev8+g7327b36e2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=864b65f2"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/epics-pv-spec';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-zebra/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/dls-logo.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="fastcs_zebra" href="../_api/fastcs_zebra.html" />
+    <link rel="prev" title="Zebra Serial Protocol Specification" href="serial-protocol.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="main" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">fastcs-zebra</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-zebra" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-zebra" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-zebra" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-zebra" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="serial-protocol.html">Zebra Serial Protocol Specification</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Zebra EPICS PV Interface Specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_api/fastcs_zebra.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/DiamondLightSource/fastcs-zebra/releases">Release Notes</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../reference.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Zebra EPICS PV Interface Specification</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="zebra-epics-pv-interface-specification">
+<h1>Zebra EPICS PV Interface Specification<a class="headerlink" href="#zebra-epics-pv-interface-specification" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>This document specifies the EPICS Process Variable (PV) interface for the Zebra hardware control system. It describes how EPICS PVs map to the underlying serial protocol commands and register operations detailed in <a class="reference internal" href="serial-protocol.html"><span class="std std-doc">Zebra Serial Protocol Specification</span></a>.</p>
+<p>IMPORTANT: this document describes the original AreaDetector Zebra Driver which uses an ALL_CAPS PV naming conventions. The FastCS Zebra driver implements the same PV interface for compatibility except that FastCS uses PascalCase.</p>
+<p>The interface uses standard EPICS record types and follows Diamond Light Source conventions for naming and structure. All PVs use the naming pattern <code class="docutils literal notranslate"><span class="pre">$(P)$(Q):RECORD_NAME</span></code> where <code class="docutils literal notranslate"><span class="pre">$(P)</span></code> is the device prefix and <code class="docutils literal notranslate"><span class="pre">$(Q)</span></code> is the device suffix.</p>
+</section>
+<hr class="docutils" />
+<section id="connection-and-system-status">
+<h2>Connection and System Status<a class="headerlink" href="#connection-and-system-status" title="Link to this heading">#</a></h2>
+<section id="connection-status">
+<h3>Connection Status<a class="headerlink" href="#connection-status" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Record Type</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Serial Protocol Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):CONNECTED</span></code></p></td>
+<td><p>bi</p></td>
+<td><p>Read</p></td>
+<td><p>Connection status to Zebra hardware</p></td>
+<td><p>Derived from successful serial I/O</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):INITIAL_POLL_DONE</span></code></p></td>
+<td><p>bi</p></td>
+<td><p>Read</p></td>
+<td><p>Initial register poll completed</p></td>
+<td><p>Internal driver state after reading all configuration registers</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_VER</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Read</p></td>
+<td><p>Firmware version</p></td>
+<td><p>Register 0xF0 (<code class="docutils literal notranslate"><span class="pre">SYS_VER</span></code>) via <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F0</span></code> command</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STATERR</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Read</p></td>
+<td><p>System state/error flags</p></td>
+<td><p>Register 0xF1 (<code class="docutils literal notranslate"><span class="pre">SYS_STATERR</span></code>) via <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F1</span></code> command</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>CONNECTED PV Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> (Not Connected) - No communication with Zebra</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> (Connected) - Active communication established</p></li>
+</ul>
+<p><strong>INITIAL_POLL_DONE PV Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> (No) - Still reading initial register values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> (Yes) - Complete set of register values available, safe to save configuration</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="configuration-management">
+<h2>Configuration Management<a class="headerlink" href="#configuration-management" title="Link to this heading">#</a></h2>
+<section id="flash-storage">
+<h3>Flash Storage<a class="headerlink" href="#flash-storage" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Record Type</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Serial Protocol Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):STORE</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Write</p></td>
+<td><p>Save configuration to flash</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">S</span></code> command</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):RESTORE</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Write</p></td>
+<td><p>Restore configuration from flash</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">L</span></code> command</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Usage:</strong> Write any value to trigger the flash operation.</p>
+</section>
+<section id="file-based-configuration">
+<h3>File-Based Configuration<a class="headerlink" href="#file-based-configuration" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Record Type</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Serial Protocol Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):CONFIG_FILE</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Write</p></td>
+<td><p>Filename for config read/write</p></td>
+<td><p>Local file path (INI format)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):CONFIG_READ</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Write</p></td>
+<td><p>Read config from file</p></td>
+<td><p>Sends <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;</span></code> for each register in file</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):CONFIG_WRITE</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Write</p></td>
+<td><p>Write config to file</p></td>
+<td><p>Sends <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;</span></code> for all registers, saves to INI file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):CONFIG_STATUS</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Read</p></td>
+<td><p>Status message for file operations</p></td>
+<td><p>Internal driver status string</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Config File Format:</strong> INI format with <code class="docutils literal notranslate"><span class="pre">[regs]</span></code> section containing <code class="docutils literal notranslate"><span class="pre">REGISTER_NAME</span> <span class="pre">=</span> <span class="pre">value</span></code> entries.</p>
+<p><strong>Write Process:</strong> Four-phase operation:</p>
+<ol class="arabic simple">
+<li><p>Send all write commands</p></li>
+<li><p>Receive write acknowledgments</p></li>
+<li><p>Send read commands for verification</p></li>
+<li><p>Verify readback values match requested values</p></li>
+</ol>
+</section>
+<section id="system-reset">
+<h3>System Reset<a class="headerlink" href="#system-reset" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Record Type</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Serial Protocol Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_RESET</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Write</p></td>
+<td><p>Reset Zebra system</p></td>
+<td><p>Register 0x7E (<code class="docutils literal notranslate"><span class="pre">SYS_RESET</span></code>) via <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">7E</span> <span class="pre">0001</span></code> command</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Effect:</strong> Resets Zebra hardware, stops acquisition, clears position compare buffers.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="system-bus">
+<h2>System Bus<a class="headerlink" href="#system-bus" title="Link to this heading">#</a></h2>
+<p>The System Bus is a 64-signal routing matrix. Status and configuration PVs provide access to this bus.</p>
+<section id="system-bus-status-read-only">
+<h3>System Bus Status (Read-Only)<a class="headerlink" href="#system-bus-status-read-only" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Record Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Serial Protocol Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_BUS1</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Key for system bus signals 0-31</p></td>
+<td><p>Static lookup table</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_BUS2</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Key for system bus signals 32-63</p></td>
+<td><p>Static lookup table</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STAT1LO</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>System bus status bits 0-15</p></td>
+<td><p>Register 0xF2 (<code class="docutils literal notranslate"><span class="pre">SYS_STAT1LO</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STAT1HI</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>System bus status bits 16-31</p></td>
+<td><p>Register 0xF3 (<code class="docutils literal notranslate"><span class="pre">SYS_STAT1HI</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STAT1</span></code></p></td>
+<td><p>calc</p></td>
+<td><p>System bus status 0-31 (32-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(STAT1HI</span> <span class="pre">&lt;&lt;</span> <span class="pre">16)</span> <span class="pre">|</span> <span class="pre">STAT1LO</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STAT2LO</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>System bus status bits 32-47</p></td>
+<td><p>Register 0xF4 (<code class="docutils literal notranslate"><span class="pre">SYS_STAT2LO</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STAT2HI</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>System bus status bits 48-63</p></td>
+<td><p>Register 0xF5 (<code class="docutils literal notranslate"><span class="pre">SYS_STAT2HI</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SYS_STAT2</span></code></p></td>
+<td><p>calc</p></td>
+<td><p>System bus status 32-63 (32-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(STAT2HI</span> <span class="pre">&lt;&lt;</span> <span class="pre">16)</span> <span class="pre">|</span> <span class="pre">STAT2LO</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>System Bus Signals (0-63):</strong> See <a class="reference internal" href="serial-protocol.html"><span class="std std-doc">Zebra Serial Protocol Specification</span></a> for complete signal list including inputs (IN1-8), logic gates (AND1-4, OR1-4), pulse generators (PULSE1-4), etc.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="register-access-patterns">
+<h2>Register Access Patterns<a class="headerlink" href="#register-access-patterns" title="Link to this heading">#</a></h2>
+<p>The Zebra driver uses several standardized EPICS database templates to handle different register types. Each pattern creates a set of PVs with specific naming conventions.</p>
+<section id="standard-16-bit-register-pattern">
+<h3>Standard 16-bit Register Pattern<a class="headerlink" href="#standard-16-bit-register-pattern" title="Link to this heading">#</a></h3>
+<p><strong>PVs Created:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM</span></code> - ao - Demand value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:RBV</span></code> - ai - Readback value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:SET</span></code> - ao - Internal write record</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:SYNC</span></code> - calcout - Synchronization logic</p></li>
+</ul>
+<p><strong>Serial Protocol Mapping:</strong></p>
+<ul class="simple">
+<li><p>Write: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;</span></code> where AA is register address, VVVV is scaled 16-bit value</p></li>
+<li><p>Read: <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;</span></code> to verify, triggered automatically after write</p></li>
+</ul>
+<p><strong>Scaling:</strong> Some registers use <code class="docutils literal notranslate"><span class="pre">ASLO</span></code> (analog slope) for unit conversion:</p>
+<ul class="simple">
+<li><p>Time values: <code class="docutils literal notranslate"><span class="pre">ASLO</span> <span class="pre">=</span> <span class="pre">0.0001</span></code> (converts to milliseconds)</p></li>
+<li><p>Position values: Scaled by motor resolution (MRES)</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_DLY</span></code> - Pulse 1 delay (register 0x44, scaled to ms)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_WID</span></code> - Pulse 1 width (register 0x48, scaled to ms)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="multiplexer-mux-register-pattern">
+<h3>Multiplexer (Mux) Register Pattern<a class="headerlink" href="#multiplexer-mux-register-pattern" title="Link to this heading">#</a></h3>
+<p>Used for registers that select from the 64-signal system bus.</p>
+<p><strong>PVs Created:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM</span></code> - ao - Demand value (0-63)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:RBV</span></code> - ai - Readback value (0-63)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:STR</span></code> - stringin - Human-readable signal name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:STA</span></code> - calcout - Current status of selected signal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:SET</span></code> - ao - Internal write record</p></li>
+</ul>
+<p><strong>Serial Protocol Mapping:</strong></p>
+<ul class="simple">
+<li><p>Write: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;</span></code> where VVVV is system bus index (0-63)</p></li>
+<li><p>Read: <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;</span></code> returns index, driver translates to signal name</p></li>
+<li><p>Status: Extracts bit from <code class="docutils literal notranslate"><span class="pre">SYS_STAT1/2</span></code> based on selected index</p></li>
+</ul>
+<p><strong>Drive Limits:</strong> DRVL=0, DRVH=63 (valid system bus indices)</p>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_INP1</span></code> - AND gate 1 input 1 (register 0x08)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT1_TTL</span></code> - Output 1 TTL routing (register 0x60)</p></li>
+</ul>
+<p><strong>Signal Name Translation:</strong></p>
+<ul class="simple">
+<li><p>Write: User can write index or name</p></li>
+<li><p>Read: <code class="docutils literal notranslate"><span class="pre">:RBV</span></code> shows index, <code class="docutils literal notranslate"><span class="pre">:STR</span></code> shows name (e.g., “IN1_TTL”)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="bit-register-pattern">
+<h3>32-bit Register Pattern<a class="headerlink" href="#bit-register-pattern" title="Link to this heading">#</a></h3>
+<p>Used for registers that require 32-bit values (HI/LO pairs) and motor position scaling.</p>
+<p><strong>PVs Created:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM</span></code> - ao - Demand value in engineering units (EGU)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:RBV</span></code> - calcout - Readback in EGU</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:RBV_CTS</span></code> - ai - Readback in raw counts</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:SET</span></code> - ao - Internal write record</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:CALC</span></code> - calcout - Convert EGU to counts</p></li>
+</ul>
+<p><strong>Serial Protocol Mapping:</strong></p>
+<ul class="simple">
+<li><p>Write: Two commands:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">W&lt;AALO&gt;&lt;VVVVLO&gt;</span></code> - Write low 16 bits</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">W&lt;AAHI&gt;&lt;VVVVHI&gt;</span></code> - Write high 16 bits</p></li>
+</ol>
+</li>
+<li><p>Read: <code class="docutils literal notranslate"><span class="pre">R&lt;AALO&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">R&lt;AAHI&gt;</span></code>, driver combines to 32-bit value</p></li>
+<li><p>Driver parameter: <code class="docutils literal notranslate"><span class="pre">PARAMHILO</span></code> (virtual 32-bit register)</p></li>
+</ul>
+<p><strong>Motor Scaling:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ERES</span></code> (encoder resolution) from linked motor record</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OFF</span></code> (offset) from linked motor record</p></li>
+<li><p>Formula: <code class="docutils literal notranslate"><span class="pre">counts</span> <span class="pre">=</span> <span class="pre">(EGU_value</span> <span class="pre">-</span> <span class="pre">OFF)</span> <span class="pre">/</span> <span class="pre">ERES</span></code></p></li>
+<li><p>Reverse: <code class="docutils literal notranslate"><span class="pre">EGU_value</span> <span class="pre">=</span> <span class="pre">counts</span> <span class="pre">*</span> <span class="pre">ERES</span> <span class="pre">+</span> <span class="pre">OFF</span></code></p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_START</span></code> - Gate start position (registers 0x8E/0x8F)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_STEP</span></code> - Pulse step size (registers 0x9B/0x9C)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):DIV1_DIV</span></code> - Divider 1 divisor (registers 0x38/0x39)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="bitfield-register-pattern">
+<h3>Bitfield Register Pattern<a class="headerlink" href="#bitfield-register-pattern" title="Link to this heading">#</a></h3>
+<p>Used for registers where each bit is a separate boolean control.</p>
+<p><strong>PVs Created:</strong> (for each bit 0-15)</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:B0</span></code> through <code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:BF</span></code> - bo - Individual bit controls</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:RBV</span></code> - ai - Full register readback</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:SYNCB0</span></code> through <code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:SYNCBF</span></code> - calcout - Bit extraction</p></li>
+</ul>
+<p><strong>Serial Protocol Mapping:</strong></p>
+<ul class="simple">
+<li><p>Write: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;</span></code> where VVVV is composed from all 16 bits</p></li>
+<li><p>Read: <code class="docutils literal notranslate"><span class="pre">R&lt;AA&gt;</span></code>, driver extracts each bit via shifts</p></li>
+<li><p>Bit N value = <code class="docutils literal notranslate"><span class="pre">(register_value</span> <span class="pre">&gt;&gt;</span> <span class="pre">N)</span> <span class="pre">&amp;</span> <span class="pre">1</span></code></p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_ENA:B0-B3</span></code> - Enable bits for AND1 inputs 1-4 (register 0x04)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_BIT_CAP:B0-B9</span></code> - Position compare capture selection (register 0x9F)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="prescaler-register-pattern">
+<h3>Prescaler Register Pattern<a class="headerlink" href="#prescaler-register-pattern" title="Link to this heading">#</a></h3>
+<p>Special pattern for time prescaler registers.</p>
+<p><strong>PVs Created:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM</span></code> - mbbo - Multi-bit binary output (enum selection)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PARAM:RBV</span></code> - mbbi - Multi-bit binary input (enum readback)</p></li>
+</ul>
+<p><strong>Enum Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0:</span> <span class="pre">&quot;10s&quot;</span></code> - Prescaler = 500000, time units = 10 seconds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1:</span> <span class="pre">&quot;s&quot;</span></code> - Prescaler = 5000, time units = seconds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2:</span> <span class="pre">&quot;ms&quot;</span></code> - Prescaler = 5, time units = milliseconds</p></li>
+</ul>
+<p><strong>Serial Protocol Mapping:</strong></p>
+<ul class="simple">
+<li><p>Write: <code class="docutils literal notranslate"><span class="pre">W&lt;AA&gt;&lt;VVVV&gt;</span></code> where VVVV is prescaler value</p></li>
+<li><p>Conversion: User selects enum, driver writes corresponding prescaler value</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_TSPRE</span></code> - Position compare timestamp prescaler (register 0x89)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_PRE</span></code> - Pulse 1 prescaler (register 0x4C)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="logic-gates">
+<h2>Logic Gates<a class="headerlink" href="#logic-gates" title="Link to this heading">#</a></h2>
+<section id="and-gates-and1-and4">
+<h3>AND Gates (AND1-AND4)<a class="headerlink" href="#and-gates-and1-and4" title="Link to this heading">#</a></h3>
+<p>Each AND gate has identical PV structure. Example for AND1:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_ENA:B0-B3</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Enable each of 4 inputs</p></td>
+<td><p>0x04</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">04</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_INV:B0-B3</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Invert each of 4 inputs</p></td>
+<td><p>0x00</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">00</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_INP1</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Input 1 source (0-63)</p></td>
+<td><p>0x08</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">08</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_INP2</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Input 2 source (0-63)</p></td>
+<td><p>0x09</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">09</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_INP3</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Input 3 source (0-63)</p></td>
+<td><p>0x0A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">0A</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_INP4</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Input 4 source (0-63)</p></td>
+<td><p>0x0B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">0B</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):AND1_OUT</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Current output state</p></td>
+<td><p>SYS_STAT2 bit 0</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Logic:</strong> Output = (INP1 ⊕ INV:B0) AND (INP2 ⊕ INV:B1) AND (INP3 ⊕ INV:B2) AND (INP4 ⊕ INV:B3)</p>
+<ul class="simple">
+<li><p>Only enabled inputs (ENA:Bn = 1) contribute to AND operation</p></li>
+<li><p>XOR with invert bit allows active-low inputs</p></li>
+</ul>
+<p><strong>System Bus Index:</strong> AND1=32, AND2=33, AND3=34, AND4=35</p>
+<p><strong>Replicated For:</strong> AND1 (0x00-0x0B), AND2 (0x0C-0x17), AND3 (0x10-0x13), AND4 (0x14-0x17)</p>
+</section>
+<hr class="docutils" />
+<section id="or-gates-or1-or4">
+<h3>OR Gates (OR1-OR4)<a class="headerlink" href="#or-gates-or1-or4" title="Link to this heading">#</a></h3>
+<p>Structure identical to AND gates but with OR logic. Example for OR1:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OR1_ENA:B0-B3</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Enable each of 4 inputs</p></td>
+<td><p>0x1C</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">1C</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OR1_INV:B0-B3</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Invert each of 4 inputs</p></td>
+<td><p>0x18</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">18</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OR1_INP1-4</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Input sources</p></td>
+<td><p>0x20-0x23</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">20-23</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OR1_OUT</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Current output state</p></td>
+<td><p>SYS_STAT2 bit 4</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>System Bus Index:</strong> OR1=36, OR2=37, OR3=38, OR4=39</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="gate-generators-gate1-gate4">
+<h2>Gate Generators (GATE1-GATE4)<a class="headerlink" href="#gate-generators-gate1-gate4" title="Link to this heading">#</a></h2>
+<p>Gate generators create gated outputs with trigger and reset inputs. Example for GATE1:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):GATE1_INP1</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Trigger input (0-63)</p></td>
+<td><p>0x30</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">30</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):GATE1_INP2</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Reset input (0-63)</p></td>
+<td><p>0x34</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">34</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):GATE1_OUT</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Current output state</p></td>
+<td><p>SYS_STAT2 bit 8</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Behavior:</strong></p>
+<ul class="simple">
+<li><p>Rising edge on INP1 sets output high</p></li>
+<li><p>Rising edge on INP2 resets output low</p></li>
+<li><p>Classic SR latch topology</p></li>
+</ul>
+<p><strong>System Bus Index:</strong> GATE1=40, GATE2=41, GATE3=42, GATE4=43</p>
+</section>
+<hr class="docutils" />
+<section id="pulse-dividers-div1-div4">
+<h2>Pulse Dividers (DIV1-DIV4)<a class="headerlink" href="#pulse-dividers-div1-div4" title="Link to this heading">#</a></h2>
+<p>Frequency dividers with 32-bit divisor. Example for DIV1:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):DIV1_INP</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Input source (0-63)</p></td>
+<td><p>0x40</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">40</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):DIV1_DIV</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Division factor (1-2^32)</p></td>
+<td><p>0x38/0x39</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">38</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">39</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):DIV1_OUTD</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Divided output state</p></td>
+<td><p>SYS_STAT2 bit 12</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):DIV1_OUTN</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Non-divided output state</p></td>
+<td><p>SYS_STAT2 bit 16</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Additional Control:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):DIV_FIRST:B0-B3</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>First pulse behavior for DIV1-4</p></td>
+<td><p>0x7C</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">7C</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>System Bus Index:</strong></p>
+<ul class="simple">
+<li><p>DIV1_OUTD=44, DIV2_OUTD=45, DIV3_OUTD=46, DIV4_OUTD=47</p></li>
+<li><p>DIV1_OUTN=48, DIV2_OUTN=49, DIV3_OUTN=50, DIV4_OUTN=51</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="pulse-generators-pulse1-pulse4">
+<h2>Pulse Generators (PULSE1-PULSE4)<a class="headerlink" href="#pulse-generators-pulse1-pulse4" title="Link to this heading">#</a></h2>
+<p>Programmable pulse generators with delay, width, and prescaler. Example for PULSE1:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_INP</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Trigger input (0-63)</p></td>
+<td><p>0x50</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">50</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_DLY</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Delay in ms</p></td>
+<td><p>0x44</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">44</span> <span class="pre">&lt;value/10000&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_WID</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Width in ms</p></td>
+<td><p>0x48</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">48</span> <span class="pre">&lt;value/10000&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_PRE</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Prescaler (10s/s/ms)</p></td>
+<td><p>0x4C</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">4C</span> <span class="pre">&lt;prescaler&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PULSE1_OUT</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Current output state</p></td>
+<td><p>SYS_STAT2 bit 20</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Prescaler Values:</strong> See Prescaler Register Pattern above.</p>
+<p><strong>Additional Control:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):POLARITY:B0-B3</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Output polarity for PULSE1-4</p></td>
+<td><p>0x54</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">54</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>System Bus Index:</strong> PULSE1=52, PULSE2=53, PULSE3=54, PULSE4=55</p>
+</section>
+<hr class="docutils" />
+<section id="outputs-out1-out8">
+<h2>Outputs (OUT1-OUT8)<a class="headerlink" href="#outputs-out1-out8" title="Link to this heading">#</a></h2>
+<p>Output routing multiplexers. Each output connector has multiple signal types.</p>
+<section id="out1-out4-multi-signal-outputs">
+<h3>OUT1-OUT4 (Multi-signal Outputs)<a class="headerlink" href="#out1-out4-multi-signal-outputs" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Pattern</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Registers</p></th>
+<th class="head"><p>Example (OUT1)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT1_TTL</span></code></p></td>
+<td><p>TTL output routing</p></td>
+<td><p>0x60-0x69</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">60</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT1_NIM</span></code></p></td>
+<td><p>NIM output routing</p></td>
+<td><p>0x61-0x6A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">61</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT1_LVDS</span></code></p></td>
+<td><p>LVDS output routing</p></td>
+<td><p>0x62-0x6B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">62</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>OUT3 Special:</strong> Has OC (open collector) instead of NIM</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT3_TTL</span></code></p></td>
+<td><p>0x66</p></td>
+<td><p>TTL output</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT3_OC</span></code></p></td>
+<td><p>0x67</p></td>
+<td><p>Open collector output</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT3_LVDS</span></code></p></td>
+<td><p>0x68</p></td>
+<td><p>LVDS output</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>OUT4 Special:</strong> Has PECL instead of LVDS</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT4_TTL</span></code></p></td>
+<td><p>0x69</p></td>
+<td><p>TTL output</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT4_NIM</span></code></p></td>
+<td><p>0x6A</p></td>
+<td><p>NIM output</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT4_PECL</span></code></p></td>
+<td><p>0x6B</p></td>
+<td><p>PECL output</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="out5-out8-encoder-outputs">
+<h3>OUT5-OUT8 (Encoder Outputs)<a class="headerlink" href="#out5-out8-encoder-outputs" title="Link to this heading">#</a></h3>
+<p>Encoder emulation outputs with enable control.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Pattern</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Registers</p></th>
+<th class="head"><p>Example (OUT5)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT5_ENCA</span></code></p></td>
+<td><p>A-phase signal routing</p></td>
+<td><p>0x6C-0x78</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">6C</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT5_ENCB</span></code></p></td>
+<td><p>B-phase signal routing</p></td>
+<td><p>0x6D-0x79</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">6D</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT5_ENCZ</span></code></p></td>
+<td><p>Z-phase (index) routing</p></td>
+<td><p>0x6E-0x7A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">6E</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):OUT5_CONN</span></code></p></td>
+<td><p>Enable output</p></td>
+<td><p>0x6F-0x7B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">6F</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>CONN Behavior:</strong> When CONN input is high, encoder outputs are enabled; when low, outputs are tri-stated.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="quadrature-encoder">
+<h2>Quadrature Encoder<a class="headerlink" href="#quadrature-encoder" title="Link to this heading">#</a></h2>
+<p>Quadrature encoder generator from two input signals.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):QUAD_STEP</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Step input source (0-63)</p></td>
+<td><p>0x56</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">56</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):QUAD_DIR</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Direction input source (0-63)</p></td>
+<td><p>0x55</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">55</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):QUAD_OUTA</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>A-phase output state</p></td>
+<td><p>SYS_STAT2 bit 24</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):QUAD_OUTB</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>B-phase output state</p></td>
+<td><p>SYS_STAT2 bit 25</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F4</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>System Bus Index:</strong> QUAD_OUTA=56, QUAD_OUTB=57</p>
+<p><strong>Behavior:</strong> Generates quadrature signals from step/direction inputs.</p>
+</section>
+<hr class="docutils" />
+<section id="soft-inputs">
+<h2>Soft Inputs<a class="headerlink" href="#soft-inputs" title="Link to this heading">#</a></h2>
+<p>Software-controlled digital inputs accessible via system bus.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):SOFT_IN</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>4-bit control (bits 0-3)</p></td>
+<td><p>0x7F</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">7F</span> <span class="pre">000&lt;value&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Bit Mapping:</strong></p>
+<ul class="simple">
+<li><p>Bit 0 → SOFT_IN1 (system bus index 60)</p></li>
+<li><p>Bit 1 → SOFT_IN2 (system bus index 61)</p></li>
+<li><p>Bit 2 → SOFT_IN3 (system bus index 62)</p></li>
+<li><p>Bit 3 → SOFT_IN4 (system bus index 63)</p></li>
+</ul>
+<p><strong>Usage:</strong> Write decimal value 0-15 to set soft input states.</p>
+</section>
+<hr class="docutils" />
+<section id="position-compare">
+<h2>Position Compare<a class="headerlink" href="#position-compare" title="Link to this heading">#</a></h2>
+<p>Position compare subsystem for synchronized data capture during motion.</p>
+<section id="position-compare-arm-disarm">
+<h3>Position Compare Arm/Disarm<a class="headerlink" href="#position-compare-arm-disarm" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ARM</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Arm position compare</p></td>
+<td><p>0x8B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8B</span> <span class="pre">0001</span></code> → sends <code class="docutils literal notranslate"><span class="pre">PR</span></code> interrupt</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DISARM</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Disarm position compare</p></td>
+<td><p>0x8C</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8C</span> <span class="pre">0001</span></code> → sends <code class="docutils literal notranslate"><span class="pre">PX</span></code> interrupt</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):ARM_BUSY</span></code></p></td>
+<td><p>busy</p></td>
+<td><p>Acquisition busy status</p></td>
+<td><p>N/A</p></td>
+<td><p>Set by PC_ARM, cleared by <code class="docutils literal notranslate"><span class="pre">PX</span></code> interrupt</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ARM_SEL</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Arm source</p></td>
+<td><p>0x8A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8A</span> <span class="pre">&lt;value&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ARM_INP</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>External arm input</p></td>
+<td><p>0x57</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">57</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_ARM_SEL Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0:</span> <span class="pre">&quot;Soft&quot;</span></code> - Software arm via PC_ARM PV</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1:</span> <span class="pre">&quot;External&quot;</span></code> - External signal via PC_ARM_INP</p></li>
+</ul>
+<p><strong>Arm Sequence:</strong></p>
+<ol class="arabic simple">
+<li><p>User writes to PC_ARM</p></li>
+<li><p>Driver sends <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8B</span> <span class="pre">0001</span></code></p></li>
+<li><p>Zebra responds <code class="docutils literal notranslate"><span class="pre">W8BOK</span></code></p></li>
+<li><p>Zebra sends <code class="docutils literal notranslate"><span class="pre">PR</span></code> interrupt</p></li>
+<li><p>ARM_BUSY set to 1</p></li>
+<li><p>Position compare data starts arriving</p></li>
+</ol>
+<p><strong>Disarm Sequence:</strong></p>
+<ol class="arabic simple">
+<li><p>User writes to PC_DISARM (or automatically at end)</p></li>
+<li><p>Zebra sends <code class="docutils literal notranslate"><span class="pre">PX</span></code> interrupt</p></li>
+<li><p>ARM_BUSY cleared to 0</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="position-compare-encoder-selection">
+<h3>Position Compare Encoder Selection<a class="headerlink" href="#position-compare-encoder-selection" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Encoder selection</p></td>
+<td><p>0x88</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">88</span> <span class="pre">&lt;value&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_ENC Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0:</span> <span class="pre">&quot;Enc1&quot;</span></code> - Use encoder 1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1:</span> <span class="pre">&quot;Enc2&quot;</span></code> - Use encoder 2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2:</span> <span class="pre">&quot;Enc3&quot;</span></code> - Use encoder 3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">3:</span> <span class="pre">&quot;Enc4&quot;</span></code> - Use encoder 4</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">4:</span> <span class="pre">&quot;Enc1+Enc2+Enc3+Enc4&quot;</span></code> - Use sum of all encoders</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="position-compare-timestamp">
+<h3>Position Compare Timestamp<a class="headerlink" href="#position-compare-timestamp" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_TSPRE</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Timestamp prescaler</p></td>
+<td><p>0x89</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">89</span> <span class="pre">&lt;prescaler&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_TSPRE Values:</strong> Same as prescaler pattern (10s/s/ms).</p>
+<p><strong>Timestamp Calculation:</strong></p>
+<ul class="simple">
+<li><p>Raw timestamp from <code class="docutils literal notranslate"><span class="pre">P</span></code> message is 32-bit counter</p></li>
+<li><p>Time = (timestamp * 0.0001) time_units</p></li>
+<li><p>Rollover handling: Add 429496.7296 time_units when counter wraps</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="position-compare-gate">
+<h3>Position Compare Gate<a class="headerlink" href="#position-compare-gate" title="Link to this heading">#</a></h3>
+<p>Controls when position compare events are captured.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_SEL</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Gate source</p></td>
+<td><p>0x8D</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8D</span> <span class="pre">&lt;value&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_INP</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>External gate input</p></td>
+<td><p>0x58</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">58</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_START</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Gate start position/time</p></td>
+<td><p>0x8E/0x8F</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8E</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8F</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_WID</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Gate width</p></td>
+<td><p>0x90/0x91</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">90</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">91</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_NGATE</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Number of gates</p></td>
+<td><p>0x92/0x93</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">92</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">93</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_STEP</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Step between gates</p></td>
+<td><p>0x94/0x95</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">94</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">95</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_GATE_OUT</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Gate output state</p></td>
+<td><p>SYS_STAT1 bit 30</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F3</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_GATE_SEL Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0:</span> <span class="pre">&quot;Position&quot;</span></code> - Position-based gating (uses encoder value)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1:</span> <span class="pre">&quot;Time&quot;</span></code> - Time-based gating (uses timestamp counter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2:</span> <span class="pre">&quot;External&quot;</span></code> - External signal via PC_GATE_INP</p></li>
+</ul>
+<p><strong>Units:</strong> START, WID, STEP are in encoder counts (position mode) or time units (time mode).</p>
+</section>
+<hr class="docutils" />
+<section id="position-compare-pulse">
+<h3>Position Compare Pulse<a class="headerlink" href="#position-compare-pulse" title="Link to this heading">#</a></h3>
+<p>Controls when capture pulses are generated.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_SEL</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Pulse source</p></td>
+<td><p>0x96</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">96</span> <span class="pre">&lt;value&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_INP</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>External pulse input</p></td>
+<td><p>0x59</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">59</span> <span class="pre">&lt;index&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_START</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>First pulse position/time</p></td>
+<td><p>0x97/0x98</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">97</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">98</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_WID</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Pulse width</p></td>
+<td><p>0x99/0x9A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">99</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">9A</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_STEP</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Step between pulses</p></td>
+<td><p>0x9B/0x9C</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">9B</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">9C</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_MAX</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Maximum pulses</p></td>
+<td><p>0x9D/0x9E</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">9D</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">9E</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_DLY</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Pulse delay</p></td>
+<td><p>0xA1/0xA2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">A1</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">A2</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_PULSE_OUT</span></code></p></td>
+<td><p>calcout</p></td>
+<td><p>Pulse output state</p></td>
+<td><p>SYS_STAT1 bit 31</p></td>
+<td><p>Extracted from <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F3</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_PULSE_SEL Values:</strong> Same as PC_GATE_SEL (Position/Time/External).</p>
+</section>
+<hr class="docutils" />
+<section id="position-compare-direction">
+<h3>Position Compare Direction<a class="headerlink" href="#position-compare-direction" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIR</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Position compare direction</p></td>
+<td><p>0xA0</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">A0</span> <span class="pre">&lt;value&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_DIR Values:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0:</span> <span class="pre">&quot;Positive&quot;</span></code> - Count up</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1:</span> <span class="pre">&quot;Negative&quot;</span></code> - Count down</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="position-compare-capture-selection">
+<h3>Position Compare Capture Selection<a class="headerlink" href="#position-compare-capture-selection" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_BIT_CAP:B0-B9</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Select data to capture</p></td>
+<td><p>0x9F</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">9F</span> <span class="pre">&lt;bits&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Bit Mapping:</strong></p>
+<ul class="simple">
+<li><p>Bit 0: Encoder 1</p></li>
+<li><p>Bit 1: Encoder 2</p></li>
+<li><p>Bit 2: Encoder 3</p></li>
+<li><p>Bit 3: Encoder 4</p></li>
+<li><p>Bit 4: System Bus 1 (signals 0-31)</p></li>
+<li><p>Bit 5: System Bus 2 (signals 32-63)</p></li>
+<li><p>Bit 6: Divider 1 count</p></li>
+<li><p>Bit 7: Divider 2 count</p></li>
+<li><p>Bit 8: Divider 3 count</p></li>
+<li><p>Bit 9: Divider 4 count</p></li>
+</ul>
+<p><strong>Effect on Interrupts:</strong> Determines which <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> fields appear in <code class="docutils literal notranslate"><span class="pre">P&lt;TTTTTTTT&gt;...</span></code> messages.</p>
+</section>
+<hr class="docutils" />
+<section id="position-compare-captured-data">
+<h3>Position Compare Captured Data<a class="headerlink" href="#position-compare-captured-data" title="Link to this heading">#</a></h3>
+<p><strong>Timestamp Array:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Interrupt Message Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_TIME</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Timestamp array</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;TTTTTTTT&gt;</span></code> field from each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Encoder/Data Arrays:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Interrupt Message Mapping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC1</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Encoder 1 positions</p></td>
+<td><p>1st <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 0 set)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC2</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Encoder 2 positions</p></td>
+<td><p>2nd <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 1 set)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC3</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Encoder 3 positions</p></td>
+<td><p>3rd <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 2 set)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC4</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Encoder 4 positions</p></td>
+<td><p>4th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 3 set)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_SYS1</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>System bus 1 state</p></td>
+<td><p>5th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 4 set)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_SYS2</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>System bus 2 state</p></td>
+<td><p>6th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 5 set)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV1</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Divider 1 count</p></td>
+<td><p>7th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 6 set)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV2</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Divider 2 count</p></td>
+<td><p>8th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 7 set)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV3</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Divider 3 count</p></td>
+<td><p>9th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 8 set)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV4</span></code></p></td>
+<td><p>waveform (DOUBLE)</p></td>
+<td><p>Divider 4 count</p></td>
+<td><p>10th <code class="docutils literal notranslate"><span class="pre">&lt;EEEEEEEE&gt;</span></code> field (if bit 9 set)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Last Values (Interrupt-Driven):</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Update Mechanism</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC1_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured encoder 1 value</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC2_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured encoder 2 value</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC3_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured encoder 3 value</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_ENC4_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured encoder 4 value</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_SYS1_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured system bus 1</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_SYS2_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured system bus 2</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV1_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured divider 1 count</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV2_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured divider 2 count</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV3_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured divider 3 count</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_DIV4_LAST</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Last captured divider 4 count</p></td>
+<td><p>Updated on each <code class="docutils literal notranslate"><span class="pre">P</span></code> message</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Filtered Arrays (System Bus Extraction):</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Processing</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILT1</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Filtered bit from sys bus</p></td>
+<td><p>Extracts single bit from PC_SYS1/2</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILT2</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Filtered bit from sys bus</p></td>
+<td><p>Extracts single bit from PC_SYS1/2</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILT3</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Filtered bit from sys bus</p></td>
+<td><p>Extracts single bit from PC_SYS1/2</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILT4</span></code></p></td>
+<td><p>waveform (CHAR)</p></td>
+<td><p>Filtered bit from sys bus</p></td>
+<td><p>Extracts single bit from PC_SYS1/2</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILTSEL1</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Select which bit to filter (0-63)</p></td>
+<td><p>Index into system bus</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILTSEL2</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Select which bit to filter (0-63)</p></td>
+<td><p>Index into system bus</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILTSEL3</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Select which bit to filter (0-63)</p></td>
+<td><p>Index into system bus</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_FILTSEL4</span></code></p></td>
+<td><p>ao/mux</p></td>
+<td><p>Select which bit to filter (0-63)</p></td>
+<td><p>Index into system bus</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Filter Calculation:</strong></p>
+<ul class="simple">
+<li><p>If FILTSEL &lt; 32: Source = PC_SYS1, bit = FILTSEL</p></li>
+<li><p>If FILTSEL &gt;= 32: Source = PC_SYS2, bit = FILTSEL - 32</p></li>
+<li><p>For each array element: <code class="docutils literal notranslate"><span class="pre">FILT[i]</span> <span class="pre">=</span> <span class="pre">(Source[i]</span> <span class="pre">&gt;&gt;</span> <span class="pre">bit)</span> <span class="pre">&amp;</span> <span class="pre">1</span></code></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="position-compare-status">
+<h3>Position Compare Status<a class="headerlink" href="#position-compare-status" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_NUM_CAPLO</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Captures count (low 16 bits)</p></td>
+<td><p>0xF6</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F6</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_NUM_CAPHI</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Captures count (high 16 bits)</p></td>
+<td><p>0xF7</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">F7</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_NUM_CAP</span></code></p></td>
+<td><p>calc</p></td>
+<td><p>Total captures (32-bit)</p></td>
+<td><p>Combined</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(HI</span> <span class="pre">&lt;&lt;</span> <span class="pre">16)</span> <span class="pre">|</span> <span class="pre">LO</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):PC_NUM_DOWN</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Points downloaded to EPICS</p></td>
+<td><p>N/A</p></td>
+<td><p>Internal driver counter</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>PC_NUM_CAP:</strong> Total position compare events generated by Zebra.
+<strong>PC_NUM_DOWN:</strong> Number of data points processed and available in waveform PVs.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="motor-integration">
+<h2>Motor Integration<a class="headerlink" href="#motor-integration" title="Link to this heading">#</a></h2>
+<p>The Zebra driver integrates with EPICS motor records for position scaling.</p>
+<section id="motor-links">
+<h3>Motor Links<a class="headerlink" href="#motor-links" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 1 PV name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M2</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 2 PV name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M3</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 3 PV name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M4</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 4 PV name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1:DESC</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 1 description</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M2:DESC</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 2 description</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M3:DESC</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 3 description</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M4:DESC</span></code></p></td>
+<td><p>stringin</p></td>
+<td><p>Motor 4 description</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1:RBV</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Motor 1 readback value</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M2:RBV</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Motor 2 readback value</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M3:RBV</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Motor 3 readback value</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M4:RBV</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Motor 4 readback value</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Macros:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">M1</span></code>, <code class="docutils literal notranslate"><span class="pre">M2</span></code>, <code class="docutils literal notranslate"><span class="pre">M3</span></code>, <code class="docutils literal notranslate"><span class="pre">M4</span></code> - Motor PV prefixes (e.g., <code class="docutils literal notranslate"><span class="pre">BL99I-MO-STAGE-01:X</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">M1DIR</span></code>, <code class="docutils literal notranslate"><span class="pre">M2DIR</span></code>, <code class="docutils literal notranslate"><span class="pre">M3DIR</span></code>, <code class="docutils literal notranslate"><span class="pre">M4DIR</span></code> - Set to “-” if motor direction inverted</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">M1MULT</span></code>, <code class="docutils literal notranslate"><span class="pre">M2MULT</span></code>, <code class="docutils literal notranslate"><span class="pre">M3MULT</span></code>, <code class="docutils literal notranslate"><span class="pre">M4MULT</span></code> - Scaling multiplier for encoder decoding</p></li>
+</ul>
+</section>
+<section id="motor-scaling-parameters">
+<h3>Motor Scaling Parameters<a class="headerlink" href="#motor-scaling-parameters" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1:ERES</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Encoder resolution (EGU/count)</p></td>
+<td><p>From motor.MRES or .ERES</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1:OFF</span></code></p></td>
+<td><p>ai</p></td>
+<td><p>Position offset (EGU)</p></td>
+<td><p>From motor.OFF</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1:SCALE</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Additional scale factor</p></td>
+<td><p>Driver parameter, sent to asyn</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):M1:OFF:OUT</span></code></p></td>
+<td><p>ao</p></td>
+<td><p>Offset output to driver</p></td>
+<td><p>Driver parameter, sent to asyn</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>These exist for M1-M4 and are used in 32-bit register calculations.</strong></p>
+</section>
+<section id="position-setting">
+<h3>Position Setting<a class="headerlink" href="#position-setting" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Register</p></th>
+<th class="head"><p>Serial Command</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):POS1_SET</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Set encoder 1 position</p></td>
+<td><p>0x80/0x81</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">80</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">81</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):POS2_SET</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Set encoder 2 position</p></td>
+<td><p>0x82/0x83</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">82</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">83</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):POS3_SET</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Set encoder 3 position</p></td>
+<td><p>0x84/0x85</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">84</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">85</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):POS4_SET</span></code></p></td>
+<td><p>ao/32bit</p></td>
+<td><p>Set encoder 4 position</p></td>
+<td><p>0x86/0x87</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">86</span> <span class="pre">&lt;LO&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">87</span> <span class="pre">&lt;HI&gt;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Usage:</strong> Load Zebra encoder counter with current motor position (for position compare homing).</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="areadetector-integration">
+<h2>AreaDetector Integration<a class="headerlink" href="#areadetector-integration" title="Link to this heading">#</a></h2>
+<p>The Zebra driver inherits from ADDriver to provide NDArray output for position compare data.</p>
+<section id="areadetector-pvs-standard">
+<h3>AreaDetector PVs (Standard)<a class="headerlink" href="#areadetector-pvs-standard" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>PV Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):Acquire</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Start/stop acquisition</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):Acquire_RBV</span></code></p></td>
+<td><p>bi</p></td>
+<td><p>Acquisition status readback</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):ArrayCounter</span></code></p></td>
+<td><p>longin</p></td>
+<td><p>Array counter</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):ArrayCounter_RBV</span></code></p></td>
+<td><p>longin</p></td>
+<td><p>Array counter readback</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):NumImages</span></code></p></td>
+<td><p>longout</p></td>
+<td><p>Number of images to acquire</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):NumImagesCounter_RBV</span></code></p></td>
+<td><p>longin</p></td>
+<td><p>Images acquired counter</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):ImageMode</span></code></p></td>
+<td><p>mbbo</p></td>
+<td><p>Image mode (Single/Multiple/Continuous)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$(P)$(Q):ArrayCallbacks</span></code></p></td>
+<td><p>bo</p></td>
+<td><p>Enable array callbacks</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Acquire Mapping:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Acquire</span> <span class="pre">=</span> <span class="pre">1</span></code> → Sends <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8B</span> <span class="pre">0001</span></code> (PC_ARM)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Acquire</span> <span class="pre">=</span> <span class="pre">0</span></code> → Sends <code class="docutils literal notranslate"><span class="pre">W</span> <span class="pre">8C</span> <span class="pre">0001</span></code> (PC_DISARM)</p></li>
+</ul>
+<p><strong>NDArray Structure:</strong></p>
+<ul class="simple">
+<li><p>Dimensions: <code class="docutils literal notranslate"><span class="pre">[NARRAYS+1,</span> <span class="pre">1]</span></code> (11 columns, 1 row per pulse)</p></li>
+<li><p>Column 0: Timestamp</p></li>
+<li><p>Columns 1-10: Encoder/system bus/divider values (as configured by PC_BIT_CAP)</p></li>
+<li><p>Data Type: Float64</p></li>
+<li><p>Updated on each position compare interrupt</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="implementation-notes-for-fastcs-driver">
+<h2>Implementation Notes for FastCS Driver<a class="headerlink" href="#implementation-notes-for-fastcs-driver" title="Link to this heading">#</a></h2>
+<section id="register-polling-strategy">
+<h3>Register Polling Strategy<a class="headerlink" href="#register-polling-strategy" title="Link to this heading">#</a></h3>
+<p><strong>Fast Polling (4 Hz):</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STATERR</span></code> (0xF1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STAT1LO/HI</span></code> (0xF2/0xF3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SYS_STAT2LO/HI</span></code> (0xF4/0xF5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PC_NUM_CAPLO/HI</span></code> (0xF6/0xF7)</p></li>
+</ul>
+<p><strong>Slow Polling (1 Hz):</strong></p>
+<ul class="simple">
+<li><p>All configuration registers (0x00-0xA2)</p></li>
+<li><p>Skip command-type registers (regCmd)</p></li>
+</ul>
+<p><strong>On-Demand:</strong></p>
+<ul class="simple">
+<li><p>Read after write for verification</p></li>
+<li><p>Read during configuration file operations</p></li>
+</ul>
+</section>
+<section id="interrupt-processing">
+<h3>Interrupt Processing<a class="headerlink" href="#interrupt-processing" title="Link to this heading">#</a></h3>
+<p><strong>Message Classification:</strong></p>
+<ul class="simple">
+<li><p>Messages starting with <code class="docutils literal notranslate"><span class="pre">P</span></code> → Interrupt queue</p></li>
+<li><p>Messages starting with <code class="docutils literal notranslate"><span class="pre">R</span></code> or <code class="docutils literal notranslate"><span class="pre">W</span></code> → Response queue</p></li>
+<li><p>Messages starting with <code class="docutils literal notranslate"><span class="pre">S</span></code> or <code class="docutils literal notranslate"><span class="pre">L</span></code> → Response queue</p></li>
+</ul>
+<p><strong>Interrupt Types:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PR\n</span></code> → Reset buffers, set acquiring</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">P&lt;hex</span> <span class="pre">data&gt;\n</span></code> → Parse and store capture data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PX\n</span></code> → End acquisition, process final buffers</p></li>
+</ul>
+</section>
+<section id="data-scaling">
+<h3>Data Scaling<a class="headerlink" href="#data-scaling" title="Link to this heading">#</a></h3>
+<p><strong>Encoder Values:</strong></p>
+<ul class="simple">
+<li><p>Raw: Signed 32-bit integer from serial message</p></li>
+<li><p>Scaled: <code class="docutils literal notranslate"><span class="pre">value_egu</span> <span class="pre">=</span> <span class="pre">raw_value</span> <span class="pre">*</span> <span class="pre">ERES</span> <span class="pre">+</span> <span class="pre">OFF</span></code></p></li>
+</ul>
+<p><strong>System Bus Values:</strong></p>
+<ul class="simple">
+<li><p>Raw: Unsigned 32-bit integer from serial message</p></li>
+<li><p>Each bit represents state of one system bus signal</p></li>
+</ul>
+<p><strong>Time Values:</strong></p>
+<ul class="simple">
+<li><p>Raw: Unsigned 32-bit counter</p></li>
+<li><p>Scaled: <code class="docutils literal notranslate"><span class="pre">time</span> <span class="pre">=</span> <span class="pre">raw</span> <span class="pre">*</span> <span class="pre">0.0001</span> <span class="pre">*</span> <span class="pre">time_unit</span> <span class="pre">+</span> <span class="pre">rollover_offset</span></code></p></li>
+</ul>
+</section>
+<section id="pv-update-mechanism">
+<h3>PV Update Mechanism<a class="headerlink" href="#pv-update-mechanism" title="Link to this heading">#</a></h3>
+<p><strong>Interrupt-driven updates (SCAN = “I/O Intr”):</strong></p>
+<ul class="simple">
+<li><p>System status registers</p></li>
+<li><p>Position compare data arrays</p></li>
+<li><p>Last captured values</p></li>
+<li><p>Connection status</p></li>
+</ul>
+<p><strong>Periodic updates:</strong></p>
+<ul class="simple">
+<li><p>Configuration register readbacks (via polling)</p></li>
+<li><p>ARRAY_UPDATE trigger (1 second scan)</p></li>
+</ul>
+<p><strong>User-initiated updates:</strong></p>
+<ul class="simple">
+<li><p>Write to demand PV triggers write + readback</p></li>
+<li><p>Configuration file operations</p></li>
+<li><p>Flash save/restore</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="pv-naming-convention-summary">
+<h2>PV Naming Convention Summary<a class="headerlink" href="#pv-naming-convention-summary" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$(P)$(Q):CATEGORY_ITEM[:SUFFIX]
+
+Where:
+  P = Device prefix (e.g., &quot;BL99I-EA-ZEBRA-01&quot;)
+  Q = Device suffix (e.g., &quot;:&quot;)
+  CATEGORY = Functional group (AND, OR, PULSE, PC, etc.)
+  ITEM = Specific item (INP1, DLY, ENC1, etc.)
+  SUFFIX = Optional qualifier:
+    :RBV = Readback value
+    :SET = Internal write record
+    :STR = String representation
+    :STA = Status
+    :Bn = Bitfield bit n
+    :SYNC = Synchronization record
+    _LAST = Last interrupt value
+</pre></div>
+</div>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BL99I-EA-ZEBRA-01:PULSE1_DLY</span></code> - Pulse 1 delay demand</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BL99I-EA-ZEBRA-01:PULSE1_DLY:RBV</span></code> - Pulse 1 delay readback</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BL99I-EA-ZEBRA-01:AND1_INP1:STR</span></code> - AND1 input 1 source name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BL99I-EA-ZEBRA-01:PC_BIT_CAP:B0</span></code> - Position compare capture bit 0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BL99I-EA-ZEBRA-01:PC_ENC1_LAST</span></code> - Last captured encoder 1 value</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="revision-history">
+<h2>Revision History<a class="headerlink" href="#revision-history" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Date</p></th>
+<th class="head"><p>Author</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.0</p></td>
+<td><p>2025-12-08</p></td>
+<td><p>Auto-generated</p></td>
+<td><p>Initial specification from zebra EPICS database templates</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Serial Protocol: <a class="reference internal" href="serial-protocol.html"><span class="std std-doc">Zebra Serial Protocol Specification</span></a></p></li>
+<li><p>EPICS Templates: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/Db/zebra.template">Zebra EPICS Database Templates</a> and sub-templates</p></li>
+<li><p>Driver Source: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/src/zebra.cpp">Zebra Driver Source</a></p></li>
+<li><p>Register Definitions: <a class="reference external" href="https://github.com/DiamondLightSource/zebra/blob/84b69dbcc0e085586f799246813e439bea337477/zebraApp/src/zebraRegs.h">Zebra Register Definitions</a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="serial-protocol.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Zebra Serial Protocol Specification</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../_api/fastcs_zebra.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">fastcs_zebra</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-and-system-status">Connection and System Status</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connection-status">Connection Status</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-management">Configuration Management</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flash-storage">Flash Storage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-based-configuration">File-Based Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-reset">System Reset</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-bus">System Bus</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system-bus-status-read-only">System Bus Status (Read-Only)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#register-access-patterns">Register Access Patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#standard-16-bit-register-pattern">Standard 16-bit Register Pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiplexer-mux-register-pattern">Multiplexer (Mux) Register Pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bit-register-pattern">32-bit Register Pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bitfield-register-pattern">Bitfield Register Pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prescaler-register-pattern">Prescaler Register Pattern</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logic-gates">Logic Gates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#and-gates-and1-and4">AND Gates (AND1-AND4)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#or-gates-or1-or4">OR Gates (OR1-OR4)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gate-generators-gate1-gate4">Gate Generators (GATE1-GATE4)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pulse-dividers-div1-div4">Pulse Dividers (DIV1-DIV4)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pulse-generators-pulse1-pulse4">Pulse Generators (PULSE1-PULSE4)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#outputs-out1-out8">Outputs (OUT1-OUT8)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#out1-out4-multi-signal-outputs">OUT1-OUT4 (Multi-signal Outputs)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#out5-out8-encoder-outputs">OUT5-OUT8 (Encoder Outputs)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quadrature-encoder">Quadrature Encoder</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soft-inputs">Soft Inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare">Position Compare</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-arm-disarm">Position Compare Arm/Disarm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-encoder-selection">Position Compare Encoder Selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-timestamp">Position Compare Timestamp</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-gate">Position Compare Gate</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-pulse">Position Compare Pulse</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-direction">Position Compare Direction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-capture-selection">Position Compare Capture Selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-captured-data">Position Compare Captured Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-compare-status">Position Compare Status</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motor-integration">Motor Integration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#motor-links">Motor Links</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#motor-scaling-parameters">Motor Scaling Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#position-setting">Position Setting</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#areadetector-integration">AreaDetector Integration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#areadetector-pvs-standard">AreaDetector PVs (Standard)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-notes-for-fastcs-driver">Implementation Notes for FastCS Driver</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-polling-strategy">Register Polling Strategy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interrupt-processing">Interrupt Processing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-scaling">Data Scaling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pv-update-mechanism">PV Update Mechanism</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pv-naming-convention-summary">PV Naming Convention Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#revision-history">Revision History</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/reference/epics-pv-spec.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/epics-pv-spec.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
