@@ -29,6 +29,7 @@ dev = [
     "pydata-sphinx-theme>=0.12",
     "pyright",
     "pytest",
+    "pytest-asyncio",
     "pytest-cov",
     "ruff",
     "sphinx-autobuild",
@@ -64,6 +65,8 @@ addopts = """
 filterwarnings = "error"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
+# Configure pytest-asyncio to use auto mode
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 patch = ["subprocess"]

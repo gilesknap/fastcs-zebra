@@ -77,6 +77,11 @@ class ZebraRegisterIO(AttributeIO[NumberT, ZebraRegisterIORef]):
             else:
                 await self._protocol.write_register(attr.io_ref.register, int_value)
 
+            # Read back and update the attribute to reflect actual hardware state
+            # Only if this is a read-write attribute (AttrRW has update method)
+            if isinstance(attr, AttrRW):
+                await self.update(attr)
+
         except Exception as e:
             logger.error(f"Error writing register 0x{attr.io_ref.register:02X}: {e}")
 
@@ -161,6 +166,9 @@ class ZebraController(Controller):
 
             # Update the IO handler with the actual protocol
             self._register_io.set_protocol(self._protocol)
+
+            # Connect attribute IOs (sets up put callbacks)
+            self._connect_attribute_ios()
 
             # Update connection status
             await self.connected.update(True)
