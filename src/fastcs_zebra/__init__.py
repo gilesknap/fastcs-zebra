@@ -15,6 +15,15 @@ Phase 2 implementation includes:
 - Bidirectional lookup (name ↔ address)
 - 32-bit register pair handling
 
+Phase 3 implementation includes:
+- Full controller hierarchy with sub-controllers
+- AND gates (AND1-4), OR gates (OR1-4)
+- Gate generators (GATE1-4)
+- Pulse generators (PULSE1-4)
+- Pulse dividers (DIV1-4)
+- Output routing (OUT1-8)
+- Position compare subsystem
+
 Example usage::
 
     from fastcs_zebra import ZebraTransport, ZebraProtocol
@@ -38,6 +47,15 @@ Example usage::
 """
 
 from ._version import __version__
+from .controllers import (
+    AndGateController,
+    DividerController,
+    GateController,
+    OrGateController,
+    OutputController,
+    PositionCompareController,
+    PulseController,
+)
 from .interrupts import InterruptHandler, PositionCompareData
 from .protocol import (
     MalformedResponseError,
@@ -45,6 +63,7 @@ from .protocol import (
     RegisterError,
     ZebraProtocol,
 )
+from .register_io import ZebraRegisterIO, ZebraRegisterIORef
 from .registers import (
     RegAddr,
     Register,
@@ -77,6 +96,17 @@ __all__ = [
     "PositionCompareData",
     # Controller
     "ZebraController",
+    # Sub-controllers
+    "AndGateController",
+    "OrGateController",
+    "GateController",
+    "PulseController",
+    "DividerController",
+    "OutputController",
+    "PositionCompareController",
+    # Register IO
+    "ZebraRegisterIO",
+    "ZebraRegisterIORef",
     # Register definitions
     "Register",
     "Register32",
