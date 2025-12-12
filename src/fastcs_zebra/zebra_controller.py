@@ -167,9 +167,6 @@ class ZebraController(Controller):
             # Update the IO handler with the actual protocol
             self._register_io.set_protocol(self._protocol)
 
-            # Connect attribute IOs (sets up put callbacks)
-            self._connect_attribute_ios()
-
             # Update connection status
             await self.connected.update(True)
             await self.status_msg.update("Connected")
