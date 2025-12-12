@@ -178,7 +178,7 @@ class ZebraProtocol:
                     )
                 return readback
 
-        return value
+            return value
 
     async def read_register_32bit(self, address_lo: int, address_hi: int) -> int:
         """Read a 32-bit value from LO/HI register pair.

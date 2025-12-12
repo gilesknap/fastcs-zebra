@@ -83,6 +83,15 @@ class InterruptHandler:
         self.bit_cap = bit_cap
         logger.debug(f"Updated PC_BIT_CAP to {bit_cap:#06x}")
 
+    def clear_callbacks(self) -> None:
+        """Remove all registered callbacks.
+
+        Useful for testing or when re-initializing the handler.
+        """
+        self._reset_callbacks.clear()
+        self._data_callbacks.clear()
+        self._end_callbacks.clear()
+
     def on_reset(
         self, callback: Callable[[], Awaitable[None]]
     ) -> Callable[[], Awaitable[None]]:
