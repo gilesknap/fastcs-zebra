@@ -12,13 +12,12 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
+from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
     SysBus,
-    signal_index_to_name,
 )
 
 
@@ -64,11 +63,12 @@ class DividerController(Controller):
         super().__init__(ios=[register_io])
 
         # Input source (MUX register, 0-63)
-        self.inp = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=1.0),
-        )
         self.inp_str = AttrR(String())
+        self.inp = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=20.0),
+            str_attr=self.inp_str,
+        )
 
         # Divisor (32-bit value)
         self.div = AttrRW(
@@ -92,10 +92,6 @@ class DividerController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representation
-        inp_value = self.inp.get()
-        if inp_value is not None and 0 <= inp_value < len(SYSTEM_BUS_SIGNALS):
-            await self.inp_str.update(signal_index_to_name(inp_value))
 
         # Update output states from system bus
         # DIV OUTD are indices 44-47 (in sys_stat2)

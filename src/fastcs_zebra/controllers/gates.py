@@ -9,16 +9,15 @@ Gate generators are useful for creating enable windows that start and stop
 based on external signals.
 """
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttrR
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
+from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
     SysBus,
-    signal_index_to_name,
 )
 
 
@@ -66,18 +65,20 @@ class GateController(Controller):
         super().__init__(ios=[register_io])
 
         # Trigger input (INP1) - rising edge sets output high
-        self.inp1 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=1.0),
-        )
         self.inp1_str = AttrR(String())
+        self.inp1 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=10.0),
+            str_attr=self.inp1_str,
+        )
 
         # Reset input (INP2) - rising edge resets output low
-        self.inp2 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=1.0),
-        )
         self.inp2_str = AttrR(String())
+        self.inp2 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=10.0),
+            str_attr=self.inp2_str,
+        )
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())
@@ -89,13 +90,6 @@ class GateController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representations
-        for i in range(1, 3):
-            inp_attr = getattr(self, f"inp{i}")
-            inp_str_attr = getattr(self, f"inp{i}_str")
-            value = inp_attr.get()
-            if value is not None and 0 <= value < len(SYSTEM_BUS_SIGNALS):
-                await inp_str_attr.update(signal_index_to_name(value))
 
         # Update output state from system bus
         # GATE generators are indices 40-43 (in sys_stat2)

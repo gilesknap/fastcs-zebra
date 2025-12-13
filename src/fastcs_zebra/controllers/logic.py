@@ -14,6 +14,7 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
+from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
@@ -82,32 +83,35 @@ class AndGateController(Controller):
         )
 
         # Input 1 source (MUX register, 0-63)
-        self.inp1 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=1.0),
-        )
         self.inp1_str = AttrR(String())
+        self.inp1 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=10.0),
+            str_attr=self.inp1_str,
+        )
 
         # Input 2 source
-        self.inp2 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=1.0),
-        )
         self.inp2_str = AttrR(String())
+        self.inp2 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=10.0),
+            str_attr=self.inp2_str,
+        )
 
         # Input 3 source
-        self.inp3 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp3_reg.address, update_period=1.0),
-        )
         self.inp3_str = AttrR(String())
-
-        # Input 4 source
-        self.inp4 = AttrRW(
+        self.inp3 = AttrSourceRegister(
             Int(),
-            io_ref=ZebraRegisterIORef(register=inp4_reg.address, update_period=1.0),
+            io_ref=ZebraRegisterIORef(register=inp3_reg.address, update_period=10.0),
+            str_attr=self.inp3_str,
         )
+        # Input 4 source
         self.inp4_str = AttrR(String())
+        self.inp4 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp4_reg.address, update_period=10.0),
+            str_attr=self.inp4_str,
+        )
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())
@@ -119,13 +123,6 @@ class AndGateController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representations
-        for i in range(1, 5):
-            inp_attr = getattr(self, f"inp{i}")
-            inp_str_attr = getattr(self, f"inp{i}_str")
-            value = inp_attr.get()
-            if value is not None and 0 <= value < len(SYSTEM_BUS_SIGNALS):
-                await inp_str_attr.update(signal_index_to_name(value))
 
         # Update output state from system bus
         # AND gates are indices 32-35 (in sys_stat2)
@@ -193,32 +190,36 @@ class OrGateController(Controller):
         )
 
         # Input 1 source (MUX register, 0-63)
-        self.inp1 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=1.0),
-        )
         self.inp1_str = AttrR(String())
+        self.inp1 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=10.0),
+            str_attr=self.inp1_str,
+        )
 
         # Input 2 source
-        self.inp2 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=1.0),
-        )
         self.inp2_str = AttrR(String())
+        self.inp2 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=10.0),
+            str_attr=self.inp2_str,
+        )
 
         # Input 3 source
-        self.inp3 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp3_reg.address, update_period=1.0),
-        )
         self.inp3_str = AttrR(String())
+        self.inp3 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp3_reg.address, update_period=10.0),
+            str_attr=self.inp3_str,
+        )
 
         # Input 4 source
-        self.inp4 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp4_reg.address, update_period=1.0),
-        )
         self.inp4_str = AttrR(String())
+        self.inp4 = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp4_reg.address, update_period=10.0),
+            str_attr=self.inp4_str,
+        )
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())
@@ -230,13 +231,6 @@ class OrGateController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representations
-        for i in range(1, 5):
-            inp_attr = getattr(self, f"inp{i}")
-            inp_str_attr = getattr(self, f"inp{i}_str")
-            value = inp_attr.get()
-            if value is not None and 0 <= value < len(SYSTEM_BUS_SIGNALS):
-                await inp_str_attr.update(signal_index_to_name(value))
 
         # Update output state from system bus
         # OR gates are indices 36-39 (in sys_stat2)
