@@ -410,11 +410,7 @@ class ZebraController(Controller):
         await self.status_msg.update("System reset")
 
     async def _setup_sys_stat_callbacks(self) -> None:
-        """Setup callbacks for sys_stat updates to propagate to sub-controllers.
-
-        Instead of a background polling task, use AttrR update callbacks
-        to update derived values when sys_stat1/2 change.
-        """
+        """Setup callbacks for sys_stat updates to propagate to sub-controllers."""
 
         async def on_sys_stat_update(value: int) -> None:
             """Called when sys_stat1 or sys_stat2 updates."""
@@ -424,7 +420,7 @@ class ZebraController(Controller):
                 sys_stat2 = self.sys_stat2.get() or 0
 
                 # Update all sub-controllers status bits
-                # TODO: optimize with lookup table instead of calling each sub-controller
+                # TODO: optimize with lookup instead calling every sub-controller?
                 for sub_controller in ZebraSubcontroller.all_controllers:
                     await sub_controller.update_derived_values(sys_stat1, sys_stat2)
 

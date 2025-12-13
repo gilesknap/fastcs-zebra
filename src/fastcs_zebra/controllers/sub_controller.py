@@ -12,7 +12,7 @@ class ZebraSubcontroller(Controller):
 
     count = 0  # Number of subcontrollers available (override in subclasses)
 
-    all_controllers = []  # List of all instantiated subcontrollers
+    all_controllers: list["ZebraSubcontroller"] = []  # List of all subcontrollers
 
     def __init__(
         self,
@@ -34,3 +34,12 @@ class ZebraSubcontroller(Controller):
 
         self._num = num
         self._register_io = register_io
+
+    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
+        """Update derived values from system bus status.
+
+        Args:
+            sys_stat1: System bus status bits 0-31
+            sys_stat2: System bus status bits 32-63
+        """
+        raise NotImplementedError

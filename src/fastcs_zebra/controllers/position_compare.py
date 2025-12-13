@@ -110,7 +110,7 @@ class PositionCompareController(ZebraSubcontroller):
             register_io: Shared register IO handler
         """
         super().__init__(1, register_io)
-        self._interrupt_handler: "InterruptHandler | None" = None
+        self._interrupt_handler: InterruptHandler | None = None
 
         # =====================================================================
         # Encoder and Timing Selection
