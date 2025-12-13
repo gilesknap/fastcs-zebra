@@ -21,6 +21,9 @@ from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command
 
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
+
+from .constants import FAST_UPDATE, SLOW_UPDATE
 from .controllers.dividers import DividerController
 from .controllers.gates import GateController
 from .controllers.logic import AndGateController, OrGateController
@@ -30,6 +33,7 @@ from .controllers.pulses import PulseController
 from .interrupts import InterruptHandler, PositionCompareData
 from .protocol import ZebraProtocol
 from .register_io import ZebraRegisterIO, ZebraRegisterIORef
+from .registers import REGISTERS_BY_NAME
 from .transport import ZebraTransport
 
 logger = logging.getLogger(__name__)
@@ -98,25 +102,32 @@ class ZebraController(Controller):
 
         # Firmware version (register 0xF0)
         self.sys_ver = AttrR(
-            Int(), io_ref=ZebraRegisterIORef(register=0xF0, update_period=10.0)
+            Int(), io_ref=ZebraRegisterIORef(register=0xF0, update_period=SLOW_UPDATE)
         )
 
         # System state/error (register 0xF1)
         self.sys_staterr = AttrR(
-            Int(), io_ref=ZebraRegisterIORef(register=0xF1, update_period=1.0)
+            Int(),
+            io_ref=ZebraRegisterIORef(register=0xF1, update_period=SLOW_UPDATE),
         )
 
         # System bus status (32-bit registers)
         self.sys_stat1 = AttrR(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=0xF2, is_32bit=True, register_hi=0xF3, update_period=0.25
+                register=0xF2,
+                is_32bit=True,
+                register_hi=0xF3,
+                update_period=FAST_UPDATE,
             ),
         )
         self.sys_stat2 = AttrR(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=0xF4, is_32bit=True, register_hi=0xF5, update_period=0.25
+                register=0xF4,
+                is_32bit=True,
+                register_hi=0xF5,
+                update_period=FAST_UPDATE,
             ),
         )
 
@@ -125,35 +136,43 @@ class ZebraController(Controller):
         self.pc_num_cap = AttrR(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=0xF6, is_32bit=True, register_hi=0xF7, update_period=1.0
+                register=0xF6,
+                is_32bit=True,
+                register_hi=0xF7,
+                update_period=SLOW_UPDATE,
             ),
         )
 
         # Position compare encoder selection (register 0x88)
         # Kept for backward compatibility
         self.pc_enc = AttrRW(
-            Int(), io_ref=ZebraRegisterIORef(register=0x88, update_period=1.0)
+            Int(),
+            io_ref=ZebraRegisterIORef(register=0x88, update_period=SLOW_UPDATE),
         )
 
         # Position compare timestamp prescaler (register 0x89)
         # Kept for backward compatibility
         self.pc_tspre = AttrRW(
-            Int(), io_ref=ZebraRegisterIORef(register=0x89, update_period=1.0)
+            Int(),
+            io_ref=ZebraRegisterIORef(register=0x89, update_period=SLOW_UPDATE),
         )
 
         # Soft inputs (register 0x7F)
         self.soft_in = AttrRW(
-            Int(), io_ref=ZebraRegisterIORef(register=0x7F, update_period=1.0)
+            Int(),
+            io_ref=ZebraRegisterIORef(register=0x7F, update_period=SLOW_UPDATE),
         )
 
         # Divider first pulse behavior (register 0x7C)
         self.div_first = AttrRW(
-            Int(), io_ref=ZebraRegisterIORef(register=0x7C, update_period=1.0)
+            Int(),
+            io_ref=ZebraRegisterIORef(register=0x7C, update_period=SLOW_UPDATE),
         )
 
         # Output polarity control (register 0x54)
         self.polarity = AttrRW(
-            Int(), io_ref=ZebraRegisterIORef(register=0x54, update_period=1.0)
+            Int(),
+            io_ref=ZebraRegisterIORef(register=0x54, update_period=SLOW_UPDATE),
         )
 
         # Last captured position compare data (updated via interrupts, no IO)
@@ -214,6 +233,9 @@ class ZebraController(Controller):
         # Position compare subsystem
         self.pc = PositionCompareController(self._register_io)
 
+        # Register interrupt handler with PC controller so it gets bit_cap updates
+        self.pc.register_interrupt_handler(self._interrupt_handler)
+
     async def connect(self) -> None:
         """Connect to Zebra hardware via serial port."""
         try:
@@ -236,10 +258,17 @@ class ZebraController(Controller):
             # Start interrupt monitoring
             self._interrupt_task = asyncio.create_task(self._monitor_interrupts())
 
-            # Start system bus status update task
-            self._sys_stat_update_task = asyncio.create_task(
-                self._update_derived_values()
+            # Read initial PC_BIT_CAP value to configure interrupt handler
+            bit_cap = await self._protocol.read_register(
+                REGISTERS_BY_NAME["PC_BIT_CAP"].address
             )
+            self._interrupt_handler.set_bit_cap(bit_cap)
+            logger.debug(
+                f"Initialized interrupt handler with PC_BIT_CAP={bit_cap:#06x}"
+            )
+
+            # Setup sys_stat update callbacks
+            await self._setup_sys_stat_callbacks()
 
             logger.info(f"Connected to Zebra on {self._port}")
             await self.status_msg.update(f"Connected to {self._port}")
@@ -252,13 +281,7 @@ class ZebraController(Controller):
     async def disconnect(self) -> None:
         """Disconnect from Zebra hardware."""
         # Cancel background tasks
-        if self._sys_stat_update_task:
-            self._sys_stat_update_task.cancel()
-            try:
-                await self._sys_stat_update_task
-            except asyncio.CancelledError:
-                pass
-            self._sys_stat_update_task = None
+        # (sys_stat_update_task removed - using callbacks instead)
 
         if self._interrupt_task:
             self._interrupt_task.cancel()
@@ -386,61 +409,24 @@ class ZebraController(Controller):
         logger.info("System reset")
         await self.status_msg.update("System reset")
 
-    async def _update_derived_values(self) -> None:
-        """Background task to update derived values from system bus status.
+    async def _setup_sys_stat_callbacks(self) -> None:
+        """Setup callbacks for sys_stat updates to propagate to sub-controllers."""
 
-        This task periodically reads the system bus status and updates
-        derived values in all sub-controllers (string representations,
-        output states, etc.).
-        """
-        try:
-            while self._transport and self._transport.connected:
-                try:
-                    # Get current system bus status
-                    sys_stat1 = self.sys_stat1.get() or 0
-                    sys_stat2 = self.sys_stat2.get() or 0
+        async def on_sys_stat_update(value: int | None) -> None:
+            """Called when sys_stat1 or sys_stat2 updates."""
+            try:
+                # Get current system bus status
+                sys_stat1 = self.sys_stat1.get() or 0
+                sys_stat2 = self.sys_stat2.get() or 0
 
-                    # Update all sub-controllers
-                    # AND gates
-                    for i in range(1, 5):
-                        controller = getattr(self, f"and{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
+                # Update all sub-controllers status bits
+                # TODO: optimize with lookup instead calling every sub-controller?
+                for sub_controller in ZebraSubcontroller.all_controllers:
+                    await sub_controller.update_derived_values(sys_stat1, sys_stat2)
 
-                    # OR gates
-                    for i in range(1, 5):
-                        controller = getattr(self, f"or{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
+            except Exception as e:
+                logger.error(f"Error updating derived values: {e}")
 
-                    # Gate generators
-                    for i in range(1, 5):
-                        controller = getattr(self, f"gate{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Pulse generators
-                    for i in range(1, 5):
-                        controller = getattr(self, f"pulse{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Dividers
-                    for i in range(1, 5):
-                        controller = getattr(self, f"div{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Outputs
-                    for i in range(1, 9):
-                        controller = getattr(self, f"out{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Position compare
-                    await self.pc.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Update at 4 Hz (every 0.25 seconds)
-                    await asyncio.sleep(0.25)
-
-                except Exception as e:
-                    logger.error(f"Error updating derived values: {e}")
-                    await asyncio.sleep(1.0)
-
-        except asyncio.CancelledError:
-            logger.debug("Derived values update task cancelled")
-            raise
+        # Register callbacks on both sys_stat attributes
+        self.sys_stat1.add_on_update_callback(on_sys_stat_update)
+        self.sys_stat2.add_on_update_callback(on_sys_stat_update)

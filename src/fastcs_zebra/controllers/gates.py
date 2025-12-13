@@ -9,20 +9,20 @@ Gate generators are useful for creating enable windows that start and stop
 based on external signals.
 """
 
-from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
+from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Int, String
 
+from fastcs_zebra.attr_named import AttrNamedRegister
+from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
     SysBus,
-    signal_index_to_name,
 )
 
 
-class GateController(Controller):
+class GateController(ZebraSubcontroller):
     """Controller for a single gate generator (GATE1-GATE4).
 
     The gate generator is an SR latch:
@@ -39,6 +39,8 @@ class GateController(Controller):
         out: Current output state of the gate generator
     """
 
+    count = 4  # Number of gate generators available
+
     def __init__(
         self,
         gate_num: int,
@@ -50,11 +52,7 @@ class GateController(Controller):
             gate_num: Gate number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= gate_num <= 4:
-            raise ValueError(f"Gate number must be 1-4, got {gate_num}")
-
-        self._gate_num = gate_num
-        self._register_io = register_io
+        super().__init__(gate_num, register_io)
 
         # Get register addresses for this gate
         inp1_reg = REGISTERS_BY_NAME[f"GATE{gate_num}_INP1"]
@@ -63,21 +61,25 @@ class GateController(Controller):
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"GATE{gate_num}")
 
-        super().__init__(ios=[register_io])
-
         # Trigger input (INP1) - rising edge sets output high
-        self.inp1 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=1.0),
-        )
         self.inp1_str = AttrR(String())
+        self.inp1 = AttrNamedRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(
+                register=inp1_reg.address, update_period=SLOW_UPDATE
+            ),
+            str_attr=self.inp1_str,
+        )
 
         # Reset input (INP2) - rising edge resets output low
-        self.inp2 = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=1.0),
-        )
         self.inp2_str = AttrR(String())
+        self.inp2 = AttrNamedRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(
+                register=inp2_reg.address, update_period=SLOW_UPDATE
+            ),
+            str_attr=self.inp2_str,
+        )
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())
@@ -89,13 +91,6 @@ class GateController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representations
-        for i in range(1, 3):
-            inp_attr = getattr(self, f"inp{i}")
-            inp_str_attr = getattr(self, f"inp{i}_str")
-            value = inp_attr.get()
-            if value is not None and 0 <= value < len(SYSTEM_BUS_SIGNALS):
-                await inp_str_attr.update(signal_index_to_name(value))
 
         # Update output state from system bus
         # GATE generators are indices 40-43 (in sys_stat2)

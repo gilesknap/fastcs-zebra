@@ -12,56 +12,33 @@ This controller manages the complete position compare subsystem including
 arm/disarm, configuration, and interrupt-driven data updates.
 """
 
+from typing import TYPE_CHECKING
+
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
-from fastcs.datatypes import Bool, Int, String
+from fastcs.datatypes import Bool, Enum, Int, String
 from fastcs.methods import command
 
+from fastcs_zebra.attr_named import AttrNamedRegister
+
+if TYPE_CHECKING:
+    from fastcs_zebra.interrupts import InterruptHandler
+from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.enums import (
+    ArmSelection,
+    Direction,
+    EncoderSelection,
+    Prescaler,
+    SourceSelection,
+)
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
-    signal_index_to_name,
 )
 
-# Prescaler values and their meanings
-PRESCALER_VALUES = {
-    500000: "10s",  # Time unit = 10 seconds
-    5000: "s",  # Time unit = seconds
-    5: "ms",  # Time unit = milliseconds
-}
 
-# Source selection values
-SOURCE_SEL = {
-    0: "Position",
-    1: "Time",
-    2: "External",
-}
-
-# Arm selection values
-ARM_SEL = {
-    0: "Software",
-    1: "External",
-}
-
-# Direction values
-DIRECTION = {
-    0: "Positive",
-    1: "Negative",
-}
-
-# Encoder selection values
-ENCODER_SEL = {
-    0: "Enc1",
-    1: "Enc2",
-    2: "Enc3",
-    3: "Enc4",
-    4: "Enc1+2+3+4",
-}
-
-
-class PositionCompareController(Controller):
+class PositionCompareController(ZebraSubcontroller):
     """Controller for the position compare subsystem.
 
     The position compare system captures encoder positions synchronized with
@@ -116,10 +93,12 @@ class PositionCompareController(Controller):
         # Status
         arm_out: Current arm output state
 
-        # Last captured values (updated by interrupts)
+        # Last captured values - updated by interrupts
         time_last: Last captured timestamp
         enc1_last - enc4_last: Last captured encoder values
     """
+
+    count = 1  # Only one position compare controller
 
     def __init__(
         self,
@@ -130,55 +109,54 @@ class PositionCompareController(Controller):
         Args:
             register_io: Shared register IO handler
         """
-        self._register_io = register_io
-
-        super().__init__(ios=[register_io])
+        super().__init__(1, register_io)
+        self._interrupt_handler: InterruptHandler | None = None
 
         # =====================================================================
         # Encoder and Timing Selection
         # =====================================================================
         self.enc = AttrRW(
-            Int(),
+            Enum(EncoderSelection),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=SLOW_UPDATE
             ),
         )
-        self.enc_str = AttrR(String())
 
         self.tspre = AttrRW(
-            Int(),
+            Enum(Prescaler),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_TSPRE"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_TSPRE"].address,
+                update_period=SLOW_UPDATE,
             ),
         )
-        self.tspre_str = AttrR(String())
 
         self.dir = AttrRW(
-            Int(),
+            Enum(Direction),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=SLOW_UPDATE
             ),
         )
-        self.dir_str = AttrR(String())
 
         # =====================================================================
         # Arm Configuration
         # =====================================================================
         self.arm_sel = AttrRW(
-            Int(),
+            Enum(ArmSelection),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ARM_SEL"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_ARM_SEL"].address,
+                update_period=SLOW_UPDATE,
             ),
         )
-        self.arm_sel_str = AttrR(String())
 
-        self.arm_inp = AttrRW(
+        self.arm_inp_str = AttrR(String())
+        self.arm_inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ARM_INP"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_ARM_INP"].address,
+                update_period=SLOW_UPDATE,
             ),
+            str_attr=self.arm_inp_str,
         )
-        self.arm_inp_str = AttrR(String())
 
         self.arm_out = AttrR(Bool())
 
@@ -186,20 +164,22 @@ class PositionCompareController(Controller):
         # Gate Configuration
         # =====================================================================
         self.gate_sel = AttrRW(
-            Int(),
+            Enum(SourceSelection),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_GATE_SEL"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_GATE_SEL"].address,
+                update_period=SLOW_UPDATE,
             ),
         )
-        self.gate_sel_str = AttrR(String())
 
-        self.gate_inp = AttrRW(
+        self.gate_inp_str = AttrR(String())
+        self.gate_inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_GATE_INP"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_GATE_INP"].address,
+                update_period=SLOW_UPDATE,
             ),
+            str_attr=self.gate_inp_str,
         )
-        self.gate_inp_str = AttrR(String())
 
         gate_start_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_START"]
         self.gate_start = AttrRW(
@@ -208,7 +188,7 @@ class PositionCompareController(Controller):
                 register=gate_start_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_start_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -219,7 +199,7 @@ class PositionCompareController(Controller):
                 register=gate_wid_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_wid_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -230,7 +210,7 @@ class PositionCompareController(Controller):
                 register=gate_ngate_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_ngate_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -241,7 +221,7 @@ class PositionCompareController(Controller):
                 register=gate_step_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_step_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -251,20 +231,22 @@ class PositionCompareController(Controller):
         # Pulse Configuration
         # =====================================================================
         self.pulse_sel = AttrRW(
-            Int(),
+            Enum(SourceSelection),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address,
+                update_period=SLOW_UPDATE,
             ),
         )
-        self.pulse_sel_str = AttrR(String())
 
-        self.pulse_inp = AttrRW(
+        self.pulse_inp_str = AttrR(String())
+        self.pulse_inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_PULSE_INP"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_PULSE_INP"].address,
+                update_period=SLOW_UPDATE,
             ),
+            str_attr=self.pulse_inp_str,
         )
-        self.pulse_inp_str = AttrR(String())
 
         pulse_start_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_START"]
         self.pulse_start = AttrRW(
@@ -273,7 +255,7 @@ class PositionCompareController(Controller):
                 register=pulse_start_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_start_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -284,7 +266,7 @@ class PositionCompareController(Controller):
                 register=pulse_wid_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_wid_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -295,7 +277,7 @@ class PositionCompareController(Controller):
                 register=pulse_step_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_step_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -306,7 +288,7 @@ class PositionCompareController(Controller):
                 register=pulse_max_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_max_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -317,7 +299,7 @@ class PositionCompareController(Controller):
                 register=pulse_dly_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_dly_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -329,7 +311,8 @@ class PositionCompareController(Controller):
         self.bit_cap = AttrRW(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_BIT_CAP"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_BIT_CAP"].address,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -340,7 +323,7 @@ class PositionCompareController(Controller):
                 register=num_cap_reg.address_lo,
                 is_32bit=True,
                 register_hi=num_cap_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -353,6 +336,26 @@ class PositionCompareController(Controller):
         self.enc3_last = AttrR(Int())
         self.enc4_last = AttrR(Int())
 
+    def register_interrupt_handler(self, handler: "InterruptHandler") -> None:
+        """Register interrupt handler to receive bit_cap updates.
+
+        This method sets up a callback so that when the bit_cap register
+        changes, the interrupt handler is notified and can correctly parse
+        incoming position compare data messages.
+
+        Args:
+            handler: The interrupt handler to notify of bit_cap changes
+        """
+        self._interrupt_handler = handler
+
+        # Set up callback to update interrupt handler when bit_cap changes
+        async def on_bit_cap_update(value: int | None) -> None:
+            """Update interrupt handler when PC_BIT_CAP changes."""
+            if value is not None and self._interrupt_handler is not None:
+                self._interrupt_handler.set_bit_cap(value)
+
+        self.bit_cap.add_on_update_callback(on_bit_cap_update)
+
     async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
         """Update derived values from system bus status.
 
@@ -360,61 +363,6 @@ class PositionCompareController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update encoder selection string
-        enc_value = self.enc.get()
-        if enc_value is not None:
-            enc_str = ENCODER_SEL.get(enc_value, f"Unknown({enc_value})")
-            await self.enc_str.update(enc_str)
-
-        # Update prescaler string
-        tspre_value = self.tspre.get()
-        if tspre_value is not None:
-            await self.tspre_str.update(
-                PRESCALER_VALUES.get(tspre_value, f"Unknown({tspre_value})")
-            )
-
-        # Update direction string
-        dir_value = self.dir.get()
-        if dir_value is not None:
-            await self.dir_str.update(DIRECTION.get(dir_value, f"Unknown({dir_value})"))
-
-        # Update arm selection string
-        arm_sel_value = self.arm_sel.get()
-        if arm_sel_value is not None:
-            await self.arm_sel_str.update(
-                ARM_SEL.get(arm_sel_value, f"Unknown({arm_sel_value})")
-            )
-
-        # Update arm input string
-        arm_inp_value = self.arm_inp.get()
-        if arm_inp_value is not None and 0 <= arm_inp_value < len(SYSTEM_BUS_SIGNALS):
-            await self.arm_inp_str.update(signal_index_to_name(arm_inp_value))
-
-        # Update gate selection string
-        gate_sel_value = self.gate_sel.get()
-        if gate_sel_value is not None:
-            await self.gate_sel_str.update(
-                SOURCE_SEL.get(gate_sel_value, f"Unknown({gate_sel_value})")
-            )
-
-        # Update gate input string
-        gate_inp_value = self.gate_inp.get()
-        if gate_inp_value is not None and 0 <= gate_inp_value < len(SYSTEM_BUS_SIGNALS):
-            await self.gate_inp_str.update(signal_index_to_name(gate_inp_value))
-
-        # Update pulse selection string
-        pulse_sel_value = self.pulse_sel.get()
-        if pulse_sel_value is not None:
-            await self.pulse_sel_str.update(
-                SOURCE_SEL.get(pulse_sel_value, f"Unknown({pulse_sel_value})")
-            )
-
-        # Update pulse input string
-        pulse_inp_value = self.pulse_inp.get()
-        if pulse_inp_value is not None:
-            if 0 <= pulse_inp_value < len(SYSTEM_BUS_SIGNALS):
-                await self.pulse_inp_str.update(signal_index_to_name(pulse_inp_value))
-
         # Update status from system bus
         # PC_ARM is index 29 (in sys_stat1)
         # PC_GATE is index 30 (in sys_stat1)

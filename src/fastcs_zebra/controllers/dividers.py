@@ -9,20 +9,20 @@ Each pulse divider:
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
+from fastcs_zebra.attr_named import AttrNamedRegister
+from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
     SysBus,
-    signal_index_to_name,
 )
 
 
-class DividerController(Controller):
+class DividerController(ZebraSubcontroller):
     """Controller for a single pulse divider (DIV1-DIV4).
 
     The pulse divider counts input pulses and outputs every Nth pulse,
@@ -36,6 +36,8 @@ class DividerController(Controller):
         outn: Current state of non-divided (passthrough) output
     """
 
+    count = 4  # Number of dividers available
+
     def __init__(
         self,
         div_num: int,
@@ -47,11 +49,7 @@ class DividerController(Controller):
             div_num: Divider number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= div_num <= 4:
-            raise ValueError(f"Divider number must be 1-4, got {div_num}")
-
-        self._div_num = div_num
-        self._register_io = register_io
+        super().__init__(div_num, register_io)
 
         # Get register addresses for this divider
         inp_reg = REGISTERS_BY_NAME[f"DIV{div_num}_INP"]
@@ -61,14 +59,15 @@ class DividerController(Controller):
         self._sysbus_outd = getattr(SysBus, f"DIV{div_num}_OUTD")
         self._sysbus_outn = getattr(SysBus, f"DIV{div_num}_OUTN")
 
-        super().__init__(ios=[register_io])
-
         # Input source (MUX register, 0-63)
-        self.inp = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=1.0),
-        )
         self.inp_str = AttrR(String())
+        self.inp = AttrNamedRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(
+                register=inp_reg.address, update_period=SLOW_UPDATE
+            ),
+            str_attr=self.inp_str,
+        )
 
         # Divisor (32-bit value)
         self.div = AttrRW(
@@ -77,7 +76,7 @@ class DividerController(Controller):
                 register=div_reg32.address_lo,
                 is_32bit=True,
                 register_hi=div_reg32.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -92,10 +91,6 @@ class DividerController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representation
-        inp_value = self.inp.get()
-        if inp_value is not None and 0 <= inp_value < len(SYSTEM_BUS_SIGNALS):
-            await self.inp_str.update(signal_index_to_name(inp_value))
 
         # Update output states from system bus
         # DIV OUTD are indices 44-47 (in sys_stat2)

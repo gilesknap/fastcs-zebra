@@ -9,19 +9,17 @@ The Zebra has 8 output connectors with different signal types:
 Each output type can be independently routed to any of the 64 system bus signals.
 """
 
-from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
+from fastcs.attributes import AttrR
 from fastcs.datatypes import Int, String
 
+from fastcs_zebra.attr_named import AttrNamedRegister
+from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import (
-    REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
-    signal_index_to_name,
-)
+from fastcs_zebra.registers import REGISTERS_BY_NAME
 
 
-class OutputController(Controller):
+class OutputController(ZebraSubcontroller):
     """Controller for a single output connector (OUT1-OUT8).
 
     Output connectors have different signal types depending on the connector:
@@ -47,6 +45,8 @@ class OutputController(Controller):
         8: ["enca", "encb", "encz", "conn"],
     }
 
+    count = 8  # Number of outputs available
+
     def __init__(
         self,
         out_num: int,
@@ -58,14 +58,9 @@ class OutputController(Controller):
             out_num: Output number (1-8)
             register_io: Shared register IO handler
         """
-        if not 1 <= out_num <= 8:
-            raise ValueError(f"Output number must be 1-8, got {out_num}")
+        super().__init__(out_num, register_io)
 
-        self._out_num = out_num
-        self._register_io = register_io
         self._signal_types = self.OUTPUT_TYPES[out_num]
-
-        super().__init__(ios=[register_io])
 
         # Create attributes for each signal type
         for sig_type in self._signal_types:
@@ -73,15 +68,19 @@ class OutputController(Controller):
             reg = REGISTERS_BY_NAME[reg_name]
 
             # Signal source (MUX register, 0-63)
-            attr = AttrRW(
+            str_attr = AttrR(String())
+            attr = AttrNamedRegister(
                 Int(),
-                io_ref=ZebraRegisterIORef(register=reg.address, update_period=1.0),
+                io_ref=ZebraRegisterIORef(
+                    register=reg.address, update_period=SLOW_UPDATE
+                ),
+                str_attr=str_attr,
             )
-            setattr(self, sig_type, attr)
 
             # Human-readable string
-            str_attr = AttrR(String())
             setattr(self, f"{sig_type}_str", str_attr)
+
+            setattr(self, sig_type, attr)
 
     async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
         """Update derived values from system bus status.
@@ -91,9 +90,4 @@ class OutputController(Controller):
             sys_stat2: System bus status bits 32-63
         """
         # Update string representations for each signal type
-        for sig_type in self._signal_types:
-            attr = getattr(self, sig_type)
-            str_attr = getattr(self, f"{sig_type}_str")
-            value = attr.get()
-            if value is not None and 0 <= value < len(SYSTEM_BUS_SIGNALS):
-                await str_attr.update(signal_index_to_name(value))
+        pass
