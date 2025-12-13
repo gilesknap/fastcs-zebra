@@ -5,7 +5,7 @@ derived from its integer value.
 Used for specifying input sources by index, with a human-readable name.
 """
 
-from fastcs.attributes import AttrRW
+from fastcs.attributes import AttrR, AttrRW
 
 from fastcs_zebra.registers import signal_index_to_name
 
