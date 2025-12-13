@@ -12,8 +12,10 @@ This controller manages the complete position compare subsystem including
 arm/disarm, configuration, and interrupt-driven data updates.
 """
 
+import enum
+
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.datatypes import Bool, Int, String
+from fastcs.datatypes import Bool, Enum, Int, String
 from fastcs.methods import command
 
 from fastcs_zebra.attr_named import AttrNamedRegister
@@ -25,40 +27,45 @@ from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
 )
 
-# Prescaler values and their meanings
-PRESCALER_VALUES = {
-    500000: "10s",  # Time unit = 10 seconds
-    5000: "s",  # Time unit = seconds
-    5: "ms",  # Time unit = milliseconds
-}
 
-# Source selection values
-SOURCE_SEL = {
-    0: "Position",
-    1: "Time",
-    2: "External",
-}
+class Prescaler(enum.IntEnum):
+    """Prescaler string representations."""
 
-# Arm selection values
-ARM_SEL = {
-    0: "Software",
-    1: "External",
-}
+    TEN_SECONDS = 50000
+    SECONDS = 5000
+    MILLISECONDS = 5
 
-# Direction values
-DIRECTION = {
-    0: "Positive",
-    1: "Negative",
-}
 
-# Encoder selection values
-ENCODER_SEL = {
-    0: "Enc1",
-    1: "Enc2",
-    2: "Enc3",
-    3: "Enc4",
-    4: "Enc1+2+3+4",
-}
+class SourceSelection(enum.IntEnum):
+    """Source selection for gate/pulse."""
+
+    POSITION = 0
+    TIME = 1
+    EXTERNAL = 2
+
+
+class ArmSelection(enum.IntEnum):
+    """Arm source selection."""
+
+    SOFTWARE = 0
+    EXTERNAL = 1
+
+
+class Direction(enum.IntEnum):
+    """Position compare direction."""
+
+    POSITIVE = 0
+    NEGATIVE = 1
+
+
+class EncoderSelection(enum.IntEnum):
+    """Encoder selection for position compare."""
+
+    ENC1 = 0
+    ENC2 = 1
+    ENC3 = 2
+    ENC4 = 3
+    ENC1234_SUM = 4
 
 
 class PositionCompareController(ZebraSubcontroller):
@@ -137,45 +144,37 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Encoder and Timing Selection
         # =====================================================================
-        self.enc_str = AttrR(String())
-        self.enc = AttrNamedRegister(
-            Int(),
+        self.enc = AttrRW(
+            Enum(EncoderSelection),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.enc_str,
         )
 
-        self.tspre_str = AttrR(String())
-        self.tspre = AttrNamedRegister(
-            Int(),
+        self.tspre = AttrRW(
+            Enum(Prescaler),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_TSPRE"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.tspre_str,
         )
 
-        self.dir_str = AttrR(String())
-        self.dir = AttrNamedRegister(
-            Int(),
+        self.dir = AttrRW(
+            Enum(Direction),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.dir_str,
         )
 
         # =====================================================================
         # Arm Configuration
         # =====================================================================
-        self.arm_sel_str = AttrR(String())
-        self.arm_sel = AttrNamedRegister(
-            Int(),
+        self.arm_sel = AttrRW(
+            Enum(ArmSelection),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_ARM_SEL"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.arm_sel_str,
         )
 
         self.arm_inp_str = AttrR(String())
@@ -193,14 +192,12 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Gate Configuration
         # =====================================================================
-        self.gate_sel_str = AttrR(String())
-        self.gate_sel = AttrNamedRegister(
-            Int(),
+        self.gate_sel = AttrRW(
+            Enum(SourceSelection),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_GATE_SEL"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.gate_sel_str,
         )
 
         self.gate_inp_str = AttrR(String())
@@ -262,14 +259,12 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Pulse Configuration
         # =====================================================================
-        self.pulse_sel_str = AttrR(String())
-        self.pulse_sel = AttrNamedRegister(
-            Int(),
+        self.pulse_sel = AttrRW(
+            Enum(SourceSelection),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.pulse_sel_str,
         )
 
         self.pulse_inp_str = AttrR(String())
