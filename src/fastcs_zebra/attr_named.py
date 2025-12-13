@@ -10,9 +10,9 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs_zebra.registers import signal_index_to_name
 
 
-class AttrSourceRegister(AttrRW[int]):
-    """A read-write integer attribute representing a register with a derived
-    string value.
+class AttrNamedRegister(AttrRW[int]):
+    """A read-write integer attribute representing a register with a descriptive
+    string value held in a separate AttrR[str].
     """
 
     def __init__(self, *args, str_attr: "AttrR[str]", **kwargs):

@@ -12,7 +12,7 @@ Each output type can be independently routed to any of the 64 system bus signals
 from fastcs.attributes import AttrR
 from fastcs.datatypes import Int, String
 
-from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -69,7 +69,7 @@ class OutputController(ZebraSubcontroller):
 
             # Signal source (MUX register, 0-63)
             str_attr = AttrR(String())
-            attr = AttrSourceRegister(
+            attr = AttrNamedRegister(
                 Int(),
                 io_ref=ZebraRegisterIORef(
                     register=reg.address, update_period=SLOW_UPDATE

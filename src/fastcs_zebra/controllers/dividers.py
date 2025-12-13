@@ -11,7 +11,7 @@ Each pulse divider:
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Int, String
 
-from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -61,7 +61,7 @@ class DividerController(ZebraSubcontroller):
 
         # Input source (MUX register, 0-63)
         self.inp_str = AttrR(String())
-        self.inp = AttrSourceRegister(
+        self.inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=20.0),
             str_attr=self.inp_str,

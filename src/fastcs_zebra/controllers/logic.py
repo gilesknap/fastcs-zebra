@@ -13,7 +13,7 @@ or other gates.
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Int, String
 
-from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -83,7 +83,7 @@ class AndGateController(ZebraSubcontroller):
 
         # Input 1 source (MUX register, 0-63)
         self.inp1_str = AttrR(String())
-        self.inp1 = AttrSourceRegister(
+        self.inp1 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp1_reg.address, update_period=SLOW_UPDATE
@@ -93,7 +93,7 @@ class AndGateController(ZebraSubcontroller):
 
         # Input 2 source
         self.inp2_str = AttrR(String())
-        self.inp2 = AttrSourceRegister(
+        self.inp2 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp2_reg.address, update_period=SLOW_UPDATE
@@ -103,7 +103,7 @@ class AndGateController(ZebraSubcontroller):
 
         # Input 3 source
         self.inp3_str = AttrR(String())
-        self.inp3 = AttrSourceRegister(
+        self.inp3 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp3_reg.address, update_period=SLOW_UPDATE
@@ -112,7 +112,7 @@ class AndGateController(ZebraSubcontroller):
         )
         # Input 4 source
         self.inp4_str = AttrR(String())
-        self.inp4 = AttrSourceRegister(
+        self.inp4 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp4_reg.address, update_period=SLOW_UPDATE
@@ -198,7 +198,7 @@ class OrGateController(ZebraSubcontroller):
 
         # Input 1 source (MUX register, 0-63)
         self.inp1_str = AttrR(String())
-        self.inp1 = AttrSourceRegister(
+        self.inp1 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp1_reg.address, update_period=SLOW_UPDATE
@@ -208,7 +208,7 @@ class OrGateController(ZebraSubcontroller):
 
         # Input 2 source
         self.inp2_str = AttrR(String())
-        self.inp2 = AttrSourceRegister(
+        self.inp2 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp2_reg.address, update_period=SLOW_UPDATE
@@ -218,7 +218,7 @@ class OrGateController(ZebraSubcontroller):
 
         # Input 3 source
         self.inp3_str = AttrR(String())
-        self.inp3 = AttrSourceRegister(
+        self.inp3 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp3_reg.address, update_period=SLOW_UPDATE
@@ -228,7 +228,7 @@ class OrGateController(ZebraSubcontroller):
 
         # Input 4 source
         self.inp4_str = AttrR(String())
-        self.inp4 = AttrSourceRegister(
+        self.inp4 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp4_reg.address, update_period=SLOW_UPDATE

@@ -72,7 +72,7 @@ class TestRegister:
     def test_register_frozen(self):
         """Test that Register is immutable (frozen dataclass)."""
         reg = Register("TEST_REG", 0x10, RegisterType.RW)
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(AttributeError):
             reg.name = "NEW_NAME"  # type: ignore[misc]
 
     def test_register_invalid_address_too_low(self):
@@ -108,7 +108,7 @@ class TestRegister32:
     def test_register32_frozen(self):
         """Test that Register32 is immutable."""
         reg = Register32("TEST_32", 0x10, 0x11, RegisterType.RW)
-        with pytest.raises(Exception):
+        with pytest.raises(AttributeError):
             reg.name = "NEW_NAME"  # type: ignore[misc]
 
     def test_register32_invalid_lo_address(self):

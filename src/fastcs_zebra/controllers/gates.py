@@ -12,7 +12,7 @@ based on external signals.
 from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Int, String
 
-from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -63,7 +63,7 @@ class GateController(ZebraSubcontroller):
 
         # Trigger input (INP1) - rising edge sets output high
         self.inp1_str = AttrR(String())
-        self.inp1 = AttrSourceRegister(
+        self.inp1 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp1_reg.address, update_period=SLOW_UPDATE
@@ -73,7 +73,7 @@ class GateController(ZebraSubcontroller):
 
         # Reset input (INP2) - rising edge resets output low
         self.inp2_str = AttrR(String())
-        self.inp2 = AttrSourceRegister(
+        self.inp2 = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=inp2_reg.address, update_period=SLOW_UPDATE

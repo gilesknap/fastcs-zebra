@@ -16,7 +16,7 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command
 
-from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -138,7 +138,7 @@ class PositionCompareController(ZebraSubcontroller):
         # Encoder and Timing Selection
         # =====================================================================
         self.enc_str = AttrR(String())
-        self.enc = AttrSourceRegister(
+        self.enc = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=SLOW_UPDATE
@@ -147,7 +147,7 @@ class PositionCompareController(ZebraSubcontroller):
         )
 
         self.tspre_str = AttrR(String())
-        self.tspre = AttrSourceRegister(
+        self.tspre = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_TSPRE"].address,
@@ -157,7 +157,7 @@ class PositionCompareController(ZebraSubcontroller):
         )
 
         self.dir_str = AttrR(String())
-        self.dir = AttrSourceRegister(
+        self.dir = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=SLOW_UPDATE
@@ -169,7 +169,7 @@ class PositionCompareController(ZebraSubcontroller):
         # Arm Configuration
         # =====================================================================
         self.arm_sel_str = AttrR(String())
-        self.arm_sel = AttrSourceRegister(
+        self.arm_sel = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_ARM_SEL"].address,
@@ -179,7 +179,7 @@ class PositionCompareController(ZebraSubcontroller):
         )
 
         self.arm_inp_str = AttrR(String())
-        self.arm_inp = AttrSourceRegister(
+        self.arm_inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_ARM_INP"].address,
@@ -194,7 +194,7 @@ class PositionCompareController(ZebraSubcontroller):
         # Gate Configuration
         # =====================================================================
         self.gate_sel_str = AttrR(String())
-        self.gate_sel = AttrSourceRegister(
+        self.gate_sel = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_GATE_SEL"].address,
@@ -204,7 +204,7 @@ class PositionCompareController(ZebraSubcontroller):
         )
 
         self.gate_inp_str = AttrR(String())
-        self.gate_inp = AttrSourceRegister(
+        self.gate_inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_GATE_INP"].address,
@@ -263,7 +263,7 @@ class PositionCompareController(ZebraSubcontroller):
         # Pulse Configuration
         # =====================================================================
         self.pulse_sel_str = AttrR(String())
-        self.pulse_sel = AttrSourceRegister(
+        self.pulse_sel = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address,
@@ -273,7 +273,7 @@ class PositionCompareController(ZebraSubcontroller):
         )
 
         self.pulse_inp_str = AttrR(String())
-        self.pulse_inp = AttrSourceRegister(
+        self.pulse_inp = AttrNamedRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_PULSE_INP"].address,
