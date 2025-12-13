@@ -10,26 +10,26 @@ The pulse output is available on the system bus for routing to outputs
 or other logic.
 """
 
+import enum
+
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.controllers import Controller
-from fastcs.datatypes import Bool, Int, String
+from fastcs.datatypes import Bool, Enum, Int, String
 
+from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
     SysBus,
-    signal_index_to_name,
 )
 
-# Prescaler values and their meanings
-PRESCALER_VALUES = {
-    500000: "10s",  # Time unit = 10 seconds
-    5000: "s",  # Time unit = seconds
-    5: "ms",  # Time unit = milliseconds
-}
 
-PRESCALER_TO_VALUE = {v: k for k, v in PRESCALER_VALUES.items()}
+class Prescaler(enum.IntEnum):
+    """Prescaler string representations."""
+
+    TEN_SECONDS = 50000
+    SECONDS = 5000
+    MILLISECONDS = 5
 
 
 class PulseController(Controller):
@@ -80,11 +80,12 @@ class PulseController(Controller):
         super().__init__(ios=[register_io])
 
         # Input source (MUX register, 0-63)
-        self.inp = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=1.0),
-        )
         self.inp_str = AttrR(String())
+        self.inp = AttrSourceRegister(
+            Int(),
+            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=10.0),
+            str_attr=self.inp_str,
+        )
 
         # Delay (time from trigger to pulse start)
         self.dly = AttrRW(
@@ -100,10 +101,9 @@ class PulseController(Controller):
 
         # Prescaler (time unit selection)
         self.pre = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(register=pre_reg.address, update_period=1.0),
+            Enum(Prescaler),
+            io_ref=ZebraRegisterIORef(register=pre_reg.address, update_period=10.0),
         )
-        self.pre_str = AttrR(String())
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())
@@ -115,17 +115,6 @@ class PulseController(Controller):
             sys_stat1: System bus status bits 0-31
             sys_stat2: System bus status bits 32-63
         """
-        # Update input string representation
-        inp_value = self.inp.get()
-        if inp_value is not None and 0 <= inp_value < len(SYSTEM_BUS_SIGNALS):
-            await self.inp_str.update(signal_index_to_name(inp_value))
-
-        # Update prescaler string representation
-        pre_value = self.pre.get()
-        if pre_value is not None:
-            pre_str = PRESCALER_VALUES.get(pre_value, f"Unknown({pre_value})")
-            await self.pre_str.update(pre_str)
-
         # Update output state from system bus
         # PULSE generators are indices 52-55 (in sys_stat2)
         bit_index = self._sysbus_index - 32
