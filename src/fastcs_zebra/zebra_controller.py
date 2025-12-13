@@ -412,7 +412,7 @@ class ZebraController(Controller):
     async def _setup_sys_stat_callbacks(self) -> None:
         """Setup callbacks for sys_stat updates to propagate to sub-controllers."""
 
-        async def on_sys_stat_update(value: int) -> None:
+        async def on_sys_stat_update(value: int | None) -> None:
             """Called when sys_stat1 or sys_stat2 updates."""
             try:
                 # Get current system bus status

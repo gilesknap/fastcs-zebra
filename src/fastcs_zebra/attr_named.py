@@ -2,10 +2,10 @@
 Defines a fastcs read-write attribute that has a related string attribute
 derived from its integer value.
 
-Used for specifiying input sources by index, with a human-readable name.
+Used for specifying input sources by index, with a human-readable name.
 """
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttrRW
 
 from fastcs_zebra.registers import signal_index_to_name
 
@@ -32,6 +32,13 @@ class AttrNamedRegister(AttrRW[int]):
         await self._str_attr.update(signal_index_to_name(setpoint))
         await super().put(setpoint, sync_setpoint)
 
-    async def update_str_attr(self, value: int) -> None:
-        """Update the derived string on init/change from zebra."""
-        await self._str_attr.update(signal_index_to_name(value))
+    async def update_str_attr(self, value: int | None) -> None:
+        """Update the derived string on init/change from zebra.
+
+        Args:
+            value: The integer value, or None if not yet initialized.
+        """
+        if value is None:
+            await self._str_attr.update("")
+        else:
+            await self._str_attr.update(signal_index_to_name(value))

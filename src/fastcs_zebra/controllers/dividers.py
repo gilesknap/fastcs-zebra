@@ -63,7 +63,7 @@ class DividerController(ZebraSubcontroller):
         self.inp_str = AttrR(String())
         self.inp = AttrNamedRegister(
             Int(),
-            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=20.0),
+            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=SLOW_UPDATE),
             str_attr=self.inp_str,
         )
 

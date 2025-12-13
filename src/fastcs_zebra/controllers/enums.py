@@ -8,7 +8,7 @@ import enum
 class Prescaler(enum.IntEnum):
     """Prescaler string representations."""
 
-    TEN_SECONDS = 50000
+    TEN_SECONDS = 500000
     SECONDS = 5000
     MILLISECONDS = 5
 
