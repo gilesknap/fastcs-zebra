@@ -13,12 +13,12 @@ arm/disarm, configuration, and interrupt-driven data updates.
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command
 
 from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
@@ -61,7 +61,7 @@ ENCODER_SEL = {
 }
 
 
-class PositionCompareController(Controller):
+class PositionCompareController(ZebraSubcontroller):
     """Controller for the position compare subsystem.
 
     The position compare system captures encoder positions synchronized with
@@ -121,6 +121,8 @@ class PositionCompareController(Controller):
         enc1_last - enc4_last: Last captured encoder values
     """
 
+    count = 1  # Only one position compare controller
+
     def __init__(
         self,
         register_io: ZebraRegisterIO,
@@ -130,9 +132,7 @@ class PositionCompareController(Controller):
         Args:
             register_io: Shared register IO handler
         """
-        self._register_io = register_io
-
-        super().__init__(ios=[register_io])
+        super().__init__(1, register_io)
 
         # =====================================================================
         # Encoder and Timing Selection

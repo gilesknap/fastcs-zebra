@@ -31,3 +31,6 @@ class ZebraSubcontroller(Controller):
             raise ValueError(f"number must be 1-{self.count}, got {num}")
 
         self.all_controllers.append(self)
+
+        self._num = num
+        self._register_io = register_io

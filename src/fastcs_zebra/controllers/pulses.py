@@ -67,9 +67,6 @@ class PulseController(ZebraSubcontroller):
         """
         super().__init__(pulse_num, register_io)
 
-        self._pulse_num = pulse_num
-        self._register_io = register_io
-
         # Get register addresses for this pulse generator
         inp_reg = REGISTERS_BY_NAME[f"PULSE{pulse_num}_INP"]
         dly_reg = REGISTERS_BY_NAME[f"PULSE{pulse_num}_DLY"]

@@ -15,6 +15,7 @@ from fastcs.datatypes import Bool, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
@@ -22,7 +23,7 @@ from fastcs_zebra.registers import (
 )
 
 
-class GateController(Controller):
+class GateController(ZebraSubcontroller):
     """Controller for a single gate generator (GATE1-GATE4).
 
     The gate generator is an SR latch:
@@ -39,6 +40,8 @@ class GateController(Controller):
         out: Current output state of the gate generator
     """
 
+    count = 4  # Number of gate generators available
+
     def __init__(
         self,
         gate_num: int,
@@ -50,11 +53,7 @@ class GateController(Controller):
             gate_num: Gate number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= gate_num <= 4:
-            raise ValueError(f"Gate number must be 1-4, got {gate_num}")
-
-        self._gate_num = gate_num
-        self._register_io = register_io
+        super().__init__(gate_num, register_io)
 
         # Get register addresses for this gate
         inp1_reg = REGISTERS_BY_NAME[f"GATE{gate_num}_INP1"]
@@ -62,8 +61,6 @@ class GateController(Controller):
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"GATE{gate_num}")
-
-        super().__init__(ios=[register_io])
 
         # Trigger input (INP1) - rising edge sets output high
         self.inp1_str = AttrR(String())

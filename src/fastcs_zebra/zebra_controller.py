@@ -21,6 +21,8 @@ from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command
 
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
+
 from .constants import FAST_UPDATE, SLOW_UPDATE
 from .controllers.dividers import DividerController
 from .controllers.gates import GateController
@@ -416,42 +418,13 @@ class ZebraController(Controller):
                     sys_stat1 = self.sys_stat1.get() or 0
                     sys_stat2 = self.sys_stat2.get() or 0
 
-                    # Update all sub-controllers
-                    # AND gates
-                    for i in range(1, 5):
-                        controller = getattr(self, f"and{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
+                    # TODO do this from the sys_stat1/2 AttrR update callbacks
+                    # Update all sub-controllers status bits
+                    for sub_controller in ZebraSubcontroller.all_controllers:
+                        await sub_controller.update_derived_values(sys_stat1, sys_stat2)
 
-                    # OR gates
-                    for i in range(1, 5):
-                        controller = getattr(self, f"or{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Gate generators
-                    for i in range(1, 5):
-                        controller = getattr(self, f"gate{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Pulse generators
-                    for i in range(1, 5):
-                        controller = getattr(self, f"pulse{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Dividers
-                    for i in range(1, 5):
-                        controller = getattr(self, f"div{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Outputs
-                    for i in range(1, 9):
-                        controller = getattr(self, f"out{i}")
-                        await controller.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Position compare
-                    await self.pc.update_derived_values(sys_stat1, sys_stat2)
-
-                    # Update at 4 Hz (every 0.25 seconds)
-                    await asyncio.sleep(0.25)
+                    # Update at 5 Hz (every 0.2 seconds)
+                    await asyncio.sleep(FAST_UPDATE)
 
                 except Exception as e:
                     logger.error(f"Error updating derived values: {e}")

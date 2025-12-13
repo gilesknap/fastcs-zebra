@@ -14,6 +14,7 @@ from fastcs.datatypes import Bool, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
@@ -22,7 +23,7 @@ from fastcs_zebra.registers import (
 )
 
 
-class DividerController(Controller):
+class DividerController(ZebraSubcontroller):
     """Controller for a single pulse divider (DIV1-DIV4).
 
     The pulse divider counts input pulses and outputs every Nth pulse,
@@ -36,6 +37,8 @@ class DividerController(Controller):
         outn: Current state of non-divided (passthrough) output
     """
 
+    count = 4  # Number of dividers available
+
     def __init__(
         self,
         div_num: int,
@@ -47,11 +50,7 @@ class DividerController(Controller):
             div_num: Divider number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= div_num <= 4:
-            raise ValueError(f"Divider number must be 1-4, got {div_num}")
-
-        self._div_num = div_num
-        self._register_io = register_io
+        super().__init__(div_num, register_io)
 
         # Get register addresses for this divider
         inp_reg = REGISTERS_BY_NAME[f"DIV{div_num}_INP"]
@@ -60,8 +59,6 @@ class DividerController(Controller):
         # System bus indices for this divider's outputs
         self._sysbus_outd = getattr(SysBus, f"DIV{div_num}_OUTD")
         self._sysbus_outn = getattr(SysBus, f"DIV{div_num}_OUTN")
-
-        super().__init__(ios=[register_io])
 
         # Input source (MUX register, 0-63)
         self.inp_str = AttrR(String())

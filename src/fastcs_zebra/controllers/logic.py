@@ -11,11 +11,11 @@ or other gates.
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
@@ -23,7 +23,7 @@ from fastcs_zebra.registers import (
 )
 
 
-class AndGateController(Controller):
+class AndGateController(ZebraSubcontroller):
     """Controller for a single AND gate (AND1-AND4).
 
     The AND gate combines up to 4 inputs with AND logic. Each input can be:
@@ -39,6 +39,8 @@ class AndGateController(Controller):
         out: Current output state of the AND gate
     """
 
+    count = 4  # Number of AND gates available
+
     def __init__(
         self,
         gate_num: int,
@@ -50,11 +52,7 @@ class AndGateController(Controller):
             gate_num: Gate number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= gate_num <= 4:
-            raise ValueError(f"AND gate number must be 1-4, got {gate_num}")
-
-        self._gate_num = gate_num
-        self._register_io = register_io
+        super().__init__(gate_num, register_io)
 
         # Get register addresses for this gate
         inv_reg = REGISTERS_BY_NAME[f"AND{gate_num}_INV"]
@@ -66,8 +64,6 @@ class AndGateController(Controller):
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"AND{gate_num}")
-
-        super().__init__(ios=[register_io])
 
         # Inversion mask (4-bit bitfield)
         self.inv = AttrRW(
@@ -142,7 +138,7 @@ class AndGateController(Controller):
         await self.out.update(out_state)
 
 
-class OrGateController(Controller):
+class OrGateController(ZebraSubcontroller):
     """Controller for a single OR gate (OR1-OR4).
 
     The OR gate combines up to 4 inputs with OR logic. Each input can be:
@@ -158,6 +154,8 @@ class OrGateController(Controller):
         out: Current output state of the OR gate
     """
 
+    count = 4  # Number of OR gates available
+
     def __init__(
         self,
         gate_num: int,
@@ -169,11 +167,7 @@ class OrGateController(Controller):
             gate_num: Gate number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= gate_num <= 4:
-            raise ValueError(f"OR gate number must be 1-4, got {gate_num}")
-
-        self._gate_num = gate_num
-        self._register_io = register_io
+        super().__init__(gate_num, register_io)
 
         # Get register addresses for this gate
         inv_reg = REGISTERS_BY_NAME[f"OR{gate_num}_INV"]
@@ -185,8 +179,6 @@ class OrGateController(Controller):
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"OR{gate_num}")
-
-        super().__init__(ios=[register_io])
 
         # Inversion mask (4-bit bitfield)
         self.inv = AttrRW(

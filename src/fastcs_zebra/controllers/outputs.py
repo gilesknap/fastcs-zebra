@@ -10,16 +10,16 @@ Each output type can be independently routed to any of the 64 system bus signals
 """
 
 from fastcs.attributes import AttrR
-from fastcs.controllers import Controller
 from fastcs.datatypes import Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
 from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import REGISTERS_BY_NAME
 
 
-class OutputController(Controller):
+class OutputController(ZebraSubcontroller):
     """Controller for a single output connector (OUT1-OUT8).
 
     Output connectors have different signal types depending on the connector:
@@ -45,6 +45,8 @@ class OutputController(Controller):
         8: ["enca", "encb", "encz", "conn"],
     }
 
+    count = 8  # Number of outputs available
+
     def __init__(
         self,
         out_num: int,
@@ -56,14 +58,9 @@ class OutputController(Controller):
             out_num: Output number (1-8)
             register_io: Shared register IO handler
         """
-        if not 1 <= out_num <= 8:
-            raise ValueError(f"Output number must be 1-8, got {out_num}")
+        super().__init__(out_num, register_io)
 
-        self._out_num = out_num
-        self._register_io = register_io
         self._signal_types = self.OUTPUT_TYPES[out_num]
-
-        super().__init__(ios=[register_io])
 
         # Create attributes for each signal type
         for sig_type in self._signal_types:
