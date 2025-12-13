@@ -10,7 +10,6 @@ based on external signals.
 """
 
 from fastcs.attributes import AttrR
-from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister

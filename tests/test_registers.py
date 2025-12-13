@@ -12,7 +12,6 @@ Tests cover:
 import pytest
 
 from fastcs_zebra.registers import (
-    REGISTERS_32BIT_BY_NAME,
     REGISTERS_BY_ADDRESS,
     REGISTERS_BY_NAME,
     SYSTEM_BUS_SIGNALS,
