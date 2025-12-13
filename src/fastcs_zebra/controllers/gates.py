@@ -14,6 +14,7 @@ from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
@@ -68,7 +69,9 @@ class GateController(Controller):
         self.inp1_str = AttrR(String())
         self.inp1 = AttrSourceRegister(
             Int(),
-            io_ref=ZebraRegisterIORef(register=inp1_reg.address, update_period=10.0),
+            io_ref=ZebraRegisterIORef(
+                register=inp1_reg.address, update_period=SLOW_UPDATE
+            ),
             str_attr=self.inp1_str,
         )
 
@@ -76,7 +79,9 @@ class GateController(Controller):
         self.inp2_str = AttrR(String())
         self.inp2 = AttrSourceRegister(
             Int(),
-            io_ref=ZebraRegisterIORef(register=inp2_reg.address, update_period=10.0),
+            io_ref=ZebraRegisterIORef(
+                register=inp2_reg.address, update_period=SLOW_UPDATE
+            ),
             str_attr=self.inp2_str,
         )
 

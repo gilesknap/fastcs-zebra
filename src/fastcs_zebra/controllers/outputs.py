@@ -14,6 +14,7 @@ from fastcs.controllers import Controller
 from fastcs.datatypes import Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import REGISTERS_BY_NAME
 
@@ -73,7 +74,9 @@ class OutputController(Controller):
             str_attr = AttrR(String())
             attr = AttrSourceRegister(
                 Int(),
-                io_ref=ZebraRegisterIORef(register=reg.address, update_period=10.0),
+                io_ref=ZebraRegisterIORef(
+                    register=reg.address, update_period=SLOW_UPDATE
+                ),
                 str_attr=str_attr,
             )
 

@@ -13,10 +13,11 @@ or other logic.
 import enum
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Enum, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
@@ -32,7 +33,7 @@ class Prescaler(enum.IntEnum):
     MILLISECONDS = 5
 
 
-class PulseController(Controller):
+class PulseController(ZebraSubcontroller):
     """Controller for a single pulse generator (PULSE1-PULSE4).
 
     The pulse generator creates a single pulse output:
@@ -51,6 +52,8 @@ class PulseController(Controller):
         out: Current output state of the pulse generator
     """
 
+    count = 4  # Number of pulse generators available
+
     def __init__(
         self,
         pulse_num: int,
@@ -62,8 +65,7 @@ class PulseController(Controller):
             pulse_num: Pulse generator number (1-4)
             register_io: Shared register IO handler
         """
-        if not 1 <= pulse_num <= 4:
-            raise ValueError(f"Pulse number must be 1-4, got {pulse_num}")
+        super().__init__(pulse_num, register_io)
 
         self._pulse_num = pulse_num
         self._register_io = register_io
@@ -77,32 +79,38 @@ class PulseController(Controller):
         # System bus index for this pulse generator's output
         self._sysbus_index = getattr(SysBus, f"PULSE{pulse_num}")
 
-        super().__init__(ios=[register_io])
-
         # Input source (MUX register, 0-63)
         self.inp_str = AttrR(String())
         self.inp = AttrSourceRegister(
             Int(),
-            io_ref=ZebraRegisterIORef(register=inp_reg.address, update_period=10.0),
+            io_ref=ZebraRegisterIORef(
+                register=inp_reg.address, update_period=SLOW_UPDATE
+            ),
             str_attr=self.inp_str,
         )
 
         # Delay (time from trigger to pulse start)
         self.dly = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=dly_reg.address, update_period=1.0),
+            io_ref=ZebraRegisterIORef(
+                register=dly_reg.address, update_period=SLOW_UPDATE
+            ),
         )
 
         # Width (pulse duration)
         self.wid = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=wid_reg.address, update_period=1.0),
+            io_ref=ZebraRegisterIORef(
+                register=wid_reg.address, update_period=SLOW_UPDATE
+            ),
         )
 
         # Prescaler (time unit selection)
         self.pre = AttrRW(
             Enum(Prescaler),
-            io_ref=ZebraRegisterIORef(register=pre_reg.address, update_period=10.0),
+            io_ref=ZebraRegisterIORef(
+                register=pre_reg.address, update_period=SLOW_UPDATE
+            ),
         )
 
         # Output state (from system bus status)

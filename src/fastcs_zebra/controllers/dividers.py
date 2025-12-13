@@ -13,6 +13,7 @@ from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 
 from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
@@ -77,7 +78,7 @@ class DividerController(Controller):
                 register=div_reg32.address_lo,
                 is_32bit=True,
                 register_hi=div_reg32.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 

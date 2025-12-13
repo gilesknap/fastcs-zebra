@@ -18,6 +18,7 @@ from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command
 
 from fastcs_zebra.attr_register import AttrSourceRegister
+from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
@@ -140,7 +141,7 @@ class PositionCompareController(Controller):
         self.enc = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=SLOW_UPDATE
             ),
             str_attr=self.enc_str,
         )
@@ -149,7 +150,8 @@ class PositionCompareController(Controller):
         self.tspre = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_TSPRE"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_TSPRE"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.tspre_str,
         )
@@ -158,7 +160,7 @@ class PositionCompareController(Controller):
         self.dir = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=SLOW_UPDATE
             ),
             str_attr=self.dir_str,
         )
@@ -170,7 +172,8 @@ class PositionCompareController(Controller):
         self.arm_sel = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ARM_SEL"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_ARM_SEL"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.arm_sel_str,
         )
@@ -179,7 +182,8 @@ class PositionCompareController(Controller):
         self.arm_inp = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ARM_INP"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_ARM_INP"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.arm_inp_str,
         )
@@ -193,7 +197,8 @@ class PositionCompareController(Controller):
         self.gate_sel = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_GATE_SEL"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_GATE_SEL"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.gate_sel_str,
         )
@@ -202,7 +207,8 @@ class PositionCompareController(Controller):
         self.gate_inp = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_GATE_INP"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_GATE_INP"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.gate_inp_str,
         )
@@ -214,7 +220,7 @@ class PositionCompareController(Controller):
                 register=gate_start_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_start_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -225,7 +231,7 @@ class PositionCompareController(Controller):
                 register=gate_wid_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_wid_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -236,7 +242,7 @@ class PositionCompareController(Controller):
                 register=gate_ngate_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_ngate_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -247,7 +253,7 @@ class PositionCompareController(Controller):
                 register=gate_step_reg.address_lo,
                 is_32bit=True,
                 register_hi=gate_step_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -260,7 +266,8 @@ class PositionCompareController(Controller):
         self.pulse_sel = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.pulse_sel_str,
         )
@@ -269,7 +276,8 @@ class PositionCompareController(Controller):
         self.pulse_inp = AttrSourceRegister(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_PULSE_INP"].address, update_period=10.0
+                register=REGISTERS_BY_NAME["PC_PULSE_INP"].address,
+                update_period=SLOW_UPDATE,
             ),
             str_attr=self.pulse_inp_str,
         )
@@ -281,7 +289,7 @@ class PositionCompareController(Controller):
                 register=pulse_start_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_start_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -292,7 +300,7 @@ class PositionCompareController(Controller):
                 register=pulse_wid_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_wid_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -303,7 +311,7 @@ class PositionCompareController(Controller):
                 register=pulse_step_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_step_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -314,7 +322,7 @@ class PositionCompareController(Controller):
                 register=pulse_max_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_max_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -325,7 +333,7 @@ class PositionCompareController(Controller):
                 register=pulse_dly_reg.address_lo,
                 is_32bit=True,
                 register_hi=pulse_dly_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -337,7 +345,8 @@ class PositionCompareController(Controller):
         self.bit_cap = AttrRW(
             Int(),
             io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_BIT_CAP"].address, update_period=1.0
+                register=REGISTERS_BY_NAME["PC_BIT_CAP"].address,
+                update_period=SLOW_UPDATE,
             ),
         )
 
@@ -348,7 +357,7 @@ class PositionCompareController(Controller):
                 register=num_cap_reg.address_lo,
                 is_32bit=True,
                 register_hi=num_cap_reg.address_hi,
-                update_period=1.0,
+                update_period=SLOW_UPDATE,
             ),
         )
 
