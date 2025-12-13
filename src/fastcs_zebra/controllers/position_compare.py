@@ -93,7 +93,7 @@ class PositionCompareController(ZebraSubcontroller):
         # Status
         arm_out: Current arm output state
 
-        # Last captured values (updated by interrupts)
+        # Last captured values - updated by interrupts
         time_last: Last captured timestamp
         enc1_last - enc4_last: Last captured encoder values
     """
