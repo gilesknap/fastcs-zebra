@@ -233,6 +233,9 @@ class ZebraController(Controller):
         # Position compare subsystem
         self.pc = PositionCompareController(self._register_io)
 
+        # Register interrupt handler with PC controller so it gets bit_cap updates
+        self.pc.register_interrupt_handler(self._interrupt_handler)
+
     async def connect(self) -> None:
         """Connect to Zebra hardware via serial port."""
         try:

@@ -12,11 +12,16 @@ This controller manages the complete position compare subsystem including
 arm/disarm, configuration, and interrupt-driven data updates.
 """
 
+from typing import TYPE_CHECKING
+
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Enum, Int, String
 from fastcs.methods import command
 
 from fastcs_zebra.attr_named import AttrNamedRegister
+
+if TYPE_CHECKING:
+    from fastcs_zebra.interrupts import InterruptHandler
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.enums import (
     ArmSelection,
@@ -105,6 +110,7 @@ class PositionCompareController(ZebraSubcontroller):
             register_io: Shared register IO handler
         """
         super().__init__(1, register_io)
+        self._interrupt_handler: "InterruptHandler | None" = None
 
         # =====================================================================
         # Encoder and Timing Selection
@@ -329,6 +335,26 @@ class PositionCompareController(ZebraSubcontroller):
         self.enc2_last = AttrR(Int())
         self.enc3_last = AttrR(Int())
         self.enc4_last = AttrR(Int())
+
+    def register_interrupt_handler(self, handler: "InterruptHandler") -> None:
+        """Register interrupt handler to receive bit_cap updates.
+
+        This method sets up a callback so that when the bit_cap register
+        changes, the interrupt handler is notified and can correctly parse
+        incoming position compare data messages.
+
+        Args:
+            handler: The interrupt handler to notify of bit_cap changes
+        """
+        self._interrupt_handler = handler
+
+        # Set up callback to update interrupt handler when bit_cap changes
+        async def on_bit_cap_update(value: int | None) -> None:
+            """Update interrupt handler when PC_BIT_CAP changes."""
+            if value is not None and self._interrupt_handler is not None:
+                self._interrupt_handler.set_bit_cap(value)
+
+        self.bit_cap.add_on_update_callback(on_bit_cap_update)
 
     async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
         """Update derived values from system bus status.
