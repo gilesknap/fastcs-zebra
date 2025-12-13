@@ -33,6 +33,7 @@ from .controllers.pulses import PulseController
 from .interrupts import InterruptHandler, PositionCompareData
 from .protocol import ZebraProtocol
 from .register_io import ZebraRegisterIO, ZebraRegisterIORef
+from .registers import REGISTERS_BY_NAME
 from .transport import ZebraTransport
 
 logger = logging.getLogger(__name__)
@@ -254,10 +255,17 @@ class ZebraController(Controller):
             # Start interrupt monitoring
             self._interrupt_task = asyncio.create_task(self._monitor_interrupts())
 
-            # Start system bus status update task
-            self._sys_stat_update_task = asyncio.create_task(
-                self._update_derived_values()
+            # Read initial PC_BIT_CAP value to configure interrupt handler
+            bit_cap = await self._protocol.read_register(
+                REGISTERS_BY_NAME["PC_BIT_CAP"].address
             )
+            self._interrupt_handler.set_bit_cap(bit_cap)
+            logger.debug(
+                f"Initialized interrupt handler with PC_BIT_CAP={bit_cap:#06x}"
+            )
+
+            # Setup sys_stat update callbacks
+            await self._setup_sys_stat_callbacks()
 
             logger.info(f"Connected to Zebra on {self._port}")
             await self.status_msg.update(f"Connected to {self._port}")
@@ -270,13 +278,7 @@ class ZebraController(Controller):
     async def disconnect(self) -> None:
         """Disconnect from Zebra hardware."""
         # Cancel background tasks
-        if self._sys_stat_update_task:
-            self._sys_stat_update_task.cancel()
-            try:
-                await self._sys_stat_update_task
-            except asyncio.CancelledError:
-                pass
-            self._sys_stat_update_task = None
+        # (sys_stat_update_task removed - using callbacks instead)
 
         if self._interrupt_task:
             self._interrupt_task.cancel()
@@ -404,32 +406,28 @@ class ZebraController(Controller):
         logger.info("System reset")
         await self.status_msg.update("System reset")
 
-    async def _update_derived_values(self) -> None:
-        """Background task to update derived values from system bus status.
+    async def _setup_sys_stat_callbacks(self) -> None:
+        """Setup callbacks for sys_stat updates to propagate to sub-controllers.
 
-        This task periodically reads the system bus status and updates
-        derived values in all sub-controllers (string representations,
-        output states, etc.).
+        Instead of a background polling task, use AttrR update callbacks
+        to update derived values when sys_stat1/2 change.
         """
-        try:
-            while self._transport and self._transport.connected:
-                try:
-                    # Get current system bus status
-                    sys_stat1 = self.sys_stat1.get() or 0
-                    sys_stat2 = self.sys_stat2.get() or 0
 
-                    # TODO do this from the sys_stat1/2 AttrR update callbacks
-                    # Update all sub-controllers status bits
-                    for sub_controller in ZebraSubcontroller.all_controllers:
-                        await sub_controller.update_derived_values(sys_stat1, sys_stat2)
+        async def on_sys_stat_update(value: int) -> None:
+            """Called when sys_stat1 or sys_stat2 updates."""
+            try:
+                # Get current system bus status
+                sys_stat1 = self.sys_stat1.get() or 0
+                sys_stat2 = self.sys_stat2.get() or 0
 
-                    # Update at 5 Hz (every 0.2 seconds)
-                    await asyncio.sleep(FAST_UPDATE)
+                # Update all sub-controllers status bits
+                # TODO: optimize with lookup table instead of calling each sub-controller
+                for sub_controller in ZebraSubcontroller.all_controllers:
+                    await sub_controller.update_derived_values(sys_stat1, sys_stat2)
 
-                except Exception as e:
-                    logger.error(f"Error updating derived values: {e}")
-                    await asyncio.sleep(1.0)
+            except Exception as e:
+                logger.error(f"Error updating derived values: {e}")
 
-        except asyncio.CancelledError:
-            logger.debug("Derived values update task cancelled")
-            raise
+        # Register callbacks on both sys_stat attributes
+        self.sys_stat1.add_on_update_callback(on_sys_stat_update)
+        self.sys_stat2.add_on_update_callback(on_sys_stat_update)
