@@ -10,27 +10,18 @@ The pulse output is available on the system bus for routing to outputs
 or other logic.
 """
 
-import enum
-
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Enum, Int, String
 
 from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
+from fastcs_zebra.controllers.enums import Prescaler
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_BY_NAME,
     SysBus,
 )
-
-
-class Prescaler(enum.IntEnum):
-    """Prescaler string representations."""
-
-    TEN_SECONDS = 50000
-    SECONDS = 5000
-    MILLISECONDS = 5
 
 
 class PulseController(ZebraSubcontroller):
