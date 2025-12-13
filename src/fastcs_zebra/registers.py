@@ -12,7 +12,7 @@ Reference: https://github.com/DiamondLightSource/zebra/blob/fastcs-experiment/ze
 """
 
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
 
 
 class RegisterType(Enum):
@@ -84,90 +84,98 @@ class Register32:
 # System Bus Signal Definitions (64 signals, indices 0-63)
 # =============================================================================
 
-SYSTEM_BUS_SIGNALS: tuple[str, ...] = (
-    # Index 0: No connection
-    "DISCONNECT",
-    # Indices 1-12: Input connectors (various signal types)
-    "IN1_TTL",
-    "IN1_NIM",
-    "IN1_LVDS",
-    "IN2_TTL",
-    "IN2_NIM",
-    "IN2_LVDS",
-    "IN3_TTL",
-    "IN3_OC",
-    "IN3_LVDS",
-    "IN4_TTL",
-    "IN4_CMP",
-    "IN4_PECL",
-    # Indices 13-28: Encoder inputs (4 signals each for IN5-IN8)
-    "IN5_ENCA",
-    "IN5_ENCB",
-    "IN5_ENCZ",
-    "IN5_CONN",
-    "IN6_ENCA",
-    "IN6_ENCB",
-    "IN6_ENCZ",
-    "IN6_CONN",
-    "IN7_ENCA",
-    "IN7_ENCB",
-    "IN7_ENCZ",
-    "IN7_CONN",
-    "IN8_ENCA",
-    "IN8_ENCB",
-    "IN8_ENCZ",
-    "IN8_CONN",
-    # Indices 29-31: Position compare signals
-    "PC_ARM",
-    "PC_GATE",
-    "PC_PULSE",
-    # Indices 32-35: AND gate outputs
-    "AND1",
-    "AND2",
-    "AND3",
-    "AND4",
-    # Indices 36-39: OR gate outputs
-    "OR1",
-    "OR2",
-    "OR3",
-    "OR4",
-    # Indices 40-43: Gate generator outputs
-    "GATE1",
-    "GATE2",
-    "GATE3",
-    "GATE4",
-    # Indices 44-47: Divider outputs (divided)
-    "DIV1_OUTD",
-    "DIV2_OUTD",
-    "DIV3_OUTD",
-    "DIV4_OUTD",
-    # Indices 48-51: Divider outputs (not divided, passthrough)
-    "DIV1_OUTN",
-    "DIV2_OUTN",
-    "DIV3_OUTN",
-    "DIV4_OUTN",
-    # Indices 52-55: Pulse generator outputs
-    "PULSE1",
-    "PULSE2",
-    "PULSE3",
-    "PULSE4",
-    # Indices 56-57: Quadrature encoder outputs
-    "QUAD_OUTA",
-    "QUAD_OUTB",
-    # Indices 58-59: Internal clocks
-    "CLOCK_1KHZ",
-    "CLOCK_1MHZ",
-    # Indices 60-63: Software inputs
-    "SOFT_IN1",
-    "SOFT_IN2",
-    "SOFT_IN3",
-    "SOFT_IN4",
-)
 
-# Build reverse lookup: signal name -> index
-_SIGNAL_NAME_TO_INDEX: dict[str, int] = {
-    name: idx for idx, name in enumerate(SYSTEM_BUS_SIGNALS)
-}
+class SysBus(IntEnum):
+    """Constants for system bus signal indices.
+
+    Provides convenient access to system bus indices without needing
+    to look them up by name. Values are 0-63.
+    """
+
+    DISCONNECT = 0
+
+    # Input signals
+    IN1_TTL = 1
+    IN1_NIM = 2
+    IN1_LVDS = 3
+    IN2_TTL = 4
+    IN2_NIM = 5
+    IN2_LVDS = 6
+    IN3_TTL = 7
+    IN3_OC = 8
+    IN3_LVDS = 9
+    IN4_TTL = 10
+    IN4_CMP = 11
+    IN4_PECL = 12
+
+    # Encoder inputs
+    IN5_ENCA = 13
+    IN5_ENCB = 14
+    IN5_ENCZ = 15
+    IN5_CONN = 16
+    IN6_ENCA = 17
+    IN6_ENCB = 18
+    IN6_ENCZ = 19
+    IN6_CONN = 20
+    IN7_ENCA = 21
+    IN7_ENCB = 22
+    IN7_ENCZ = 23
+    IN7_CONN = 24
+    IN8_ENCA = 25
+    IN8_ENCB = 26
+    IN8_ENCZ = 27
+    IN8_CONN = 28
+
+    # Position compare signals
+    PC_ARM = 29
+    PC_GATE = 30
+    PC_PULSE = 31
+
+    # Logic gate outputs
+    AND1 = 32
+    AND2 = 33
+    AND3 = 34
+    AND4 = 35
+    OR1 = 36
+    OR2 = 37
+    OR3 = 38
+    OR4 = 39
+
+    # Gate generator outputs
+    GATE1 = 40
+    GATE2 = 41
+    GATE3 = 42
+    GATE4 = 43
+
+    # Divider outputs
+    DIV1_OUTD = 44
+    DIV2_OUTD = 45
+    DIV3_OUTD = 46
+    DIV4_OUTD = 47
+    DIV1_OUTN = 48
+    DIV2_OUTN = 49
+    DIV3_OUTN = 50
+    DIV4_OUTN = 51
+
+    # Pulse generator outputs
+    PULSE1 = 52
+    PULSE2 = 53
+    PULSE3 = 54
+    PULSE4 = 55
+
+    # Quadrature outputs
+    QUAD_OUTA = 56
+    QUAD_OUTB = 57
+
+    # Clocks
+    CLOCK_1KHZ = 58
+    CLOCK_1MHZ = 59
+
+    # Software inputs
+    SOFT_IN1 = 60
+    SOFT_IN2 = 61
+    SOFT_IN3 = 62
+    SOFT_IN4 = 63
 
 
 def signal_index_to_name(index: int) -> str:
@@ -182,26 +190,9 @@ def signal_index_to_name(index: int) -> str:
     Raises:
         ValueError: If index out of range
     """
-    if not 0 <= index < len(SYSTEM_BUS_SIGNALS):
-        raise ValueError(f"System bus index {index} out of range [0-63]")
-    return SYSTEM_BUS_SIGNALS[index]
-
-
-def signal_name_to_index(name: str) -> int:
-    """Convert system bus signal name to index.
-
-    Args:
-        name: Signal name (case-sensitive)
-
-    Returns:
-        Signal index (0-63)
-
-    Raises:
-        ValueError: If name not found
-    """
-    if name not in _SIGNAL_NAME_TO_INDEX:
-        raise ValueError(f"Unknown system bus signal: {name!r}")
-    return _SIGNAL_NAME_TO_INDEX[name]
+    if not 0 <= index <= len(SysBus) - 1:
+        raise ValueError(f"Signal index must be 0-63, got {index}")
+    return SysBus(index).name
 
 
 # =============================================================================
@@ -665,101 +656,3 @@ class RegAddr:
     PC_PULSE_MAXHI = 0x9E
     PC_PULSE_DLYLO = 0xA1
     PC_PULSE_DLYHI = 0xA2
-
-
-# =============================================================================
-# System Bus Index Constants
-# =============================================================================
-
-
-class SysBus:
-    """Constants for system bus signal indices.
-
-    Provides convenient access to system bus indices without needing
-    to look them up by name. Values are 0-63.
-    """
-
-    DISCONNECT = 0
-
-    # Input signals
-    IN1_TTL = 1
-    IN1_NIM = 2
-    IN1_LVDS = 3
-    IN2_TTL = 4
-    IN2_NIM = 5
-    IN2_LVDS = 6
-    IN3_TTL = 7
-    IN3_OC = 8
-    IN3_LVDS = 9
-    IN4_TTL = 10
-    IN4_CMP = 11
-    IN4_PECL = 12
-
-    # Encoder inputs
-    IN5_ENCA = 13
-    IN5_ENCB = 14
-    IN5_ENCZ = 15
-    IN5_CONN = 16
-    IN6_ENCA = 17
-    IN6_ENCB = 18
-    IN6_ENCZ = 19
-    IN6_CONN = 20
-    IN7_ENCA = 21
-    IN7_ENCB = 22
-    IN7_ENCZ = 23
-    IN7_CONN = 24
-    IN8_ENCA = 25
-    IN8_ENCB = 26
-    IN8_ENCZ = 27
-    IN8_CONN = 28
-
-    # Position compare signals
-    PC_ARM = 29
-    PC_GATE = 30
-    PC_PULSE = 31
-
-    # Logic gate outputs
-    AND1 = 32
-    AND2 = 33
-    AND3 = 34
-    AND4 = 35
-    OR1 = 36
-    OR2 = 37
-    OR3 = 38
-    OR4 = 39
-
-    # Gate generator outputs
-    GATE1 = 40
-    GATE2 = 41
-    GATE3 = 42
-    GATE4 = 43
-
-    # Divider outputs
-    DIV1_OUTD = 44
-    DIV2_OUTD = 45
-    DIV3_OUTD = 46
-    DIV4_OUTD = 47
-    DIV1_OUTN = 48
-    DIV2_OUTN = 49
-    DIV3_OUTN = 50
-    DIV4_OUTN = 51
-
-    # Pulse generator outputs
-    PULSE1 = 52
-    PULSE2 = 53
-    PULSE3 = 54
-    PULSE4 = 55
-
-    # Quadrature outputs
-    QUAD_OUTA = 56
-    QUAD_OUTB = 57
-
-    # Clocks
-    CLOCK_1KHZ = 58
-    CLOCK_1MHZ = 59
-
-    # Software inputs
-    SOFT_IN1 = 60
-    SOFT_IN2 = 61
-    SOFT_IN3 = 62
-    SOFT_IN4 = 63

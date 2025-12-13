@@ -14,7 +14,6 @@ import pytest
 from fastcs_zebra.registers import (
     REGISTERS_BY_ADDRESS,
     REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
     RegAddr,
     Register,
     Register32,
@@ -28,7 +27,6 @@ from fastcs_zebra.registers import (
     is_mux_register,
     is_readonly_register,
     signal_index_to_name,
-    signal_name_to_index,
 )
 
 # =============================================================================
@@ -132,15 +130,11 @@ class TestSystemBusSignals:
 
     def test_system_bus_has_64_signals(self):
         """Test that system bus has exactly 64 signals."""
-        assert len(SYSTEM_BUS_SIGNALS) == 64
+        assert len(SysBus) == 64
 
     def test_system_bus_first_signal_is_disconnect(self):
         """Test that index 0 is DISCONNECT."""
-        assert SYSTEM_BUS_SIGNALS[0] == "DISCONNECT"
-
-    def test_system_bus_signal_names_unique(self):
-        """Test that all signal names are unique."""
-        assert len(SYSTEM_BUS_SIGNALS) == len(set(SYSTEM_BUS_SIGNALS))
+        assert SysBus.DISCONNECT == 0
 
     def test_signal_index_to_name_valid(self):
         """Test converting valid indices to names."""
@@ -151,29 +145,10 @@ class TestSystemBusSignals:
 
     def test_signal_index_to_name_invalid(self):
         """Test that invalid indices raise ValueError."""
-        with pytest.raises(ValueError, match="out of range"):
+        with pytest.raises(ValueError, match="Signal index must be 0-63"):
             signal_index_to_name(-1)
-        with pytest.raises(ValueError, match="out of range"):
+        with pytest.raises(ValueError, match="Signal index must be 0-63"):
             signal_index_to_name(64)
-
-    def test_signal_name_to_index_valid(self):
-        """Test converting valid names to indices."""
-        assert signal_name_to_index("DISCONNECT") == 0
-        assert signal_name_to_index("IN1_TTL") == 1
-        assert signal_name_to_index("AND1") == 32
-        assert signal_name_to_index("SOFT_IN4") == 63
-
-    def test_signal_name_to_index_invalid(self):
-        """Test that invalid names raise ValueError."""
-        with pytest.raises(ValueError, match="Unknown system bus signal"):
-            signal_name_to_index("INVALID_SIGNAL")
-
-    def test_signal_round_trip(self):
-        """Test that index -> name -> index round trips correctly."""
-        for idx in range(64):
-            name = signal_index_to_name(idx)
-            result = signal_name_to_index(name)
-            assert result == idx
 
 
 # =============================================================================
@@ -207,7 +182,7 @@ class TestSysBusConstants:
         assert SysBus.SOFT_IN4 == 63
 
     def test_sysbus_matches_signal_list(self):
-        """Test that SysBus constants match SYSTEM_BUS_SIGNALS indices."""
+        """Test that SysBus constants match SysBus indices."""
         assert signal_index_to_name(SysBus.DISCONNECT) == "DISCONNECT"
         assert signal_index_to_name(SysBus.AND1) == "AND1"
         assert signal_index_to_name(SysBus.PULSE1) == "PULSE1"
