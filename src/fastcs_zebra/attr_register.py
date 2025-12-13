@@ -18,7 +18,7 @@ class AttrSourceRegister(AttrRW[int]):
     def __init__(self, *args, str_attr: "AttrR[str]", **kwargs):
         """
         Args:
-            str_attr: The related string attribute to update when this attribute changes.
+            str_attr: The string attribute to update when this attribute changes.
             *args: Positional arguments for the base AttrRW class.
             **kwargs: Keyword arguments for the base AttrRW class.
         """
