@@ -30,7 +30,6 @@ from .controllers.logic import AndGateController, OrGateController
 from .controllers.outputs import OutputController
 from .controllers.position_compare import PositionCompareController
 from .controllers.pulses import PulseController
-from .controllers.sysbus import SysBus1Controller, SysBus2Controller
 from .interrupts import InterruptHandler, PositionCompareData
 from .protocol import ZebraProtocol
 from .register_io import ZebraRegisterIO, ZebraRegisterIORef
