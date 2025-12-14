@@ -427,12 +427,16 @@ class ZebraController(Controller):
     async def _setup_sys_stat_callbacks(self) -> None:
         """Setup callbacks for sys_stat updates to propagate to sub-controllers."""
 
-        async def on_sys_stat_update(value: int | None) -> None:
-            """Called when sys_stat1 or sys_stat2 updates."""
+        # TODO: surely we can just tie the sub-controller outputs directly to their
+        # sys_stat bits via AttrR, right now we iterate through all the SysBus
+        # signals and all the sub-controllers on every update.
+        async def on_sys_stat_update(sys_stat2: int | None) -> None:
+            """Called when sys_stat2 updates."""
+            if sys_stat2 is None:
+                return
             try:
-                # Get current system bus status
+                # Get current system bus status1
                 sys_stat1 = self.sys_stat1.get() or 0
-                sys_stat2 = self.sys_stat2.get() or 0
 
                 # Update individual system bus bit attributes in sub-controllers
                 for signal in SysBus:
@@ -450,13 +454,11 @@ class ZebraController(Controller):
                         await attr.update(bit_value)
 
                 # Update all sub-controllers status bits
-                # TODO: optimize with lookup instead calling every sub-controller?
                 for sub_controller in ZebraSubcontroller.all_controllers:
                     await sub_controller.update_derived_values(sys_stat1, sys_stat2)
 
             except Exception as e:
                 logger.error(f"Error updating derived values: {e}")
 
-        # Register callbacks on both sys_stat attributes
-        self.sys_stat1.add_on_update_callback(on_sys_stat_update)
+        # Only use sys_stat2 callback, since both are updated together
         self.sys_stat2.add_on_update_callback(on_sys_stat_update)
