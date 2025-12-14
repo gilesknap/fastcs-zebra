@@ -11,9 +11,8 @@ or other gates.
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.datatypes import Bool, Int, String
+from fastcs.datatypes import Bool, Enum, Int
 
-from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -82,42 +81,34 @@ class AndGateController(ZebraSubcontroller):
         )
 
         # Input 1 source (MUX register, 0-63)
-        self.inp1_str = AttrR(String())
-        self.inp1 = AttrNamedRegister(
-            Int(),
+        self.inp1 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp1_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp1_str,
         )
 
         # Input 2 source
-        self.inp2_str = AttrR(String())
-        self.inp2 = AttrNamedRegister(
-            Int(),
+        self.inp2 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp2_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp2_str,
         )
 
         # Input 3 source
-        self.inp3_str = AttrR(String())
-        self.inp3 = AttrNamedRegister(
-            Int(),
+        self.inp3 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp3_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp3_str,
         )
         # Input 4 source
-        self.inp4_str = AttrR(String())
-        self.inp4 = AttrNamedRegister(
-            Int(),
+        self.inp4 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp4_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp4_str,
         )
 
         # Output state (from system bus status)
@@ -197,43 +188,35 @@ class OrGateController(ZebraSubcontroller):
         )
 
         # Input 1 source (MUX register, 0-63)
-        self.inp1_str = AttrR(String())
-        self.inp1 = AttrNamedRegister(
-            Int(),
+        self.inp1 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp1_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp1_str,
         )
 
         # Input 2 source
-        self.inp2_str = AttrR(String())
-        self.inp2 = AttrNamedRegister(
-            Int(),
+        self.inp2 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp2_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp2_str,
         )
 
         # Input 3 source
-        self.inp3_str = AttrR(String())
-        self.inp3 = AttrNamedRegister(
-            Int(),
+        self.inp3 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp3_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp3_str,
         )
 
         # Input 4 source
-        self.inp4_str = AttrR(String())
-        self.inp4 = AttrNamedRegister(
-            Int(),
+        self.inp4 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp4_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp4_str,
         )
 
         # Output state (from system bus status)

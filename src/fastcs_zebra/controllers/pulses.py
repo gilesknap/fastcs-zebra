@@ -11,9 +11,8 @@ or other logic.
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.datatypes import Bool, Enum, Int, String
+from fastcs.datatypes import Bool, Enum, Int
 
-from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.enums import Prescaler
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
@@ -68,13 +67,11 @@ class PulseController(ZebraSubcontroller):
         self._sysbus_index = getattr(SysBus, f"PULSE{pulse_num}")
 
         # Input source (MUX register, 0-63)
-        self.inp_str = AttrR(String())
-        self.inp = AttrNamedRegister(
-            Int(),
+        self.inp = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp_str,
         )
 
         # Delay (time from trigger to pulse start)

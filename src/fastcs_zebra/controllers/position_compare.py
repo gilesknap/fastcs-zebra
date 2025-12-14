@@ -15,10 +15,8 @@ arm/disarm, configuration, and interrupt-driven data updates.
 from typing import TYPE_CHECKING
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.datatypes import Bool, Enum, Int, String
+from fastcs.datatypes import Bool, Enum, Int
 from fastcs.methods import command
-
-from fastcs_zebra.attr_named import AttrNamedRegister
 
 if TYPE_CHECKING:
     from fastcs_zebra.interrupts import InterruptHandler
@@ -35,6 +33,7 @@ from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
     REGISTERS_BY_NAME,
+    SysBus,
 )
 
 
@@ -148,14 +147,12 @@ class PositionCompareController(ZebraSubcontroller):
             ),
         )
 
-        self.arm_inp_str = AttrR(String())
-        self.arm_inp = AttrNamedRegister(
-            Int(),
+        self.arm_inp = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_ARM_INP"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.arm_inp_str,
         )
 
         self.arm_out = AttrR(Bool())
@@ -171,14 +168,12 @@ class PositionCompareController(ZebraSubcontroller):
             ),
         )
 
-        self.gate_inp_str = AttrR(String())
-        self.gate_inp = AttrNamedRegister(
-            Int(),
+        self.gate_inp = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_GATE_INP"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.gate_inp_str,
         )
 
         gate_start_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_START"]
@@ -238,14 +233,12 @@ class PositionCompareController(ZebraSubcontroller):
             ),
         )
 
-        self.pulse_inp_str = AttrR(String())
-        self.pulse_inp = AttrNamedRegister(
-            Int(),
+        self.pulse_inp = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=REGISTERS_BY_NAME["PC_PULSE_INP"].address,
                 update_period=SLOW_UPDATE,
             ),
-            str_attr=self.pulse_inp_str,
         )
 
         pulse_start_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_START"]

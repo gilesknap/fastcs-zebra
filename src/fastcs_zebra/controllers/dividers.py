@@ -9,9 +9,8 @@ Each pulse divider:
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.datatypes import Bool, Int, String
+from fastcs.datatypes import Bool, Enum, Int
 
-from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -60,13 +59,11 @@ class DividerController(ZebraSubcontroller):
         self._sysbus_outn = getattr(SysBus, f"DIV{div_num}_OUTN")
 
         # Input source (MUX register, 0-63)
-        self.inp_str = AttrR(String())
-        self.inp = AttrNamedRegister(
-            Int(),
+        self.inp = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp_str,
         )
 
         # Divisor (32-bit value)

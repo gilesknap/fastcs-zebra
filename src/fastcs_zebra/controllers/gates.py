@@ -9,10 +9,9 @@ Gate generators are useful for creating enable windows that start and stop
 based on external signals.
 """
 
-from fastcs.attributes import AttrR
-from fastcs.datatypes import Bool, Int, String
+from fastcs.attributes import AttrR, AttrRW
+from fastcs.datatypes import Bool, Enum, Int
 
-from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
@@ -62,23 +61,19 @@ class GateController(ZebraSubcontroller):
         self._sysbus_index = getattr(SysBus, f"GATE{gate_num}")
 
         # Trigger input (INP1) - rising edge sets output high
-        self.inp1_str = AttrR(String())
-        self.inp1 = AttrNamedRegister(
-            Int(),
+        self.inp1 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp1_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp1_str,
         )
 
         # Reset input (INP2) - rising edge resets output low
-        self.inp2_str = AttrR(String())
-        self.inp2 = AttrNamedRegister(
-            Int(),
+        self.inp2 = AttrRW(
+            Enum(SysBus),
             io_ref=ZebraRegisterIORef(
                 register=inp2_reg.address, update_period=SLOW_UPDATE
             ),
-            str_attr=self.inp2_str,
         )
 
         # Output state (from system bus status)

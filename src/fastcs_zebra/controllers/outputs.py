@@ -9,14 +9,13 @@ The Zebra has 8 output connectors with different signal types:
 Each output type can be independently routed to any of the 64 system bus signals.
 """
 
-from fastcs.attributes import AttrR
-from fastcs.datatypes import Int, String
+from fastcs.attributes import AttrRW
+from fastcs.datatypes import Enum, Int
 
-from fastcs_zebra.attr_named import AttrNamedRegister
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import REGISTERS_BY_NAME
+from fastcs_zebra.registers import REGISTERS_BY_NAME, SysBus
 
 
 class OutputController(ZebraSubcontroller):
@@ -68,17 +67,12 @@ class OutputController(ZebraSubcontroller):
             reg = REGISTERS_BY_NAME[reg_name]
 
             # Signal source (MUX register, 0-63)
-            str_attr = AttrR(String())
-            attr = AttrNamedRegister(
-                Int(),
+            attr = AttrRW(
+                Enum(SysBus),
                 io_ref=ZebraRegisterIORef(
                     register=reg.address, update_period=SLOW_UPDATE
                 ),
-                str_attr=str_attr,
             )
-
-            # Human-readable string
-            setattr(self, f"{sig_type}_str", str_attr)
 
             setattr(self, sig_type, attr)
 
