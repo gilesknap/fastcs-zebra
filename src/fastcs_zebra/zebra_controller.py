@@ -25,17 +25,16 @@ from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 
 from .constants import FAST_UPDATE, SLOW_UPDATE
 from .controllers.dividers import DividerController
-from .controllers.sysbus import SysBus1Controller, SysBus2Controller
-from .registers import SysBus
 from .controllers.gates import GateController
 from .controllers.logic import AndGateController, OrGateController
 from .controllers.outputs import OutputController
 from .controllers.position_compare import PositionCompareController
 from .controllers.pulses import PulseController
+from .controllers.sysbus import SysBus1Controller, SysBus2Controller
 from .interrupts import InterruptHandler, PositionCompareData
 from .protocol import ZebraProtocol
 from .register_io import ZebraRegisterIO, ZebraRegisterIORef
-from .registers import REGISTERS_BY_NAME
+from .registers import REGISTERS_BY_NAME, SysBus
 from .transport import ZebraTransport
 
 logger = logging.getLogger(__name__)
@@ -133,6 +132,21 @@ class ZebraController(Controller):
             ),
         )
 
+        # =====================================================================
+        # System Bus Individual Bits (derived from sys_stat1/2)
+        # =====================================================================
+        # Create sub-controllers for system bus bits
+        # sysbus1: bits 0-31 from sys_stat1
+        # sysbus2: bits 32-63 from sys_stat2
+        self.sysbit_attrs: list[str] = []
+        for signal in SysBus:
+            attr_name = signal.name.replace("_", "")
+            self.sysbit_attrs.append(attr_name)
+            if signal.value >= 32:
+                setattr(self, attr_name, AttrR(Bool(), group="SysBus2"))
+            else:
+                setattr(self, attr_name, AttrR(Bool(), group="SysBus1"))
+
         # Number of position compare captures (registers 0xF6/0xF7)
         # Kept for backward compatibility
         self.pc_num_cap = AttrR(
@@ -187,15 +201,6 @@ class ZebraController(Controller):
 
         # Status message (no IO)
         self.status_msg = AttrR(String())
-
-        # =====================================================================
-        # System Bus Individual Bits (derived from sys_stat1/2)
-        # =====================================================================
-        # Create sub-controllers for system bus bits
-        # sysbus1: bits 0-31 from sys_stat1
-        # sysbus2: bits 32-63 from sys_stat2
-        self.sysbus1 = SysBus1Controller()
-        self.sysbus2 = SysBus2Controller()
 
         # =====================================================================
         # Sub-controllers
@@ -433,20 +438,17 @@ class ZebraController(Controller):
                 # Update individual system bus bit attributes in sub-controllers
                 for signal in SysBus:
                     bit_index = signal.value
-                    attr_name = signal.name.lower()
-                    
+
+                    attr_name = self.sysbit_attrs[bit_index]
+                    attr = getattr(self, attr_name, None)
                     if bit_index < 32:
                         # Bit is in sys_stat1 -> update sysbus1 controller
                         bit_value = bool((sys_stat1 >> bit_index) & 1)
-                        attr = getattr(self.sysbus1, attr_name, None)
-                        if attr:
-                            await attr.update(bit_value)
                     else:
                         # Bit is in sys_stat2 -> update sysbus2 controller
                         bit_value = bool((sys_stat2 >> (bit_index - 32)) & 1)
-                        attr = getattr(self.sysbus2, attr_name, None)
-                        if attr:
-                            await attr.update(bit_value)
+                    if attr:
+                        await attr.update(bit_value)
 
                 # Update all sub-controllers status bits
                 # TODO: optimize with lookup instead calling every sub-controller?

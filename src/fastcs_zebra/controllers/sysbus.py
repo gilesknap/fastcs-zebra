@@ -57,9 +57,3 @@ class SysBus2Controller(Controller):
     def __init__(self):
         """Initialize system bus 2 controller with bits 32-63."""
         super().__init__()
-
-        # Create boolean attributes for bits 32-63
-        for signal in SysBus:
-            if signal.value >= 32:
-                attr_name = signal.name.lower()
-                setattr(self, attr_name, AttrR(Bool()))
