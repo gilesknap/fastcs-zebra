@@ -53,10 +53,10 @@ class PulseController(ZebraSubcontroller):
         """
         super().__init__(pulse_num, register_io)
 
-        self.inp = self.make_rw_attr(f"PULSE{pulse_num}_INP", Enum(SysBus))
-        self.dly = self.make_rw_attr(f"PULSE{pulse_num}_DLY", Int())
-        self.wid = self.make_rw_attr(f"PULSE{pulse_num}_WID", Int())
-        self.pre = self.make_rw_attr(f"PULSE{pulse_num}_PRE", Enum(Prescaler))
+        self.inp = self.make_register(f"PULSE{pulse_num}_INP", Enum(SysBus))
+        self.dly = self.make_register(f"PULSE{pulse_num}_DLY", Int())
+        self.wid = self.make_register(f"PULSE{pulse_num}_WID", Int())
+        self.pre = self.make_register(f"PULSE{pulse_num}_PRE", Enum(Prescaler))
 
         # System bus index for this pulse generator's output
         self._sysbus_index = getattr(SysBus, f"PULSE{pulse_num}")

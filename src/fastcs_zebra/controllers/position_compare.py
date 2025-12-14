@@ -14,13 +14,12 @@ arm/disarm, configuration, and interrupt-driven data updates.
 
 from typing import TYPE_CHECKING
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Enum, Int
 from fastcs.methods import command
 
 if TYPE_CHECKING:
     from fastcs_zebra.interrupts import InterruptHandler
-from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.enums import (
     ArmSelection,
     Direction,
@@ -29,11 +28,8 @@ from fastcs_zebra.controllers.enums import (
     SourceSelection,
 )
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
-from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import (
-    REGISTERS_32BIT_BY_NAME,
-    SysBus,
-)
+from fastcs_zebra.register_io import ZebraRegisterIO
+from fastcs_zebra.registers import SysBus
 
 
 class PositionCompareController(ZebraSubcontroller):
@@ -113,148 +109,51 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Encoder and Timing Selection
         # =====================================================================
-        self.enc = self.make_rw_attr("PC_ENC", Enum(EncoderSelection))
-        self.tspre = self.make_rw_attr("PC_TSPRE", Enum(Prescaler))
-        self.dir = self.make_rw_attr("PC_DIR", Enum(Direction))
+        self.enc = self.make_register("PC_ENC", Enum(EncoderSelection))
+        self.tspre = self.make_register("PC_TSPRE", Enum(Prescaler))
+        self.dir = self.make_register("PC_DIR", Enum(Direction))
 
         # =====================================================================
         # Arm Configuration
         # =====================================================================
-        self.arm_sel = self.make_rw_attr("PC_ARM_SEL", Enum(ArmSelection))
-        self.arm_inp = self.make_rw_attr("PC_ARM_INP", Enum(SysBus))
+        self.arm_sel = self.make_register("PC_ARM_SEL", Enum(ArmSelection))
+        self.arm_inp = self.make_register("PC_ARM_INP", Enum(SysBus))
 
         self.arm_out = AttrR(Bool())
 
         # =====================================================================
         # Gate Configuration
         # =====================================================================
-        self.gate_sel = self.make_rw_attr("PC_GATE_SEL", Enum(SourceSelection))
-        self.gate_inp = self.make_rw_attr("PC_GATE_INP", Enum(SysBus))
+        self.gate_sel = self.make_register("PC_GATE_SEL", Enum(SourceSelection))
+        self.gate_inp = self.make_register("PC_GATE_INP", Enum(SysBus))
 
-        gate_start_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_START"]
-        self.gate_start = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=gate_start_reg.address_lo,
-                is_32bit=True,
-                register_hi=gate_start_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        gate_wid_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_WID"]
-        self.gate_wid = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=gate_wid_reg.address_lo,
-                is_32bit=True,
-                register_hi=gate_wid_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        gate_ngate_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_NGATE"]
-        self.gate_ngate = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=gate_ngate_reg.address_lo,
-                is_32bit=True,
-                register_hi=gate_ngate_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        gate_step_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_STEP"]
-        self.gate_step = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=gate_step_reg.address_lo,
-                is_32bit=True,
-                register_hi=gate_step_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.gate_start = self.make_register32("PC_GATE_START", Int())
+        self.gate_wid = self.make_register32("PC_GATE_WID", Int())
+        self.gate_ngate = self.make_register32("PC_GATE_NGATE", Int())
+        self.gate_step = self.make_register32("PC_GATE_STEP", Int())
 
         self.gate_out = AttrR(Bool())
 
         # =====================================================================
         # Pulse Configuration
         # =====================================================================
-        self.pulse_sel = self.make_rw_attr("PC_PULSE_SEL", Enum(SourceSelection))
-        self.pulse_inp = self.make_rw_attr("PC_PULSE_INP", Enum(SysBus))
+        self.pulse_sel = self.make_register("PC_PULSE_SEL", Enum(SourceSelection))
+        self.pulse_inp = self.make_register("PC_PULSE_INP", Enum(SysBus))
 
-        pulse_start_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_START"]
-        self.pulse_start = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=pulse_start_reg.address_lo,
-                is_32bit=True,
-                register_hi=pulse_start_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        pulse_wid_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_WID"]
-        self.pulse_wid = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=pulse_wid_reg.address_lo,
-                is_32bit=True,
-                register_hi=pulse_wid_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        pulse_step_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_STEP"]
-        self.pulse_step = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=pulse_step_reg.address_lo,
-                is_32bit=True,
-                register_hi=pulse_step_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        pulse_max_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_MAX"]
-        self.pulse_max = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=pulse_max_reg.address_lo,
-                is_32bit=True,
-                register_hi=pulse_max_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        pulse_dly_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_DLY"]
-        self.pulse_dly = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=pulse_dly_reg.address_lo,
-                is_32bit=True,
-                register_hi=pulse_dly_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.pulse_start = self.make_register32("PC_PULSE_START", Int())
+        self.pulse_wid = self.make_register32("PC_PULSE_WID", Int())
+        self.pulse_step = self.make_register32("PC_PULSE_STEP", Int())
+        self.pulse_max = self.make_register32("PC_PULSE_MAX", Int())
+        self.pulse_dly = self.make_register32("PC_PULSE_DLY", Int())
 
         self.pulse_out = AttrR(Bool())
 
         # =====================================================================
         # Capture Configuration and Status
         # =====================================================================
-        self.bit_cap = self.make_rw_attr("PC_BIT_CAP", Int())
+        self.bit_cap = self.make_register("PC_BIT_CAP", Int())
 
-        num_cap_reg = REGISTERS_32BIT_BY_NAME["PC_NUM_CAP"]
-        self.num_cap = AttrR(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=num_cap_reg.address_lo,
-                is_32bit=True,
-                register_hi=num_cap_reg.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.num_cap = self.make_register32("PC_NUM_CAP", Int())
 
         # =====================================================================
         # Last Captured Values (updated by interrupts, no IO)

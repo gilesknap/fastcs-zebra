@@ -49,8 +49,8 @@ class GateController(ZebraSubcontroller):
         """
         super().__init__(gate_num, register_io)
 
-        self.inp1 = self.make_rw_attr(f"GATE{gate_num}_INP1", Enum(SysBus))
-        self.inp2 = self.make_rw_attr(f"GATE{gate_num}_INP2", Enum(SysBus))
+        self.inp1 = self.make_register(f"GATE{gate_num}_INP1", Enum(SysBus))
+        self.inp2 = self.make_register(f"GATE{gate_num}_INP2", Enum(SysBus))
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"GATE{gate_num}")

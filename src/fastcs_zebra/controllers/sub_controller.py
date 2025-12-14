@@ -7,7 +7,7 @@ from fastcs.controllers import Controller
 
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import REGISTERS_BY_NAME
+from fastcs_zebra.registers import REGISTERS_32BIT_BY_NAME, REGISTERS_BY_NAME
 
 
 class ZebraSubcontroller(Controller):
@@ -38,15 +38,32 @@ class ZebraSubcontroller(Controller):
         self._num = num
         self._register_io = register_io
 
-    def make_rw_attr(
+    def make_register(
         self,
         register_name: str,
         dtype,
         update_period: float = SLOW_UPDATE,
     ) -> AttrRW:
-        """Helper to create a read-write attribute with ZebraRegisterIORef"""
+        """Helper to create a read-write attribute with for a register"""
         addr = REGISTERS_BY_NAME[register_name].address
         io_ref = ZebraRegisterIORef(update_period=update_period, register=addr)
+        attr = AttrRW(datatype=dtype, io_ref=io_ref)
+        return attr
+
+    def make_register32(
+        self,
+        register_name: str,
+        dtype,
+        update_period: float = SLOW_UPDATE,
+    ) -> AttrRW:
+        """Helper to create a read-write attribute with for a register"""
+        reg32 = REGISTERS_32BIT_BY_NAME[register_name]
+        io_ref = ZebraRegisterIORef(
+            update_period=update_period,
+            register=reg32.address_lo,
+            is_32bit=True,
+            register_hi=reg32.address_hi,
+        )
         attr = AttrRW(datatype=dtype, io_ref=io_ref)
         return attr
 

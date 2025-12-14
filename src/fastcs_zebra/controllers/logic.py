@@ -49,12 +49,12 @@ class AndGateController(ZebraSubcontroller):
         """
         super().__init__(gate_num, register_io)
 
-        self.inv = self.make_rw_attr(f"AND{gate_num}_INV", Int())
-        self.ena = self.make_rw_attr(f"AND{gate_num}_ENA", Int())
-        self.inp1 = self.make_rw_attr(f"AND{gate_num}_INP1", Enum(SysBus))
-        self.inp2 = self.make_rw_attr(f"AND{gate_num}_INP2", Enum(SysBus))
-        self.inp3 = self.make_rw_attr(f"AND{gate_num}_INP3", Enum(SysBus))
-        self.inp4 = self.make_rw_attr(f"AND{gate_num}_INP4", Enum(SysBus))
+        self.inv = self.make_register(f"AND{gate_num}_INV", Int())
+        self.ena = self.make_register(f"AND{gate_num}_ENA", Int())
+        self.inp1 = self.make_register(f"AND{gate_num}_INP1", Enum(SysBus))
+        self.inp2 = self.make_register(f"AND{gate_num}_INP2", Enum(SysBus))
+        self.inp3 = self.make_register(f"AND{gate_num}_INP3", Enum(SysBus))
+        self.inp4 = self.make_register(f"AND{gate_num}_INP4", Enum(SysBus))
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"AND{gate_num}")
@@ -108,12 +108,12 @@ class OrGateController(ZebraSubcontroller):
         """
         super().__init__(gate_num, register_io)
 
-        self.inv = self.make_rw_attr(f"OR{gate_num}_INV", Int())
-        self.ena = self.make_rw_attr(f"OR{gate_num}_ENA", Int())
-        self.inp1 = self.make_rw_attr(f"OR{gate_num}_INP1", Enum(SysBus))
-        self.inp2 = self.make_rw_attr(f"OR{gate_num}_INP2", Enum(SysBus))
-        self.inp3 = self.make_rw_attr(f"OR{gate_num}_INP3", Enum(SysBus))
-        self.inp4 = self.make_rw_attr(f"OR{gate_num}_INP4", Enum(SysBus))
+        self.inv = self.make_register(f"OR{gate_num}_INV", Int())
+        self.ena = self.make_register(f"OR{gate_num}_ENA", Int())
+        self.inp1 = self.make_register(f"OR{gate_num}_INP1", Enum(SysBus))
+        self.inp2 = self.make_register(f"OR{gate_num}_INP2", Enum(SysBus))
+        self.inp3 = self.make_register(f"OR{gate_num}_INP3", Enum(SysBus))
+        self.inp4 = self.make_register(f"OR{gate_num}_INP4", Enum(SysBus))
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"OR{gate_num}")

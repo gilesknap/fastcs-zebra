@@ -8,16 +8,12 @@ Each pulse divider:
   - OUTN (not divided): Passthrough of input
 """
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Enum, Int
 
-from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
-from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import (
-    REGISTERS_32BIT_BY_NAME,
-    SysBus,
-)
+from fastcs_zebra.register_io import ZebraRegisterIO
+from fastcs_zebra.registers import SysBus
 
 
 class DividerController(ZebraSubcontroller):
@@ -49,25 +45,12 @@ class DividerController(ZebraSubcontroller):
         """
         super().__init__(div_num, register_io)
 
-        # Get register addresses for this divider
-        div_reg32 = REGISTERS_32BIT_BY_NAME[f"DIV{div_num}_DIV"]
-
         # System bus indices for this divider's outputs
         self._sysbus_outd = getattr(SysBus, f"DIV{div_num}_OUTD")
         self._sysbus_outn = getattr(SysBus, f"DIV{div_num}_OUTN")
 
-        self.inp = self.make_rw_attr(f"DIV{div_num}_INP", Enum(SysBus))
-
-        # Divisor (32-bit value)
-        self.div = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=div_reg32.address_lo,
-                is_32bit=True,
-                register_hi=div_reg32.address_hi,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.inp = self.make_register(f"DIV{div_num}_INP", Enum(SysBus))
+        self.div = self.make_register32(f"DIV{div_num}_DIV", Int())
 
         # Output states (from system bus status)
         self.outd = AttrR(Bool())  # Divided output

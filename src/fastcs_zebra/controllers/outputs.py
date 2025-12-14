@@ -62,7 +62,7 @@ class OutputController(ZebraSubcontroller):
         # Create attributes for each signal type
         for sig_type in self._signal_types:
             reg_name = f"OUT{out_num}_{sig_type.upper()}"
-            attr = self.make_rw_attr(reg_name, Enum(SysBus))
+            attr = self.make_register(reg_name, Enum(SysBus))
             setattr(self, sig_type, attr)
 
     async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
