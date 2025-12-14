@@ -11,7 +11,7 @@
             "module": "fastcs_zebra",
             "args": [
                 "--port",
-                "/dev/ttyUSB1",
+                "/dev/ttyUSB0",
                 "--gui",
                 "/tmp/zebra.bob",
                 "--log-level",

@@ -111,25 +111,23 @@ class ZebraController(Controller):
             io_ref=ZebraRegisterIORef(register=0xF1, update_period=SLOW_UPDATE),
         )
 
-        # System bus status (32-bit registers)
-        self.sys_stat1 = AttrR(
-            Int(),
-            io_ref=ZebraRegisterIORef(
+        self._sys_io_refs = (
+            ZebraRegisterIORef(
                 register=0xF2,
                 is_32bit=True,
                 register_hi=0xF3,
                 update_period=FAST_UPDATE,
             ),
-        )
-        self.sys_stat2 = AttrR(
-            Int(),
-            io_ref=ZebraRegisterIORef(
+            ZebraRegisterIORef(
                 register=0xF4,
                 is_32bit=True,
                 register_hi=0xF5,
                 update_period=FAST_UPDATE,
             ),
         )
+        # System bus status (32-bit registers)
+        self.sys_stat1 = AttrR(Int(), io_ref=self._sys_io_refs[0])
+        self.sys_stat2 = AttrR(Int(), io_ref=self._sys_io_refs[1])
 
         # =====================================================================
         # System Bus Individual Bits (derived from sys_stat1/2)
@@ -206,10 +204,10 @@ class ZebraController(Controller):
         # =====================================================================
 
         # Logic gates (AND1-4)
-        self.and1 = AndGateController(1, self._register_io)
-        self.and2 = AndGateController(2, self._register_io)
-        self.and3 = AndGateController(3, self._register_io)
-        self.and4 = AndGateController(4, self._register_io)
+        self.and1 = AndGateController(1, self._register_io, self._sys_io_refs)
+        self.and2 = AndGateController(2, self._register_io, self._sys_io_refs)
+        self.and3 = AndGateController(3, self._register_io, self._sys_io_refs)
+        self.and4 = AndGateController(4, self._register_io, self._sys_io_refs)
 
         # Logic gates (OR1-4)
         self.or1 = OrGateController(1, self._register_io)
