@@ -21,6 +21,7 @@ from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command
 
+from fastcs_zebra.attr_bit import AttrBit
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 
 from .constants import FAST_UPDATE, SLOW_UPDATE
@@ -138,11 +139,17 @@ class ZebraController(Controller):
         self.sysbit_attrs: list[str] = []
         for signal in SysBus:
             attr_name = signal.name.replace("_", "")
-            self.sysbit_attrs.append(attr_name)
             if signal.value >= 32:
-                setattr(self, attr_name, AttrR(Bool(), group="SysBus2"))
+                bit_index = signal.value - 32
+                io_ref = io_ref = self._sys_io_refs[1]
+                group = "SysBus2"
             else:
-                setattr(self, attr_name, AttrR(Bool(), group="SysBus1"))
+                bit_index = signal.value
+                io_ref = io_ref = self._sys_io_refs[0]
+                group = "SysBus1"
+
+            attr = AttrBit(bit_index=bit_index, io_ref=io_ref, group=group)
+            setattr(self, attr_name, attr)
 
         # Number of position compare captures (registers 0xF6/0xF7)
         # Kept for backward compatibility
@@ -435,21 +442,6 @@ class ZebraController(Controller):
             try:
                 # Get current system bus status1
                 sys_stat1 = self.sys_stat1.get() or 0
-
-                # Update individual system bus bit attributes in sub-controllers
-                for signal in SysBus:
-                    bit_index = signal.value
-
-                    attr_name = self.sysbit_attrs[bit_index]
-                    attr = getattr(self, attr_name, None)
-                    if bit_index < 32:
-                        # Bit is in sys_stat1 -> update sysbus1 controller
-                        bit_value = bool((sys_stat1 >> bit_index) & 1)
-                    else:
-                        # Bit is in sys_stat2 -> update sysbus2 controller
-                        bit_value = bool((sys_stat2 >> (bit_index - 32)) & 1)
-                    if attr:
-                        await attr.update(bit_value)
 
                 # Update all sub-controllers status bits
                 for sub_controller in ZebraSubcontroller.all_controllers:
