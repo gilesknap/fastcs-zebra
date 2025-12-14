@@ -10,7 +10,7 @@ based on external signals.
 """
 
 from fastcs.attributes import AttrR, AttrRW
-from fastcs.datatypes import Bool, Enum, Int
+from fastcs.datatypes import Bool, Enum
 
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller

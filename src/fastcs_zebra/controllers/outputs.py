@@ -10,7 +10,7 @@ Each output type can be independently routed to any of the 64 system bus signals
 """
 
 from fastcs.attributes import AttrRW
-from fastcs.datatypes import Enum, Int
+from fastcs.datatypes import Enum
 
 from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
