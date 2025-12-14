@@ -32,7 +32,6 @@ from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
-    REGISTERS_BY_NAME,
     SysBus,
 )
 
@@ -114,67 +113,23 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Encoder and Timing Selection
         # =====================================================================
-        self.enc = AttrRW(
-            Enum(EncoderSelection),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ENC"].address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        self.tspre = AttrRW(
-            Enum(Prescaler),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_TSPRE"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        self.dir = AttrRW(
-            Enum(Direction),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_DIR"].address, update_period=SLOW_UPDATE
-            ),
-        )
+        self.enc = self.make_rw_attr("PC_ENC", Enum(EncoderSelection))
+        self.tspre = self.make_rw_attr("PC_TSPRE", Enum(Prescaler))
+        self.dir = self.make_rw_attr("PC_DIR", Enum(Direction))
 
         # =====================================================================
         # Arm Configuration
         # =====================================================================
-        self.arm_sel = AttrRW(
-            Enum(ArmSelection),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ARM_SEL"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        self.arm_inp = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_ARM_INP"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.arm_sel = self.make_rw_attr("PC_ARM_SEL", Enum(ArmSelection))
+        self.arm_inp = self.make_rw_attr("PC_ARM_INP", Enum(SysBus))
 
         self.arm_out = AttrR(Bool())
 
         # =====================================================================
         # Gate Configuration
         # =====================================================================
-        self.gate_sel = AttrRW(
-            Enum(SourceSelection),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_GATE_SEL"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        self.gate_inp = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_GATE_INP"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.gate_sel = self.make_rw_attr("PC_GATE_SEL", Enum(SourceSelection))
+        self.gate_inp = self.make_rw_attr("PC_GATE_INP", Enum(SysBus))
 
         gate_start_reg = REGISTERS_32BIT_BY_NAME["PC_GATE_START"]
         self.gate_start = AttrRW(
@@ -225,21 +180,8 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Pulse Configuration
         # =====================================================================
-        self.pulse_sel = AttrRW(
-            Enum(SourceSelection),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_PULSE_SEL"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
-
-        self.pulse_inp = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_PULSE_INP"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.pulse_sel = self.make_rw_attr("PC_PULSE_SEL", Enum(SourceSelection))
+        self.pulse_inp = self.make_rw_attr("PC_PULSE_INP", Enum(SysBus))
 
         pulse_start_reg = REGISTERS_32BIT_BY_NAME["PC_PULSE_START"]
         self.pulse_start = AttrRW(
@@ -301,13 +243,7 @@ class PositionCompareController(ZebraSubcontroller):
         # =====================================================================
         # Capture Configuration and Status
         # =====================================================================
-        self.bit_cap = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=REGISTERS_BY_NAME["PC_BIT_CAP"].address,
-                update_period=SLOW_UPDATE,
-            ),
-        )
+        self.bit_cap = self.make_rw_attr("PC_BIT_CAP", Int())
 
         num_cap_reg = REGISTERS_32BIT_BY_NAME["PC_NUM_CAP"]
         self.num_cap = AttrR(

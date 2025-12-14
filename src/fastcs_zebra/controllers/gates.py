@@ -9,16 +9,12 @@ Gate generators are useful for creating enable windows that start and stop
 based on external signals.
 """
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Enum
 
-from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
-from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import (
-    REGISTERS_BY_NAME,
-    SysBus,
-)
+from fastcs_zebra.register_io import ZebraRegisterIO
+from fastcs_zebra.registers import SysBus
 
 
 class GateController(ZebraSubcontroller):
@@ -53,28 +49,11 @@ class GateController(ZebraSubcontroller):
         """
         super().__init__(gate_num, register_io)
 
-        # Get register addresses for this gate
-        inp1_reg = REGISTERS_BY_NAME[f"GATE{gate_num}_INP1"]
-        inp2_reg = REGISTERS_BY_NAME[f"GATE{gate_num}_INP2"]
+        self.inp1 = self.make_rw_attr(f"GATE{gate_num}_INP1", Enum(SysBus))
+        self.inp2 = self.make_rw_attr(f"GATE{gate_num}_INP2", Enum(SysBus))
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"GATE{gate_num}")
-
-        # Trigger input (INP1) - rising edge sets output high
-        self.inp1 = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp1_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        # Reset input (INP2) - rising edge resets output low
-        self.inp2 = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp2_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())

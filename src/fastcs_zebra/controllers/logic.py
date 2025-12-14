@@ -10,16 +10,12 @@ The gate output is available on the system bus for routing to outputs
 or other gates.
 """
 
-from fastcs.attributes import AttrR, AttrRW
+from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Enum, Int
 
-from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
-from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import (
-    REGISTERS_BY_NAME,
-    SysBus,
-)
+from fastcs_zebra.register_io import ZebraRegisterIO
+from fastcs_zebra.registers import SysBus
 
 
 class AndGateController(ZebraSubcontroller):
@@ -112,64 +108,15 @@ class OrGateController(ZebraSubcontroller):
         """
         super().__init__(gate_num, register_io)
 
-        # Get register addresses for this gate
-        inv_reg = REGISTERS_BY_NAME[f"OR{gate_num}_INV"]
-        ena_reg = REGISTERS_BY_NAME[f"OR{gate_num}_ENA"]
-        inp1_reg = REGISTERS_BY_NAME[f"OR{gate_num}_INP1"]
-        inp2_reg = REGISTERS_BY_NAME[f"OR{gate_num}_INP2"]
-        inp3_reg = REGISTERS_BY_NAME[f"OR{gate_num}_INP3"]
-        inp4_reg = REGISTERS_BY_NAME[f"OR{gate_num}_INP4"]
+        self.inv = self.make_rw_attr(f"OR{gate_num}_INV", Int())
+        self.ena = self.make_rw_attr(f"OR{gate_num}_ENA", Int())
+        self.inp1 = self.make_rw_attr(f"OR{gate_num}_INP1", Enum(SysBus))
+        self.inp2 = self.make_rw_attr(f"OR{gate_num}_INP2", Enum(SysBus))
+        self.inp3 = self.make_rw_attr(f"OR{gate_num}_INP3", Enum(SysBus))
+        self.inp4 = self.make_rw_attr(f"OR{gate_num}_INP4", Enum(SysBus))
 
         # System bus index for this gate's output
         self._sysbus_index = getattr(SysBus, f"OR{gate_num}")
-
-        # Inversion mask (4-bit bitfield)
-        self.inv = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=inv_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        # Enable mask (4-bit bitfield)
-        self.ena = AttrRW(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=ena_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        # Input 1 source (MUX register, 0-63)
-        self.inp1 = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp1_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        # Input 2 source
-        self.inp2 = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp2_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        # Input 3 source
-        self.inp3 = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp3_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
-
-        # Input 4 source
-        self.inp4 = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp4_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())

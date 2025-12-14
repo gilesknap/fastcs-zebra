@@ -16,7 +16,6 @@ from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import (
     REGISTERS_32BIT_BY_NAME,
-    REGISTERS_BY_NAME,
     SysBus,
 )
 
@@ -51,20 +50,13 @@ class DividerController(ZebraSubcontroller):
         super().__init__(div_num, register_io)
 
         # Get register addresses for this divider
-        inp_reg = REGISTERS_BY_NAME[f"DIV{div_num}_INP"]
         div_reg32 = REGISTERS_32BIT_BY_NAME[f"DIV{div_num}_DIV"]
 
         # System bus indices for this divider's outputs
         self._sysbus_outd = getattr(SysBus, f"DIV{div_num}_OUTD")
         self._sysbus_outn = getattr(SysBus, f"DIV{div_num}_OUTN")
 
-        # Input source (MUX register, 0-63)
-        self.inp = AttrRW(
-            Enum(SysBus),
-            io_ref=ZebraRegisterIORef(
-                register=inp_reg.address, update_period=SLOW_UPDATE
-            ),
-        )
+        self.inp = self.make_rw_attr(f"DIV{div_num}_INP", Enum(SysBus))
 
         # Divisor (32-bit value)
         self.div = AttrRW(
