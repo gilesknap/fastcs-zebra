@@ -9,19 +9,14 @@ The Zebra has 8 output connectors with different signal types:
 Each output type can be independently routed to any of the 64 system bus signals.
 """
 
-from fastcs.attributes import AttrR, AttrRW
-from fastcs.controllers import Controller
-from fastcs.datatypes import Int, String
+from fastcs.datatypes import Enum
 
-from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
-from fastcs_zebra.registers import (
-    REGISTERS_BY_NAME,
-    SYSTEM_BUS_SIGNALS,
-    signal_index_to_name,
-)
+from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
+from fastcs_zebra.register_io import ZebraRegisterIO
+from fastcs_zebra.registers import SysBus
 
 
-class OutputController(Controller):
+class OutputController(ZebraSubcontroller):
     """Controller for a single output connector (OUT1-OUT8).
 
     Output connectors have different signal types depending on the connector:
@@ -47,6 +42,8 @@ class OutputController(Controller):
         8: ["enca", "encb", "encz", "conn"],
     }
 
+    count = 8  # Number of outputs available
+
     def __init__(
         self,
         out_num: int,
@@ -58,42 +55,12 @@ class OutputController(Controller):
             out_num: Output number (1-8)
             register_io: Shared register IO handler
         """
-        if not 1 <= out_num <= 8:
-            raise ValueError(f"Output number must be 1-8, got {out_num}")
+        super().__init__(out_num, register_io)
 
-        self._out_num = out_num
-        self._register_io = register_io
         self._signal_types = self.OUTPUT_TYPES[out_num]
-
-        super().__init__(ios=[register_io])
 
         # Create attributes for each signal type
         for sig_type in self._signal_types:
             reg_name = f"OUT{out_num}_{sig_type.upper()}"
-            reg = REGISTERS_BY_NAME[reg_name]
-
-            # Signal source (MUX register, 0-63)
-            attr = AttrRW(
-                Int(),
-                io_ref=ZebraRegisterIORef(register=reg.address, update_period=1.0),
-            )
+            attr = self.make_register(reg_name, Enum(SysBus))
             setattr(self, sig_type, attr)
-
-            # Human-readable string
-            str_attr = AttrR(String())
-            setattr(self, f"{sig_type}_str", str_attr)
-
-    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
-        """Update derived values from system bus status.
-
-        Args:
-            sys_stat1: System bus status bits 0-31
-            sys_stat2: System bus status bits 32-63
-        """
-        # Update string representations for each signal type
-        for sig_type in self._signal_types:
-            attr = getattr(self, sig_type)
-            str_attr = getattr(self, f"{sig_type}_str")
-            value = attr.get()
-            if value is not None and 0 <= value < len(SYSTEM_BUS_SIGNALS):
-                await str_attr.update(signal_index_to_name(value))
