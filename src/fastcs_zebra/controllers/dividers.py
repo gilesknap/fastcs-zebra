@@ -55,19 +55,3 @@ class DividerController(ZebraSubcontroller):
         # Output states (from system bus status)
         self.outd = AttrR(Bool())  # Divided output
         self.outn = AttrR(Bool())  # Non-divided (passthrough) output
-
-    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
-        """Update derived values from system bus status.
-
-        Args:
-            sys_stat1: System bus status bits 0-31
-            sys_stat2: System bus status bits 32-63
-        """
-
-        # Update output states from system bus
-        # DIV OUTD are indices 44-47 (in sys_stat2)
-        # DIV OUTN are indices 48-51 (in sys_stat2)
-        outd_bit = self._sysbus_outd - 32
-        outn_bit = self._sysbus_outn - 32
-        await self.outd.update(bool((sys_stat2 >> outd_bit) & 1))
-        await self.outn.update(bool((sys_stat2 >> outn_bit) & 1))

@@ -4,8 +4,8 @@ A base class for all Zebra Subcontrollers.
 
 from fastcs.attributes import AttrRW
 from fastcs.controllers import Controller
+from fastcs.util import ONCE
 
-from fastcs_zebra.constants import SLOW_UPDATE
 from fastcs_zebra.register_io import ZebraRegisterIO, ZebraRegisterIORef
 from fastcs_zebra.registers import REGISTERS_32BIT_BY_NAME, REGISTERS_BY_NAME
 
@@ -42,7 +42,7 @@ class ZebraSubcontroller(Controller):
         self,
         register_name: str,
         dtype,
-        update_period: float = SLOW_UPDATE,
+        update_period: float = ONCE,
     ) -> AttrRW:
         """Helper to create a read-write attribute with for a register"""
         addr = REGISTERS_BY_NAME[register_name].address
@@ -54,7 +54,7 @@ class ZebraSubcontroller(Controller):
         self,
         register_name: str,
         dtype,
-        update_period: float = SLOW_UPDATE,
+        update_period: float = ONCE,
     ) -> AttrRW:
         """Helper to create a read-write attribute with for a register"""
         reg32 = REGISTERS_32BIT_BY_NAME[register_name]
@@ -66,12 +66,3 @@ class ZebraSubcontroller(Controller):
         )
         attr = AttrRW(datatype=dtype, io_ref=io_ref)
         return attr
-
-    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
-        """Update derived values from system bus status.
-
-        Args:
-            sys_stat1: System bus status bits 0-31
-            sys_stat2: System bus status bits 32-63
-        """
-        raise NotImplementedError

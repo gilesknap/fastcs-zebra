@@ -20,10 +20,8 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import command, scan
+from fastcs.util import ONCE
 
-from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
-
-from .constants import FAST_UPDATE, SLOW_UPDATE
 from .controllers.dividers import DividerController
 from .controllers.gates import GateController
 from .controllers.logic import AndGateController, OrGateController
@@ -102,13 +100,13 @@ class ZebraController(Controller):
 
         # Firmware version (register 0xF0)
         self.sys_ver = AttrR(
-            Int(), io_ref=ZebraRegisterIORef(register=0xF0, update_period=SLOW_UPDATE)
+            Int(), io_ref=ZebraRegisterIORef(register=0xF0, update_period=ONCE)
         )
 
         # System state/error (register 0xF1)
         self.sys_staterr = AttrR(
             Int(),
-            io_ref=ZebraRegisterIORef(register=0xF1, update_period=SLOW_UPDATE),
+            io_ref=ZebraRegisterIORef(register=0xF1, update_period=ONCE),
         )
 
         # System bus status (32-bit registers)
@@ -138,7 +136,7 @@ class ZebraController(Controller):
                 register=0xF6,
                 is_32bit=True,
                 register_hi=0xF7,
-                update_period=SLOW_UPDATE,
+                update_period=ONCE,
             ),
         )
 
@@ -146,32 +144,32 @@ class ZebraController(Controller):
         # Kept for backward compatibility
         self.pc_enc = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=0x88, update_period=SLOW_UPDATE),
+            io_ref=ZebraRegisterIORef(register=0x88, update_period=ONCE),
         )
 
         # Position compare timestamp prescaler (register 0x89)
         # Kept for backward compatibility
         self.pc_tspre = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=0x89, update_period=SLOW_UPDATE),
+            io_ref=ZebraRegisterIORef(register=0x89, update_period=ONCE),
         )
 
         # Soft inputs (register 0x7F)
         self.soft_in = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=0x7F, update_period=SLOW_UPDATE),
+            io_ref=ZebraRegisterIORef(register=0x7F, update_period=ONCE),
         )
 
         # Divider first pulse behavior (register 0x7C)
         self.div_first = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=0x7C, update_period=SLOW_UPDATE),
+            io_ref=ZebraRegisterIORef(register=0x7C, update_period=ONCE),
         )
 
         # Output polarity control (register 0x54)
         self.polarity = AttrRW(
             Int(),
-            io_ref=ZebraRegisterIORef(register=0x54, update_period=SLOW_UPDATE),
+            io_ref=ZebraRegisterIORef(register=0x54, update_period=ONCE),
         )
 
         # Last captured position compare data (updated via interrupts, no IO)

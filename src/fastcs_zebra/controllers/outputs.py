@@ -64,13 +64,3 @@ class OutputController(ZebraSubcontroller):
             reg_name = f"OUT{out_num}_{sig_type.upper()}"
             attr = self.make_register(reg_name, Enum(SysBus))
             setattr(self, sig_type, attr)
-
-    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
-        """Update derived values from system bus status.
-
-        Args:
-            sys_stat1: System bus status bits 0-31
-            sys_stat2: System bus status bits 32-63
-        """
-        # Update string representations for each signal type
-        pass

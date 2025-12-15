@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 
 from fastcs.attributes import AttrR
 from fastcs.datatypes import Bool, Enum, Int
-from fastcs.methods import command
 
 if TYPE_CHECKING:
     from fastcs_zebra.interrupts import InterruptHandler
@@ -183,40 +182,3 @@ class PositionCompareController(ZebraSubcontroller):
                 self._interrupt_handler.set_bit_cap(value)
 
         self.bit_cap.add_on_update_callback(on_bit_cap_update)
-
-    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
-        """Update derived values from system bus status.
-
-        Args:
-            sys_stat1: System bus status bits 0-31
-            sys_stat2: System bus status bits 32-63
-        """
-        # Update status from system bus
-        # PC_ARM is index 29 (in sys_stat1)
-        # PC_GATE is index 30 (in sys_stat1)
-        # PC_PULSE is index 31 (in sys_stat1)
-        await self.arm_out.update(bool((sys_stat1 >> 29) & 1))
-        await self.gate_out.update(bool((sys_stat1 >> 30) & 1))
-        await self.pulse_out.update(bool((sys_stat1 >> 31) & 1))
-
-    @command()
-    async def arm(self) -> None:
-        """Arm position compare acquisition.
-
-        This sends the PC_ARM command to start data acquisition.
-        The Zebra will respond with a PR interrupt to indicate buffers are reset.
-        """
-        # The actual command is handled by the parent controller
-        # This is a placeholder for command routing
-        pass
-
-    @command()
-    async def disarm(self) -> None:
-        """Disarm position compare acquisition.
-
-        This sends the PC_DISARM command to stop data acquisition.
-        The Zebra will respond with a PX interrupt to indicate completion.
-        """
-        # The actual command is handled by the parent controller
-        # This is a placeholder for command routing
-        pass

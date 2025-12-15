@@ -63,16 +63,3 @@ class PulseController(ZebraSubcontroller):
 
         # Output state (from system bus status)
         self.out = AttrR(Bool())
-
-    async def update_derived_values(self, sys_stat1: int, sys_stat2: int) -> None:
-        """Update derived values from system bus status.
-
-        Args:
-            sys_stat1: System bus status bits 0-31
-            sys_stat2: System bus status bits 32-63
-        """
-        # Update output state from system bus
-        # PULSE generators are indices 52-55 (in sys_stat2)
-        bit_index = self._sysbus_index - 32
-        out_state = bool((sys_stat2 >> bit_index) & 1)
-        await self.out.update(out_state)
