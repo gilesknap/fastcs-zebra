@@ -19,7 +19,7 @@ import logging
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Int, String
-from fastcs.methods import command
+from fastcs.methods import command, scan
 
 from fastcs_zebra.controllers.sub_controller import ZebraSubcontroller
 
@@ -82,7 +82,7 @@ class ZebraController(Controller):
         """
         self._port = port
         self._transport: ZebraTransport | None = None
-        self._protocol: ZebraProtocol | None = None
+        self.__protocol: ZebraProtocol | None = None
         self._interrupt_handler = InterruptHandler()
         self._interrupt_task: asyncio.Task | None = None
         self._callbacks_registered = False
@@ -112,24 +112,8 @@ class ZebraController(Controller):
         )
 
         # System bus status (32-bit registers)
-        self.sys_stat1 = AttrR(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=0xF2,
-                is_32bit=True,
-                register_hi=0xF3,
-                update_period=FAST_UPDATE,
-            ),
-        )
-        self.sys_stat2 = AttrR(
-            Int(),
-            io_ref=ZebraRegisterIORef(
-                register=0xF4,
-                is_32bit=True,
-                register_hi=0xF5,
-                update_period=FAST_UPDATE,
-            ),
-        )
+        self.sys_stat1 = AttrR(Int())
+        self.sys_stat2 = AttrR(Int())
 
         # =====================================================================
         # System Bus Individual Bits (derived from sys_stat1/2)
@@ -256,10 +240,10 @@ class ZebraController(Controller):
         try:
             self._transport = ZebraTransport(self._port)
             await self._transport.connect()
-            self._protocol = ZebraProtocol(self._transport)
+            self.__protocol = ZebraProtocol(self._transport)
 
             # Update the IO handler with the actual protocol
-            self._register_io.set_protocol(self._protocol)
+            self._register_io.set_protocol(self.__protocol)
 
             # Update connection status
             await self.connected.update(True)
@@ -274,16 +258,13 @@ class ZebraController(Controller):
             self._interrupt_task = asyncio.create_task(self._monitor_interrupts())
 
             # Read initial PC_BIT_CAP value to configure interrupt handler
-            bit_cap = await self._protocol.read_register(
+            bit_cap = await self.__protocol.read_register(
                 REGISTERS_BY_NAME["PC_BIT_CAP"].address
             )
             self._interrupt_handler.set_bit_cap(bit_cap)
             logger.debug(
                 f"Initialized interrupt handler with PC_BIT_CAP={bit_cap:#06x}"
             )
-
-            # Setup sys_stat update callbacks
-            await self._setup_sys_stat_callbacks()
 
             logger.info(f"Connected to Zebra on {self._port}")
             await self.status_msg.update(f"Connected to {self._port}")
@@ -309,7 +290,7 @@ class ZebraController(Controller):
         if self._transport:
             await self._transport.disconnect()
             self._transport = None
-            self._protocol = None
+            self.__protocol = None
 
         await self.connected.update(False)
         logger.info("Disconnected from Zebra")
@@ -379,7 +360,7 @@ class ZebraController(Controller):
 
     def _check_connected(self) -> None:
         """Check if connected and raise RuntimeError if not."""
-        if not self._protocol:
+        if not self.__protocol:
             raise RuntimeError("Not connected to Zebra hardware")
 
     # Commands
@@ -388,7 +369,7 @@ class ZebraController(Controller):
     async def pc_arm(self) -> None:
         """Arm position compare (write 0x8B)."""
         self._check_connected()
-        await self._protocol.write_register(0x8B, 1)  # type: ignore[union-attr]
+        await self.__protocol.write_register(0x8B, 1)  # type: ignore[union-attr]
         logger.info("Position compare armed")
         await self.status_msg.update("PC Armed")
 
@@ -396,7 +377,7 @@ class ZebraController(Controller):
     async def pc_disarm(self) -> None:
         """Disarm position compare (write 0x8C)."""
         self._check_connected()
-        await self._protocol.write_register(0x8C, 1)  # type: ignore[union-attr]
+        await self.__protocol.write_register(0x8C, 1)  # type: ignore[union-attr]
         logger.info("Position compare disarmed")
         await self.status_msg.update("PC Disarmed")
 
@@ -404,7 +385,7 @@ class ZebraController(Controller):
     async def save_to_flash(self) -> None:
         """Save configuration to flash memory."""
         self._check_connected()
-        await self._protocol.flash_command("S")  # type: ignore[union-attr]
+        await self.__protocol.flash_command("S")  # type: ignore[union-attr]
         logger.info("Configuration saved to flash")
         await self.status_msg.update("Saved to flash")
 
@@ -412,7 +393,7 @@ class ZebraController(Controller):
     async def load_from_flash(self) -> None:
         """Load configuration from flash memory."""
         self._check_connected()
-        await self._protocol.flash_command("L")  # type: ignore[union-attr]
+        await self._protocol.flash_command("L")
         logger.info("Configuration loaded from flash")
         await self.status_msg.update("Loaded from flash")
 
@@ -420,43 +401,60 @@ class ZebraController(Controller):
     async def sys_reset(self) -> None:
         """Reset Zebra system (write 0x7E)."""
         self._check_connected()
-        await self._protocol.write_register(0x7E, 1)  # type: ignore[union-attr]
+        await self._protocol.write_register(0x7E, 1)
         logger.info("System reset")
         await self.status_msg.update("System reset")
 
-    async def _setup_sys_stat_callbacks(self) -> None:
-        """Setup callbacks for sys_stat updates to propagate to sub-controllers."""
+    # ,
+    #             io_ref=ZebraRegisterIORef(
+    #                 register=0xF2,
+    #                 is_32bit=True,
+    #                 register_hi=0xF3,
+    #                 update_period=FAST_UPDATE,
+    #             ),
+    #         )
+    #         self.sys_stat2 = AttrR(
+    #             Int(),
+    #             io_ref=ZebraRegisterIORef(
+    #                 register=0xF4,
+    #                 is_32bit=True,
+    #                 register_hi=0xF5,
+    #                 update_period=FAST_UPDATE,
+    #             ),
+    @property
+    def _protocol(self) -> ZebraProtocol:
+        """Get the ZebraProtocol instance.
 
-        async def on_sys_stat_update(value: int | None) -> None:
-            """Called when sys_stat1 or sys_stat2 updates."""
-            try:
-                # Get current system bus status
-                sys_stat1 = self.sys_stat1.get() or 0
-                sys_stat2 = self.sys_stat2.get() or 0
+        Raises:
+            RuntimeError: If not connected
+        """
+        if not self.__protocol:
+            raise RuntimeError("Not connected to Zebra hardware")
+        return self.__protocol  # type: ignore[return-value]
 
-                # Update individual system bus bit attributes in sub-controllers
-                for signal in SysBus:
-                    bit_index = signal.value
+    @scan(0.3)
+    async def on_sys_stat_update(self) -> None:
+        """Called when sys_stat1 or sys_stat2 updates."""
+        try:
+            sys_stat1 = await self._protocol.read_register_32bit(0xF2, 0xF3)
+            await self.sys_stat1.update(sys_stat1)
+            sys_stat2 = await self._protocol.read_register_32bit(0xF4, 0xF5)
+            await self.sys_stat2.update(sys_stat2)
 
-                    attr_name = self.sysbit_attrs[bit_index]
-                    attr = getattr(self, attr_name, None)
-                    if bit_index < 32:
-                        # Bit is in sys_stat1 -> update sysbus1 controller
-                        bit_value = bool((sys_stat1 >> bit_index) & 1)
-                    else:
-                        # Bit is in sys_stat2 -> update sysbus2 controller
-                        bit_value = bool((sys_stat2 >> (bit_index - 32)) & 1)
-                    if attr:
-                        await attr.update(bit_value)
+            # Update individual system bus bit attributes in sub-controllers
+            for signal in SysBus:
+                bit_index = signal.value
 
-                # Update all sub-controllers status bits
-                # TODO: optimize with lookup instead calling every sub-controller?
-                for sub_controller in ZebraSubcontroller.all_controllers:
-                    await sub_controller.update_derived_values(sys_stat1, sys_stat2)
+                attr_name = self.sysbit_attrs[bit_index]
+                attr = getattr(self, attr_name, None)
+                if bit_index < 32:
+                    # Bit is in sys_stat1 -> update sysbus1 controller
+                    bit_value = bool((sys_stat1 >> bit_index) & 1)
+                else:
+                    # Bit is in sys_stat2 -> update sysbus2 controller
+                    bit_value = bool((sys_stat2 >> (bit_index - 32)) & 1)
+                if attr:
+                    await attr.update(bit_value)
 
-            except Exception as e:
-                logger.error(f"Error updating derived values: {e}")
-
-        # Register callbacks on both sys_stat attributes
-        self.sys_stat1.add_on_update_callback(on_sys_stat_update)
-        self.sys_stat2.add_on_update_callback(on_sys_stat_update)
+        except Exception as e:
+            logger.error(f"Error updating derived values: {e}")

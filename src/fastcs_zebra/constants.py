@@ -1,3 +1,5 @@
-SLOW_UPDATE = 15.0
+from fastcs.util import ONCE
+
+SLOW_UPDATE = ONCE
 MEDIUM_UPDATE = 2.0
 FAST_UPDATE = 0.25
