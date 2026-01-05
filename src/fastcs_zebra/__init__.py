@@ -78,7 +78,6 @@ from .registers import (
     is_mux_register,
     is_readonly_register,
     signal_index_to_name,
-    signal_name_to_index,
 )
 from .transport import ZebraTransport
 from .zebra_controller import ZebraController
@@ -121,5 +120,4 @@ __all__ = [
     "is_readonly_register",
     "is_command_register",
     "signal_index_to_name",
-    "signal_name_to_index",
 ]
