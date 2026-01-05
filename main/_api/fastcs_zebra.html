@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>fastcs_zebra &#8212; fastcs-zebra 0.1.dev9+g1ba9a1188 documentation</title>
+    <title>fastcs_zebra &#8212; fastcs-zebra 0.1.dev40+gc8b2733a7 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=160b305b"></script>
+    <script src="../_static/documentation_options.js?v=57d52040"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -471,6 +471,20 @@ Source Zebra position compare and logic hardware.</p>
 - ZebraTransport: Low-level serial I/O
 - ZebraProtocol: Register read/write and command execution
 - InterruptHandler: Position compare data parsing</p>
+<p>Phase 2 implementation includes:
+- Complete register definitions (256 registers)
+- System bus signal mapping (64 signals)
+- Register type classification (RW, RO, CMD, MUX)
+- Bidirectional lookup (name ↔ address)
+- 32-bit register pair handling</p>
+<p>Phase 3 implementation includes:
+- Full controller hierarchy with sub-controllers
+- AND gates (AND1-4), OR gates (OR1-4)
+- Gate generators (GATE1-4)
+- Pulse generators (PULSE1-4)
+- Pulse dividers (DIV1-4)
+- Output routing (OUT1-8)
+- Position compare subsystem</p>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraTransport</span><span class="p">,</span> <span class="n">ZebraProtocol</span>
 
@@ -478,6 +492,13 @@ Source Zebra position compare and logic hardware.</p>
     <span class="n">protocol</span> <span class="o">=</span> <span class="n">ZebraProtocol</span><span class="p">(</span><span class="n">transport</span><span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">protocol</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="mh">0xF0</span><span class="p">)</span>  <span class="c1"># Read firmware version</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Firmware version: </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">#06x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Using register definitions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_register</span><span class="p">,</span> <span class="n">RegAddr</span><span class="p">,</span> <span class="n">SysBus</span>
+
+<span class="n">reg</span> <span class="o">=</span> <span class="n">get_register</span><span class="p">(</span><span class="s2">&quot;PC_ENC&quot;</span><span class="p">)</span>  <span class="c1"># Get by name</span>
+<span class="n">reg</span> <span class="o">=</span> <span class="n">get_register</span><span class="p">(</span><span class="mh">0x88</span><span class="p">)</span>       <span class="c1"># Get by address</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PC_ENC is at address </span><span class="si">{</span><span class="n">reg</span><span class="o">.</span><span class="n">address</span><span class="si">:</span><span class="s2">#04x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py data">
@@ -512,6 +533,72 @@ Source Zebra position compare and logic hardware.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.ZebraController" title="fastcs_zebra.ZebraController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZebraController</span></code></a></p></td>
 <td><p>Top-level controller for Zebra hardware.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.AndGateController" title="fastcs_zebra.AndGateController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AndGateController</span></code></a></p></td>
+<td><p>Controller for a single AND gate (AND1-AND4).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.OrGateController" title="fastcs_zebra.OrGateController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OrGateController</span></code></a></p></td>
+<td><p>Controller for a single OR gate (OR1-OR4).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.GateController" title="fastcs_zebra.GateController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GateController</span></code></a></p></td>
+<td><p>Controller for a single gate generator (GATE1-GATE4).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.PulseController" title="fastcs_zebra.PulseController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PulseController</span></code></a></p></td>
+<td><p>Controller for a single pulse generator (PULSE1-PULSE4).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.DividerController" title="fastcs_zebra.DividerController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DividerController</span></code></a></p></td>
+<td><p>Controller for a single pulse divider (DIV1-DIV4).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.OutputController" title="fastcs_zebra.OutputController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputController</span></code></a></p></td>
+<td><p>Controller for a single output connector (OUT1-OUT8).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.PositionCompareController" title="fastcs_zebra.PositionCompareController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PositionCompareController</span></code></a></p></td>
+<td><p>Controller for the position compare subsystem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.ZebraRegisterIO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZebraRegisterIO</span></code></a></p></td>
+<td><p>Handles reading from and writing to Zebra registers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIORef" title="fastcs_zebra.ZebraRegisterIORef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZebraRegisterIORef</span></code></a></p></td>
+<td><p>Reference for Zebra register IO operations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.Register" title="fastcs_zebra.Register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Register</span></code></a></p></td>
+<td><p>Definition of a single Zebra register.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.Register32" title="fastcs_zebra.Register32"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Register32</span></code></a></p></td>
+<td><p>Definition of a 32-bit register pair (LO/HI).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.RegisterType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterType</span></code></a></p></td>
+<td><p>Register type classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.RegAddr" title="fastcs_zebra.RegAddr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegAddr</span></code></a></p></td>
+<td><p>Constants for commonly used register addresses.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.SysBus" title="fastcs_zebra.SysBus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SysBus</span></code></a></p></td>
+<td><p>Constants for system bus signal indices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.get_register" title="fastcs_zebra.get_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_register</span></code></a></p></td>
+<td><p>Get a register definition by name or address.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.get_register_32bit" title="fastcs_zebra.get_register_32bit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_register_32bit</span></code></a></p></td>
+<td><p>Get a 32-bit register pair definition by name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.get_all_registers" title="fastcs_zebra.get_all_registers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_registers</span></code></a></p></td>
+<td><p>Get all register definitions, optionally filtered by type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.get_all_registers_32bit" title="fastcs_zebra.get_all_registers_32bit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_registers_32bit</span></code></a></p></td>
+<td><p>Get all 32-bit register pair definitions, optionally filtered by type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.is_mux_register" title="fastcs_zebra.is_mux_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_mux_register</span></code></a></p></td>
+<td><p>Check if a register address is a multiplexer (system bus selection).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.is_readonly_register" title="fastcs_zebra.is_readonly_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_readonly_register</span></code></a></p></td>
+<td><p>Check if a register address is read-only.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#fastcs_zebra.is_command_register" title="fastcs_zebra.is_command_register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_command_register</span></code></a></p></td>
+<td><p>Check if a register address is a command (write-only) register.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#fastcs_zebra.signal_index_to_name" title="fastcs_zebra.signal_index_to_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">signal_index_to_name</span></code></a></p></td>
+<td><p>Convert system bus signal index to name.</p></td>
 </tr>
 </tbody>
 </table>
@@ -858,8 +945,72 @@ and dispatches to registered callbacks.</p>
 <dt class="sig sig-object py" id="fastcs_zebra.ZebraController">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ZebraController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/zebra_controller.html#ZebraController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraController" title="Link to this definition">#</a></dt>
 <dd><p>Top-level controller for Zebra hardware.</p>
-<p>Exposes connection management, firmware version, and register access
-for testing Phase 1 serial communication functionality.</p>
+<p>Provides a complete controller hierarchy for the Zebra hardware:
+- System status and configuration (top level)
+- Logic gates: AND1-4, OR1-4
+- Gate generators: GATE1-4
+- Pulse generators: PULSE1-4
+- Pulse dividers: DIV1-4
+- Output routing: OUT1-8
+- Position compare subsystem: PC</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.connected">
+<span class="sig-name descname"><span class="pre">connected</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.connected" title="Link to this definition">#</a></dt>
+<dd><p>Connection status</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.sys_ver">
+<span class="sig-name descname"><span class="pre">sys_ver</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.sys_ver" title="Link to this definition">#</a></dt>
+<dd><p>Firmware version</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.sys_staterr">
+<span class="sig-name descname"><span class="pre">sys_staterr</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.sys_staterr" title="Link to this definition">#</a></dt>
+<dd><p>System state/error flags</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">sys_stat1/2</span></span></dt>
+<dd><p>System bus status (32-bit each)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.soft_in">
+<span class="sig-name descname"><span class="pre">soft_in</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.soft_in" title="Link to this definition">#</a></dt>
+<dd><p>Software inputs (4 bits)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.div_first">
+<span class="sig-name descname"><span class="pre">div_first</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.div_first" title="Link to this definition">#</a></dt>
+<dd><p>Divider first pulse behavior</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.polarity">
+<span class="sig-name descname"><span class="pre">polarity</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.polarity" title="Link to this definition">#</a></dt>
+<dd><p>Output polarity control</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraController.status_msg">
+<span class="sig-name descname"><span class="pre">status_msg</span></span><a class="headerlink" href="#fastcs_zebra.ZebraController.status_msg" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable status message</p>
+</dd></dl>
+
+<dl class="simple">
+<dt>Sub-controllers:</dt><dd><p>and1-4: AND gate controllers
+or1-4: OR gate controllers
+gate1-4: Gate generator controllers
+pulse1-4: Pulse generator controllers
+div1-4: Pulse divider controllers
+out1-8: Output routing controllers
+pc: Position compare controller</p>
+</dd>
+</dl>
 <p>Initialize Zebra controller.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -878,6 +1029,922 @@ for testing Phase 1 serial communication functionality.</p>
 <dd><p>Disconnect from Zebra hardware.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.AndGateController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">AndGateController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/logic.html#AndGateController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.AndGateController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for a single AND gate (AND1-AND4).</p>
+<p>The AND gate combines up to 4 inputs with AND logic. Each input can be:
+- Enabled/disabled via the enable mask
+- Inverted before the AND operation
+- Selected from any of the 64 system bus signals</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ena_b0-b3</span></span></dt>
+<dd><p>Enable bits for inputs 1-4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">inv_b0-b3</span></span></dt>
+<dd><p>Inversion bits for inputs 1-4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">inp1-4</span></span></dt>
+<dd><p>Input source selection (0-63 system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">inp1-4_str</span></span></dt>
+<dd><p>Human-readable name of selected input</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.AndGateController.out">
+<span class="sig-name descname"><span class="pre">out</span></span><a class="headerlink" href="#fastcs_zebra.AndGateController.out" title="Link to this definition">#</a></dt>
+<dd><p>Current output state of the AND gate</p>
+</dd></dl>
+
+<p>Initialize AND gate controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate_num</strong> – Gate number (1-4)</p></li>
+<li><p><strong>register_io</strong> – Shared register IO handler</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.OrGateController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">OrGateController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/logic.html#OrGateController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.OrGateController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for a single OR gate (OR1-OR4).</p>
+<p>The OR gate combines up to 4 inputs with OR logic. Each input can be:
+- Enabled/disabled via the enable mask
+- Inverted before the OR operation
+- Selected from any of the 64 system bus signals</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ena_b0-b3</span></span></dt>
+<dd><p>Enable bits for inputs 1-4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">inv_b0-b3</span></span></dt>
+<dd><p>Inversion bits for inputs 1-4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">inp1-4</span></span></dt>
+<dd><p>Input source selection (0-63 system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">inp1-4_str</span></span></dt>
+<dd><p>Human-readable name of selected input</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.OrGateController.out">
+<span class="sig-name descname"><span class="pre">out</span></span><a class="headerlink" href="#fastcs_zebra.OrGateController.out" title="Link to this definition">#</a></dt>
+<dd><p>Current output state of the OR gate</p>
+</dd></dl>
+
+<p>Initialize OR gate controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate_num</strong> – Gate number (1-4)</p></li>
+<li><p><strong>register_io</strong> – Shared register IO handler</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.GateController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">GateController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/gates.html#GateController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.GateController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for a single gate generator (GATE1-GATE4).</p>
+<p>The gate generator is an SR latch:
+- Rising edge on INP1 (trigger) sets output HIGH
+- Rising edge on INP2 (reset) sets output LOW</p>
+<p>This is useful for creating enable windows controlled by external signals.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.GateController.inp1">
+<span class="sig-name descname"><span class="pre">inp1</span></span><a class="headerlink" href="#fastcs_zebra.GateController.inp1" title="Link to this definition">#</a></dt>
+<dd><p>Trigger input source (0-63 system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.GateController.inp1_str">
+<span class="sig-name descname"><span class="pre">inp1_str</span></span><a class="headerlink" href="#fastcs_zebra.GateController.inp1_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable name of trigger input</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.GateController.inp2">
+<span class="sig-name descname"><span class="pre">inp2</span></span><a class="headerlink" href="#fastcs_zebra.GateController.inp2" title="Link to this definition">#</a></dt>
+<dd><p>Reset input source (0-63 system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.GateController.inp2_str">
+<span class="sig-name descname"><span class="pre">inp2_str</span></span><a class="headerlink" href="#fastcs_zebra.GateController.inp2_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable name of reset input</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.GateController.out">
+<span class="sig-name descname"><span class="pre">out</span></span><a class="headerlink" href="#fastcs_zebra.GateController.out" title="Link to this definition">#</a></dt>
+<dd><p>Current output state of the gate generator</p>
+</dd></dl>
+
+<p>Initialize gate generator controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate_num</strong> – Gate number (1-4)</p></li>
+<li><p><strong>register_io</strong> – Shared register IO handler</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">PulseController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pulse_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/pulses.html#PulseController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.PulseController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for a single pulse generator (PULSE1-PULSE4).</p>
+<p>The pulse generator creates a single pulse output:
+- Triggered by a rising edge on the input
+- After a configurable delay
+- With a configurable width
+- Time units set by prescaler</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.inp">
+<span class="sig-name descname"><span class="pre">inp</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.inp" title="Link to this definition">#</a></dt>
+<dd><p>Input trigger source (0-63 system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.inp_str">
+<span class="sig-name descname"><span class="pre">inp_str</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.inp_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable name of input source</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.dly">
+<span class="sig-name descname"><span class="pre">dly</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.dly" title="Link to this definition">#</a></dt>
+<dd><p>Delay from trigger to pulse start (in time units)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.wid">
+<span class="sig-name descname"><span class="pre">wid</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.wid" title="Link to this definition">#</a></dt>
+<dd><p>Pulse width (in time units)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.pre">
+<span class="sig-name descname"><span class="pre">pre</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.pre" title="Link to this definition">#</a></dt>
+<dd><p>Prescaler value (5=ms, 5000=s, 500000=10s)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.pre_str">
+<span class="sig-name descname"><span class="pre">pre_str</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.pre_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable prescaler string</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PulseController.out">
+<span class="sig-name descname"><span class="pre">out</span></span><a class="headerlink" href="#fastcs_zebra.PulseController.out" title="Link to this definition">#</a></dt>
+<dd><p>Current output state of the pulse generator</p>
+</dd></dl>
+
+<p>Initialize pulse generator controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pulse_num</strong> – Pulse generator number (1-4)</p></li>
+<li><p><strong>register_io</strong> – Shared register IO handler</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.DividerController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">DividerController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">div_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/dividers.html#DividerController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.DividerController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for a single pulse divider (DIV1-DIV4).</p>
+<p>The pulse divider counts input pulses and outputs every Nth pulse,
+where N is the divisor value.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.DividerController.inp">
+<span class="sig-name descname"><span class="pre">inp</span></span><a class="headerlink" href="#fastcs_zebra.DividerController.inp" title="Link to this definition">#</a></dt>
+<dd><p>Input source (0-63 system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.DividerController.inp_str">
+<span class="sig-name descname"><span class="pre">inp_str</span></span><a class="headerlink" href="#fastcs_zebra.DividerController.inp_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable name of input source</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.DividerController.div">
+<span class="sig-name descname"><span class="pre">div</span></span><a class="headerlink" href="#fastcs_zebra.DividerController.div" title="Link to this definition">#</a></dt>
+<dd><p>Division factor (32-bit value)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.DividerController.outd">
+<span class="sig-name descname"><span class="pre">outd</span></span><a class="headerlink" href="#fastcs_zebra.DividerController.outd" title="Link to this definition">#</a></dt>
+<dd><p>Current state of divided output</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.DividerController.outn">
+<span class="sig-name descname"><span class="pre">outn</span></span><a class="headerlink" href="#fastcs_zebra.DividerController.outn" title="Link to this definition">#</a></dt>
+<dd><p>Current state of non-divided (passthrough) output</p>
+</dd></dl>
+
+<p>Initialize divider controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>div_num</strong> – Divider number (1-4)</p></li>
+<li><p><strong>register_io</strong> – Shared register IO handler</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.OutputController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">OutputController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/outputs.html#OutputController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.OutputController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for a single output connector (OUT1-OUT8).</p>
+<p>Output connectors have different signal types depending on the connector:
+- OUT1-OUT2: TTL, NIM, LVDS
+- OUT3: TTL, OC (open collector), LVDS
+- OUT4: TTL, NIM, PECL
+- OUT5-OUT8: ENCA, ENCB, ENCZ, CONN (encoder outputs)</p>
+<p>Attributes vary by output type. Each signal type has:
+- A value attribute (0-63 system bus index)
+- A string attribute showing the human-readable signal name</p>
+<p>Initialize output controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out_num</strong> – Output number (1-8)</p></li>
+<li><p><strong>register_io</strong> – Shared register IO handler</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">PositionCompareController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">register_io</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.ZebraRegisterIO" title="fastcs_zebra.register_io.ZebraRegisterIO"><span class="pre">ZebraRegisterIO</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/position_compare.html#PositionCompareController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.PositionCompareController" title="Link to this definition">#</a></dt>
+<dd><p>Controller for the position compare subsystem.</p>
+<p>The position compare system captures encoder positions synchronized with
+motion events. It supports:
+- Position-based or time-based gating
+- Position-based or time-based pulse generation
+- Capture of up to 4 encoders, 2 system bus states, and 4 divider counts
+- Configurable direction and timing parameters</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Encoder</span> <span class="pre">and</span> <span class="pre">timing</span> <span class="pre">selection</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.enc">
+<span class="sig-name descname"><span class="pre">enc</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.enc" title="Link to this definition">#</a></dt>
+<dd><p>Encoder selection (0-4)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.enc_str">
+<span class="sig-name descname"><span class="pre">enc_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.enc_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable encoder name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.tspre">
+<span class="sig-name descname"><span class="pre">tspre</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.tspre" title="Link to this definition">#</a></dt>
+<dd><p>Timestamp prescaler</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.tspre_str">
+<span class="sig-name descname"><span class="pre">tspre_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.tspre_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable prescaler</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.dir">
+<span class="sig-name descname"><span class="pre">dir</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.dir" title="Link to this definition">#</a></dt>
+<dd><p>Direction (0=positive, 1=negative)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.dir_str">
+<span class="sig-name descname"><span class="pre">dir_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.dir_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable direction</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Arm</span> <span class="pre">configuration</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.arm_sel">
+<span class="sig-name descname"><span class="pre">arm_sel</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.arm_sel" title="Link to this definition">#</a></dt>
+<dd><p>Arm source (0=software, 1=external)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.arm_sel_str">
+<span class="sig-name descname"><span class="pre">arm_sel_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.arm_sel_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable arm source</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.arm_inp">
+<span class="sig-name descname"><span class="pre">arm_inp</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.arm_inp" title="Link to this definition">#</a></dt>
+<dd><p>External arm input (system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.arm_inp_str">
+<span class="sig-name descname"><span class="pre">arm_inp_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.arm_inp_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable arm input name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Gate</span> <span class="pre">configuration</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_sel">
+<span class="sig-name descname"><span class="pre">gate_sel</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_sel" title="Link to this definition">#</a></dt>
+<dd><p>Gate source (0=position, 1=time, 2=external)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_sel_str">
+<span class="sig-name descname"><span class="pre">gate_sel_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_sel_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable gate source</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_inp">
+<span class="sig-name descname"><span class="pre">gate_inp</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_inp" title="Link to this definition">#</a></dt>
+<dd><p>External gate input (system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_inp_str">
+<span class="sig-name descname"><span class="pre">gate_inp_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_inp_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable gate input name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_start">
+<span class="sig-name descname"><span class="pre">gate_start</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_start" title="Link to this definition">#</a></dt>
+<dd><p>Gate start position/time (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_wid">
+<span class="sig-name descname"><span class="pre">gate_wid</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_wid" title="Link to this definition">#</a></dt>
+<dd><p>Gate width (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_ngate">
+<span class="sig-name descname"><span class="pre">gate_ngate</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_ngate" title="Link to this definition">#</a></dt>
+<dd><p>Number of gates (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_step">
+<span class="sig-name descname"><span class="pre">gate_step</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_step" title="Link to this definition">#</a></dt>
+<dd><p>Gate step size (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.gate_out">
+<span class="sig-name descname"><span class="pre">gate_out</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.gate_out" title="Link to this definition">#</a></dt>
+<dd><p>Current gate output state</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Pulse</span> <span class="pre">configuration</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_sel">
+<span class="sig-name descname"><span class="pre">pulse_sel</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_sel" title="Link to this definition">#</a></dt>
+<dd><p>Pulse source (0=position, 1=time, 2=external)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_sel_str">
+<span class="sig-name descname"><span class="pre">pulse_sel_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_sel_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable pulse source</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_inp">
+<span class="sig-name descname"><span class="pre">pulse_inp</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_inp" title="Link to this definition">#</a></dt>
+<dd><p>External pulse input (system bus index)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_inp_str">
+<span class="sig-name descname"><span class="pre">pulse_inp_str</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_inp_str" title="Link to this definition">#</a></dt>
+<dd><p>Human-readable pulse input name</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_start">
+<span class="sig-name descname"><span class="pre">pulse_start</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_start" title="Link to this definition">#</a></dt>
+<dd><p>Pulse start position/time (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_wid">
+<span class="sig-name descname"><span class="pre">pulse_wid</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_wid" title="Link to this definition">#</a></dt>
+<dd><p>Pulse width (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_step">
+<span class="sig-name descname"><span class="pre">pulse_step</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_step" title="Link to this definition">#</a></dt>
+<dd><p>Pulse step size (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_max">
+<span class="sig-name descname"><span class="pre">pulse_max</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_max" title="Link to this definition">#</a></dt>
+<dd><p>Maximum pulses (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_dly">
+<span class="sig-name descname"><span class="pre">pulse_dly</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_dly" title="Link to this definition">#</a></dt>
+<dd><p>Pulse delay (32-bit)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.pulse_out">
+<span class="sig-name descname"><span class="pre">pulse_out</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.pulse_out" title="Link to this definition">#</a></dt>
+<dd><p>Current pulse output state</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Capture</span> <span class="pre">configuration</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.bit_cap">
+<span class="sig-name descname"><span class="pre">bit_cap</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.bit_cap" title="Link to this definition">#</a></dt>
+<dd><p>Capture bit mask (10 bits)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.num_cap">
+<span class="sig-name descname"><span class="pre">num_cap</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.num_cap" title="Link to this definition">#</a></dt>
+<dd><p>Number of captures (32-bit, read-only)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Status</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.arm_out">
+<span class="sig-name descname"><span class="pre">arm_out</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.arm_out" title="Link to this definition">#</a></dt>
+<dd><p>Current arm output state</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">#</span> <span class="pre">Last</span> <span class="pre">captured</span> <span class="pre">values</span> <span class="pre">-</span> <span class="pre">updated</span> <span class="pre">by</span> <span class="pre">interrupts</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.time_last">
+<span class="sig-name descname"><span class="pre">time_last</span></span><a class="headerlink" href="#fastcs_zebra.PositionCompareController.time_last" title="Link to this definition">#</a></dt>
+<dd><p>Last captured timestamp</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">enc1_last</span> <span class="pre">-</span> <span class="pre">enc4_last</span></span></dt>
+<dd><p>Last captured encoder values</p>
+</dd></dl>
+
+<p>Initialize position compare controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>register_io</strong> – Shared register IO handler</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.PositionCompareController.register_interrupt_handler">
+<span class="sig-name descname"><span class="pre">register_interrupt_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.InterruptHandler" title="fastcs_zebra.InterruptHandler"><span class="pre">InterruptHandler</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/controllers/position_compare.html#PositionCompareController.register_interrupt_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.PositionCompareController.register_interrupt_handler" title="Link to this definition">#</a></dt>
+<dd><p>Register interrupt handler to receive bit_cap updates.</p>
+<p>This method sets up a callback so that when the bit_cap register
+changes, the interrupt handler is notified and can correctly parse
+incoming position compare data messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> – The interrupt handler to notify of bit_cap changes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIO">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ZebraRegisterIO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/register_io.html#ZebraRegisterIO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIO" title="Link to this definition">#</a></dt>
+<dd><p>Handles reading from and writing to Zebra registers.</p>
+<p>This class bridges FastCS attributes with the Zebra serial protocol.
+It uses the ZebraProtocol instance to perform actual I/O operations.</p>
+<p>Initialize register IO handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>protocol</strong> – ZebraProtocol instance (can be None initially)</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIO.ref_type">
+<span class="sig-name descname"><span class="pre">ref_type</span></span><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIO.ref_type" title="Link to this definition">#</a></dt>
+<dd><p>alias of <a class="reference internal" href="#fastcs_zebra.ZebraRegisterIORef" title="fastcs_zebra.register_io.ZebraRegisterIORef"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZebraRegisterIORef</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIO.send">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/register_io.html#ZebraRegisterIO.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIO.send" title="Link to this definition">#</a></dt>
+<dd><p>Write attribute value to Zebra register.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attr</strong> – The attribute being written</p></li>
+<li><p><strong>value</strong> – The value to write</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIO.set_protocol">
+<span class="sig-name descname"><span class="pre">set_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/register_io.html#ZebraRegisterIO.set_protocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIO.set_protocol" title="Link to this definition">#</a></dt>
+<dd><p>Set the protocol instance for register I/O operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>protocol</strong> – ZebraProtocol instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIO.update">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/register_io.html#ZebraRegisterIO.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIO.update" title="Link to this definition">#</a></dt>
+<dd><p>Read value from Zebra register and update attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attr</strong> – The attribute to update</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIORef">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">ZebraRegisterIORef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_32bit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_hi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/register_io.html#ZebraRegisterIORef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIORef" title="Link to this definition">#</a></dt>
+<dd><p>Reference for Zebra register IO operations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIORef.register">
+<span class="sig-name descname"><span class="pre">register</span></span><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIORef.register" title="Link to this definition">#</a></dt>
+<dd><p>Register address (0x00-0xFF)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIORef.is_32bit">
+<span class="sig-name descname"><span class="pre">is_32bit</span></span><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIORef.is_32bit" title="Link to this definition">#</a></dt>
+<dd><p>True if this is a 32-bit register pair</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIORef.register_hi">
+<span class="sig-name descname"><span class="pre">register_hi</span></span><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIORef.register_hi" title="Link to this definition">#</a></dt>
+<dd><p>High register address for 32-bit values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.ZebraRegisterIORef.update_period">
+<span class="sig-name descname"><span class="pre">update_period</span></span><a class="headerlink" href="#fastcs_zebra.ZebraRegisterIORef.update_period" title="Link to this definition">#</a></dt>
+<dd><p>Poll period in seconds (default 1.0)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.Register">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">Register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.registers.RegisterType"><span class="pre">RegisterType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#Register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.Register" title="Link to this definition">#</a></dt>
+<dd><p>Definition of a single Zebra register.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#fastcs_zebra.Register.name" title="Link to this definition">#</a></dt>
+<dd><p>Register name (e.g., ‘AND1_INP1’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register.address">
+<span class="sig-name descname"><span class="pre">address</span></span><a class="headerlink" href="#fastcs_zebra.Register.address" title="Link to this definition">#</a></dt>
+<dd><p>Register address (0x00-0xFF)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register.reg_type">
+<span class="sig-name descname"><span class="pre">reg_type</span></span><a class="headerlink" href="#fastcs_zebra.Register.reg_type" title="Link to this definition">#</a></dt>
+<dd><p>Register type (RW, RO, CMD, MUX)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.registers.RegisterType">fastcs_zebra.registers.RegisterType</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#fastcs_zebra.Register.description" title="Link to this definition">#</a></dt>
+<dd><p>Optional description of register purpose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.Register32">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">Register32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_lo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_hi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.registers.RegisterType"><span class="pre">RegisterType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#Register32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.Register32" title="Link to this definition">#</a></dt>
+<dd><p>Definition of a 32-bit register pair (LO/HI).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register32.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#fastcs_zebra.Register32.name" title="Link to this definition">#</a></dt>
+<dd><p>Combined register name (e.g., ‘DIV1_DIV’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register32.address_lo">
+<span class="sig-name descname"><span class="pre">address_lo</span></span><a class="headerlink" href="#fastcs_zebra.Register32.address_lo" title="Link to this definition">#</a></dt>
+<dd><p>Low 16-bit register address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register32.address_hi">
+<span class="sig-name descname"><span class="pre">address_hi</span></span><a class="headerlink" href="#fastcs_zebra.Register32.address_hi" title="Link to this definition">#</a></dt>
+<dd><p>High 16-bit register address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register32.reg_type">
+<span class="sig-name descname"><span class="pre">reg_type</span></span><a class="headerlink" href="#fastcs_zebra.Register32.reg_type" title="Link to this definition">#</a></dt>
+<dd><p>Register type (typically RW or RO)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.registers.RegisterType">fastcs_zebra.registers.RegisterType</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fastcs_zebra.Register32.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#fastcs_zebra.Register32.description" title="Link to this definition">#</a></dt>
+<dd><p>Optional description of register purpose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.RegisterType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">RegisterType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#RegisterType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.RegisterType" title="Link to this definition">#</a></dt>
+<dd><p>Register type classification.</p>
+<ul class="simple">
+<li><p>RW: Read-Write configuration register</p></li>
+<li><p>RO: Read-Only status register</p></li>
+<li><p>CMD: Command register (write-only, triggers actions)</p></li>
+<li><p>MUX: Multiplexer register (selects from 64-signal system bus)</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.RegAddr">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">RegAddr</span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#RegAddr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.RegAddr" title="Link to this definition">#</a></dt>
+<dd><p>Constants for commonly used register addresses.</p>
+<p>Provides convenient access to register addresses without needing
+to look them up by name.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fastcs_zebra.SysBus">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">SysBus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#SysBus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.SysBus" title="Link to this definition">#</a></dt>
+<dd><p>Constants for system bus signal indices.</p>
+<p>Provides convenient access to system bus indices without needing
+to look them up by name. Values are 0-63.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.get_register">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">get_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_or_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#fastcs_zebra.Register" title="fastcs_zebra.registers.Register"><span class="pre">Register</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#get_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.get_register" title="Link to this definition">#</a></dt>
+<dd><p>Get a register definition by name or address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name_or_address</strong> – Register name (str) or address (int)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Register definition</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If register not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.get_register_32bit">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">get_register_32bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#fastcs_zebra.Register32" title="fastcs_zebra.registers.Register32"><span class="pre">Register32</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#get_register_32bit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.get_register_32bit" title="Link to this definition">#</a></dt>
+<dd><p>Get a 32-bit register pair definition by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> – Register name (e.g., ‘DIV1_DIV’, ‘PC_GATE_START’)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Register32 definition</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If register not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.get_all_registers">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">get_all_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.registers.RegisterType"><span class="pre">RegisterType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastcs_zebra.Register" title="fastcs_zebra.registers.Register"><span class="pre">Register</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#get_all_registers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.get_all_registers" title="Link to this definition">#</a></dt>
+<dd><p>Get all register definitions, optionally filtered by type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reg_type</strong> – If specified, only return registers of this type</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of Register objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.get_all_registers_32bit">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">get_all_registers_32bit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#fastcs_zebra.RegisterType" title="fastcs_zebra.registers.RegisterType"><span class="pre">RegisterType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#fastcs_zebra.Register32" title="fastcs_zebra.registers.Register32"><span class="pre">Register32</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#get_all_registers_32bit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.get_all_registers_32bit" title="Link to this definition">#</a></dt>
+<dd><p>Get all 32-bit register pair definitions, optionally filtered by type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reg_type</strong> – If specified, only return registers of this type</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of Register32 objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.is_mux_register">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">is_mux_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#is_mux_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.is_mux_register" title="Link to this definition">#</a></dt>
+<dd><p>Check if a register address is a multiplexer (system bus selection).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – Register address</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if register is a MUX type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.is_readonly_register">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">is_readonly_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#is_readonly_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.is_readonly_register" title="Link to this definition">#</a></dt>
+<dd><p>Check if a register address is read-only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – Register address</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if register is read-only</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.is_command_register">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">is_command_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#is_command_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.is_command_register" title="Link to this definition">#</a></dt>
+<dd><p>Check if a register address is a command (write-only) register.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>address</strong> – Register address</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if register is a command register</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fastcs_zebra.signal_index_to_name">
+<span class="sig-prename descclassname"><span class="pre">fastcs_zebra.</span></span><span class="sig-name descname"><span class="pre">signal_index_to_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/fastcs_zebra/registers.html#signal_index_to_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fastcs_zebra.signal_index_to_name" title="Link to this definition">#</a></dt>
+<dd><p>Convert system bus signal index to name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> – Signal index (0-63)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Signal name</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If index out of range</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -961,10 +2028,129 @@ for testing Phase 1 serial communication functionality.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareData"><code class="docutils literal notranslate"><span class="pre">PositionCompareData</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController"><code class="docutils literal notranslate"><span class="pre">ZebraController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.connected"><code class="docutils literal notranslate"><span class="pre">ZebraController.connected</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.sys_ver"><code class="docutils literal notranslate"><span class="pre">ZebraController.sys_ver</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.sys_staterr"><code class="docutils literal notranslate"><span class="pre">ZebraController.sys_staterr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.soft_in"><code class="docutils literal notranslate"><span class="pre">ZebraController.soft_in</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.div_first"><code class="docutils literal notranslate"><span class="pre">ZebraController.div_first</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.polarity"><code class="docutils literal notranslate"><span class="pre">ZebraController.polarity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.status_msg"><code class="docutils literal notranslate"><span class="pre">ZebraController.status_msg</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.connect"><code class="docutils literal notranslate"><span class="pre">ZebraController.connect()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraController.disconnect"><code class="docutils literal notranslate"><span class="pre">ZebraController.disconnect()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.AndGateController"><code class="docutils literal notranslate"><span class="pre">AndGateController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.AndGateController.out"><code class="docutils literal notranslate"><span class="pre">AndGateController.out</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.OrGateController"><code class="docutils literal notranslate"><span class="pre">OrGateController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.OrGateController.out"><code class="docutils literal notranslate"><span class="pre">OrGateController.out</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.GateController"><code class="docutils literal notranslate"><span class="pre">GateController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.GateController.inp1"><code class="docutils literal notranslate"><span class="pre">GateController.inp1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.GateController.inp1_str"><code class="docutils literal notranslate"><span class="pre">GateController.inp1_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.GateController.inp2"><code class="docutils literal notranslate"><span class="pre">GateController.inp2</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.GateController.inp2_str"><code class="docutils literal notranslate"><span class="pre">GateController.inp2_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.GateController.out"><code class="docutils literal notranslate"><span class="pre">GateController.out</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController"><code class="docutils literal notranslate"><span class="pre">PulseController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.inp"><code class="docutils literal notranslate"><span class="pre">PulseController.inp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.inp_str"><code class="docutils literal notranslate"><span class="pre">PulseController.inp_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.dly"><code class="docutils literal notranslate"><span class="pre">PulseController.dly</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.wid"><code class="docutils literal notranslate"><span class="pre">PulseController.wid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.pre"><code class="docutils literal notranslate"><span class="pre">PulseController.pre</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.pre_str"><code class="docutils literal notranslate"><span class="pre">PulseController.pre_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PulseController.out"><code class="docutils literal notranslate"><span class="pre">PulseController.out</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.DividerController"><code class="docutils literal notranslate"><span class="pre">DividerController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.DividerController.inp"><code class="docutils literal notranslate"><span class="pre">DividerController.inp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.DividerController.inp_str"><code class="docutils literal notranslate"><span class="pre">DividerController.inp_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.DividerController.div"><code class="docutils literal notranslate"><span class="pre">DividerController.div</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.DividerController.outd"><code class="docutils literal notranslate"><span class="pre">DividerController.outd</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.DividerController.outn"><code class="docutils literal notranslate"><span class="pre">DividerController.outn</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.OutputController"><code class="docutils literal notranslate"><span class="pre">OutputController</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController"><code class="docutils literal notranslate"><span class="pre">PositionCompareController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.enc"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.enc</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.enc_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.enc_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.tspre"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.tspre</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.tspre_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.tspre_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.dir"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.dir</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.dir_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.dir_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.arm_sel"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.arm_sel</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.arm_sel_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.arm_sel_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.arm_inp"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.arm_inp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.arm_inp_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.arm_inp_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_sel"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_sel</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_sel_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_sel_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_inp"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_inp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_inp_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_inp_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_start"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_start</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_wid"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_wid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_ngate"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_ngate</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_step"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_step</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.gate_out"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.gate_out</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_sel"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_sel</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_sel_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_sel_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_inp"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_inp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_inp_str"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_inp_str</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_start"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_start</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_wid"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_wid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_step"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_step</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_max"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_max</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_dly"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_dly</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.pulse_out"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.pulse_out</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.bit_cap"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.bit_cap</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.num_cap"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.num_cap</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.arm_out"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.arm_out</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.time_last"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.time_last</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.PositionCompareController.register_interrupt_handler"><code class="docutils literal notranslate"><span class="pre">PositionCompareController.register_interrupt_handler()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIO"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIO</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIO.ref_type"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIO.ref_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIO.send"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIO.send()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIO.set_protocol"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIO.set_protocol()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIO.update"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIO.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIORef"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIORef</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIORef.register"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIORef.register</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIORef.is_32bit"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIORef.is_32bit</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIORef.register_hi"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIORef.register_hi</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.ZebraRegisterIORef.update_period"><code class="docutils literal notranslate"><span class="pre">ZebraRegisterIORef.update_period</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register"><code class="docutils literal notranslate"><span class="pre">Register</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register.name"><code class="docutils literal notranslate"><span class="pre">Register.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register.address"><code class="docutils literal notranslate"><span class="pre">Register.address</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register.reg_type"><code class="docutils literal notranslate"><span class="pre">Register.reg_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register.description"><code class="docutils literal notranslate"><span class="pre">Register.description</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register32"><code class="docutils literal notranslate"><span class="pre">Register32</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register32.name"><code class="docutils literal notranslate"><span class="pre">Register32.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register32.address_lo"><code class="docutils literal notranslate"><span class="pre">Register32.address_lo</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register32.address_hi"><code class="docutils literal notranslate"><span class="pre">Register32.address_hi</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register32.reg_type"><code class="docutils literal notranslate"><span class="pre">Register32.reg_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.Register32.description"><code class="docutils literal notranslate"><span class="pre">Register32.description</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.RegisterType"><code class="docutils literal notranslate"><span class="pre">RegisterType</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.RegAddr"><code class="docutils literal notranslate"><span class="pre">RegAddr</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.SysBus"><code class="docutils literal notranslate"><span class="pre">SysBus</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.get_register"><code class="docutils literal notranslate"><span class="pre">get_register()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.get_register_32bit"><code class="docutils literal notranslate"><span class="pre">get_register_32bit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.get_all_registers"><code class="docutils literal notranslate"><span class="pre">get_all_registers()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.get_all_registers_32bit"><code class="docutils literal notranslate"><span class="pre">get_all_registers_32bit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.is_mux_register"><code class="docutils literal notranslate"><span class="pre">is_mux_register()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.is_readonly_register"><code class="docutils literal notranslate"><span class="pre">is_readonly_register()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.is_command_register"><code class="docutils literal notranslate"><span class="pre">is_command_register()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fastcs_zebra.signal_index_to_name"><code class="docutils literal notranslate"><span class="pre">signal_index_to_name()</span></code></a></li>
 </ul>
   </nav></div>
 

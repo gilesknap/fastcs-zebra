@@ -1,0 +1,1193 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fastcs_zebra.registers &#8212; fastcs-zebra 0.1.dev40+gc8b2733a7 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=57d52040"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/fastcs_zebra/registers';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-zebra/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/dls-logo.svg"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="main" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">fastcs-zebra</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-zebra" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-zebra" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-zebra" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-zebra" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">fastcs_zebra.registers</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for fastcs_zebra.registers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Zebra register definitions and system bus signal mapping.</span>
+
+<span class="sd">This module provides a complete register abstraction layer for the Zebra hardware,</span>
+<span class="sd">including:</span>
+<span class="sd">- Complete register definitions from zebraRegs.h</span>
+<span class="sd">- Register type classification (RW, RO, Cmd, Mux)</span>
+<span class="sd">- System bus signal mapping (64 signals)</span>
+<span class="sd">- Bidirectional lookup (name ↔ address)</span>
+<span class="sd">- 32-bit register pair handling</span>
+
+<span class="sd">Reference: https://github.com/DiamondLightSource/zebra/blob/fastcs-experiment/zebraApp/src/zebraRegs.h</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">IntEnum</span><span class="p">,</span> <span class="n">auto</span>
+
+
+<div class="viewcode-block" id="RegisterType">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.RegisterType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegisterType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register type classification.</span>
+
+<span class="sd">    - RW: Read-Write configuration register</span>
+<span class="sd">    - RO: Read-Only status register</span>
+<span class="sd">    - CMD: Command register (write-only, triggers actions)</span>
+<span class="sd">    - MUX: Multiplexer register (selects from 64-signal system bus)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">RW</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Read-Write</span>
+    <span class="n">RO</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Read-Only</span>
+    <span class="n">CMD</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Command (write-only)</span>
+    <span class="n">MUX</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Multiplexer (system bus selection)</span></div>
+
+
+
+<div class="viewcode-block" id="Register">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.Register">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Register</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Definition of a single Zebra register.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name: Register name (e.g., &#39;AND1_INP1&#39;)</span>
+<span class="sd">        address: Register address (0x00-0xFF)</span>
+<span class="sd">        reg_type: Register type (RW, RO, CMD, MUX)</span>
+<span class="sd">        description: Optional description of register purpose</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">address</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">reg_type</span><span class="p">:</span> <span class="n">RegisterType</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate register address is in valid range.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">&lt;=</span> <span class="mh">0xFF</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Register address </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">:</span><span class="s2">#04x</span><span class="si">}</span><span class="s2"> out of range [0x00-0xFF]&quot;</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Register32">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.Register32">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Register32</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Definition of a 32-bit register pair (LO/HI).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name: Combined register name (e.g., &#39;DIV1_DIV&#39;)</span>
+<span class="sd">        address_lo: Low 16-bit register address</span>
+<span class="sd">        address_hi: High 16-bit register address</span>
+<span class="sd">        reg_type: Register type (typically RW or RO)</span>
+<span class="sd">        description: Optional description of register purpose</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">address_lo</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">address_hi</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">reg_type</span><span class="p">:</span> <span class="n">RegisterType</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate register addresses are in valid range.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_lo</span> <span class="o">&lt;=</span> <span class="mh">0xFF</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LO register address </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address_lo</span><span class="si">:</span><span class="s2">#04x</span><span class="si">}</span><span class="s2"> out of range&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_hi</span> <span class="o">&lt;=</span> <span class="mh">0xFF</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HI register address </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address_hi</span><span class="si">:</span><span class="s2">#04x</span><span class="si">}</span><span class="s2"> out of range&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># System Bus Signal Definitions (64 signals, indices 0-63)</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="SysBus">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.SysBus">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SysBus</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constants for system bus signal indices.</span>
+
+<span class="sd">    Provides convenient access to system bus indices without needing</span>
+<span class="sd">    to look them up by name. Values are 0-63.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DISCONNECT</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Input signals</span>
+    <span class="n">IN1_TTL</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">IN1_NIM</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">IN1_LVDS</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">IN2_TTL</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">IN2_NIM</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">IN2_LVDS</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">IN3_TTL</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">IN3_OC</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">IN3_LVDS</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">IN4_TTL</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">IN4_CMP</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">IN4_PECL</span> <span class="o">=</span> <span class="mi">12</span>
+
+    <span class="c1"># Encoder inputs</span>
+    <span class="n">IN5_ENCA</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">IN5_ENCB</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">IN5_ENCZ</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">IN5_CONN</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">IN6_ENCA</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">IN6_ENCB</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">IN6_ENCZ</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">IN6_CONN</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">IN7_ENCA</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">IN7_ENCB</span> <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">IN7_ENCZ</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">IN7_CONN</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">IN8_ENCA</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">IN8_ENCB</span> <span class="o">=</span> <span class="mi">26</span>
+    <span class="n">IN8_ENCZ</span> <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">IN8_CONN</span> <span class="o">=</span> <span class="mi">28</span>
+
+    <span class="c1"># Position compare signals</span>
+    <span class="n">PC_ARM</span> <span class="o">=</span> <span class="mi">29</span>
+    <span class="n">PC_GATE</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">PC_PULSE</span> <span class="o">=</span> <span class="mi">31</span>
+
+    <span class="c1"># Logic gate outputs</span>
+    <span class="n">AND1</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">AND2</span> <span class="o">=</span> <span class="mi">33</span>
+    <span class="n">AND3</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">AND4</span> <span class="o">=</span> <span class="mi">35</span>
+    <span class="n">OR1</span> <span class="o">=</span> <span class="mi">36</span>
+    <span class="n">OR2</span> <span class="o">=</span> <span class="mi">37</span>
+    <span class="n">OR3</span> <span class="o">=</span> <span class="mi">38</span>
+    <span class="n">OR4</span> <span class="o">=</span> <span class="mi">39</span>
+
+    <span class="c1"># Gate generator outputs</span>
+    <span class="n">GATE1</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="n">GATE2</span> <span class="o">=</span> <span class="mi">41</span>
+    <span class="n">GATE3</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">GATE4</span> <span class="o">=</span> <span class="mi">43</span>
+
+    <span class="c1"># Divider outputs</span>
+    <span class="n">DIV1_OUTD</span> <span class="o">=</span> <span class="mi">44</span>
+    <span class="n">DIV2_OUTD</span> <span class="o">=</span> <span class="mi">45</span>
+    <span class="n">DIV3_OUTD</span> <span class="o">=</span> <span class="mi">46</span>
+    <span class="n">DIV4_OUTD</span> <span class="o">=</span> <span class="mi">47</span>
+    <span class="n">DIV1_OUTN</span> <span class="o">=</span> <span class="mi">48</span>
+    <span class="n">DIV2_OUTN</span> <span class="o">=</span> <span class="mi">49</span>
+    <span class="n">DIV3_OUTN</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">DIV4_OUTN</span> <span class="o">=</span> <span class="mi">51</span>
+
+    <span class="c1"># Pulse generator outputs</span>
+    <span class="n">PULSE1</span> <span class="o">=</span> <span class="mi">52</span>
+    <span class="n">PULSE2</span> <span class="o">=</span> <span class="mi">53</span>
+    <span class="n">PULSE3</span> <span class="o">=</span> <span class="mi">54</span>
+    <span class="n">PULSE4</span> <span class="o">=</span> <span class="mi">55</span>
+
+    <span class="c1"># Quadrature outputs</span>
+    <span class="n">QUAD_OUTA</span> <span class="o">=</span> <span class="mi">56</span>
+    <span class="n">QUAD_OUTB</span> <span class="o">=</span> <span class="mi">57</span>
+
+    <span class="c1"># Clocks</span>
+    <span class="n">CLOCK_1KHZ</span> <span class="o">=</span> <span class="mi">58</span>
+    <span class="n">CLOCK_1MHZ</span> <span class="o">=</span> <span class="mi">59</span>
+
+    <span class="c1"># Software inputs</span>
+    <span class="n">SOFT_IN1</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">SOFT_IN2</span> <span class="o">=</span> <span class="mi">61</span>
+    <span class="n">SOFT_IN3</span> <span class="o">=</span> <span class="mi">62</span>
+    <span class="n">SOFT_IN4</span> <span class="o">=</span> <span class="mi">63</span></div>
+
+
+
+<div class="viewcode-block" id="signal_index_to_name">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.signal_index_to_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">signal_index_to_name</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert system bus signal index to name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        index: Signal index (0-63)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Signal name</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If index out of range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">index</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">SysBus</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Signal index must be 0-63, got </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SysBus</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">name</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># 16-bit Register Definitions</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># The registers are grouped by function for clarity</span>
+
+<span class="n">_REGISTERS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Register</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># AND Gate Configuration (AND1-AND4)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Inversion registers (bitfield: bits 0-3 control inversion of inputs 1-4)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND1_INV&quot;</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND1 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND2_INV&quot;</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND2 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND3_INV&quot;</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND3 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND4_INV&quot;</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND4 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="c1"># Enable registers (bitfield: bits 0-3 enable inputs 1-4)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND1_ENA&quot;</span><span class="p">,</span> <span class="mh">0x04</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND1 input enable mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND2_ENA&quot;</span><span class="p">,</span> <span class="mh">0x05</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND2 input enable mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND3_ENA&quot;</span><span class="p">,</span> <span class="mh">0x06</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND3 input enable mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND4_ENA&quot;</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;AND4 input enable mask&quot;</span><span class="p">),</span>
+    <span class="c1"># AND gate input multiplexers (select from 64 system bus signals)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND1_INP1&quot;</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND1 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND1_INP2&quot;</span><span class="p">,</span> <span class="mh">0x09</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND1 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND1_INP3&quot;</span><span class="p">,</span> <span class="mh">0x0A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND1 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND1_INP4&quot;</span><span class="p">,</span> <span class="mh">0x0B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND1 input 4 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND2_INP1&quot;</span><span class="p">,</span> <span class="mh">0x0C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND2 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND2_INP2&quot;</span><span class="p">,</span> <span class="mh">0x0D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND2 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND2_INP3&quot;</span><span class="p">,</span> <span class="mh">0x0E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND2 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND2_INP4&quot;</span><span class="p">,</span> <span class="mh">0x0F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND2 input 4 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND3_INP1&quot;</span><span class="p">,</span> <span class="mh">0x10</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND3 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND3_INP2&quot;</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND3 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND3_INP3&quot;</span><span class="p">,</span> <span class="mh">0x12</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND3 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND3_INP4&quot;</span><span class="p">,</span> <span class="mh">0x13</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND3 input 4 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND4_INP1&quot;</span><span class="p">,</span> <span class="mh">0x14</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND4 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND4_INP2&quot;</span><span class="p">,</span> <span class="mh">0x15</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND4 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND4_INP3&quot;</span><span class="p">,</span> <span class="mh">0x16</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND4 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;AND4_INP4&quot;</span><span class="p">,</span> <span class="mh">0x17</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;AND4 input 4 source&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># OR Gate Configuration (OR1-OR4)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Inversion registers</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR1_INV&quot;</span><span class="p">,</span> <span class="mh">0x18</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR1 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR2_INV&quot;</span><span class="p">,</span> <span class="mh">0x19</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR2 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR3_INV&quot;</span><span class="p">,</span> <span class="mh">0x1A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR3 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR4_INV&quot;</span><span class="p">,</span> <span class="mh">0x1B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR4 input inversion mask&quot;</span><span class="p">),</span>
+    <span class="c1"># Enable registers</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR1_ENA&quot;</span><span class="p">,</span> <span class="mh">0x1C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR1 input enable mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR2_ENA&quot;</span><span class="p">,</span> <span class="mh">0x1D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR2 input enable mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR3_ENA&quot;</span><span class="p">,</span> <span class="mh">0x1E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR3 input enable mask&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR4_ENA&quot;</span><span class="p">,</span> <span class="mh">0x1F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;OR4 input enable mask&quot;</span><span class="p">),</span>
+    <span class="c1"># OR gate input multiplexers</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR1_INP1&quot;</span><span class="p">,</span> <span class="mh">0x20</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR1 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR1_INP2&quot;</span><span class="p">,</span> <span class="mh">0x21</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR1 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR1_INP3&quot;</span><span class="p">,</span> <span class="mh">0x22</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR1 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR1_INP4&quot;</span><span class="p">,</span> <span class="mh">0x23</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR1 input 4 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR2_INP1&quot;</span><span class="p">,</span> <span class="mh">0x24</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR2 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR2_INP2&quot;</span><span class="p">,</span> <span class="mh">0x25</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR2 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR2_INP3&quot;</span><span class="p">,</span> <span class="mh">0x26</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR2 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR2_INP4&quot;</span><span class="p">,</span> <span class="mh">0x27</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR2 input 4 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR3_INP1&quot;</span><span class="p">,</span> <span class="mh">0x28</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR3 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR3_INP2&quot;</span><span class="p">,</span> <span class="mh">0x29</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR3 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR3_INP3&quot;</span><span class="p">,</span> <span class="mh">0x2A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR3 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR3_INP4&quot;</span><span class="p">,</span> <span class="mh">0x2B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR3 input 4 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR4_INP1&quot;</span><span class="p">,</span> <span class="mh">0x2C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR4 input 1 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR4_INP2&quot;</span><span class="p">,</span> <span class="mh">0x2D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR4 input 2 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR4_INP3&quot;</span><span class="p">,</span> <span class="mh">0x2E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR4 input 3 source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OR4_INP4&quot;</span><span class="p">,</span> <span class="mh">0x2F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OR4 input 4 source&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Gate Generator Configuration (GATE1-GATE4)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Trigger inputs (set output high)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE1_INP1&quot;</span><span class="p">,</span> <span class="mh">0x30</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE1 trigger input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE2_INP1&quot;</span><span class="p">,</span> <span class="mh">0x31</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE2 trigger input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE3_INP1&quot;</span><span class="p">,</span> <span class="mh">0x32</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE3 trigger input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE4_INP1&quot;</span><span class="p">,</span> <span class="mh">0x33</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE4 trigger input&quot;</span><span class="p">),</span>
+    <span class="c1"># Reset inputs (set output low)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE1_INP2&quot;</span><span class="p">,</span> <span class="mh">0x34</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE1 reset input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE2_INP2&quot;</span><span class="p">,</span> <span class="mh">0x35</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE2 reset input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE3_INP2&quot;</span><span class="p">,</span> <span class="mh">0x36</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE3 reset input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;GATE4_INP2&quot;</span><span class="p">,</span> <span class="mh">0x37</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;GATE4 reset input&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Pulse Divider Configuration (DIV1-DIV4)</span>
+    <span class="c1"># Note: DIVn_DIV registers are 32-bit (LO/HI pairs) - see _REGISTERS_32BIT</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV1_DIVLO&quot;</span><span class="p">,</span> <span class="mh">0x38</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV1 divisor low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV1_DIVHI&quot;</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV1 divisor high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV2_DIVLO&quot;</span><span class="p">,</span> <span class="mh">0x3A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV2 divisor low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV2_DIVHI&quot;</span><span class="p">,</span> <span class="mh">0x3B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV2 divisor high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV3_DIVLO&quot;</span><span class="p">,</span> <span class="mh">0x3C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV3 divisor low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV3_DIVHI&quot;</span><span class="p">,</span> <span class="mh">0x3D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV3 divisor high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV4_DIVLO&quot;</span><span class="p">,</span> <span class="mh">0x3E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV4 divisor low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV4_DIVHI&quot;</span><span class="p">,</span> <span class="mh">0x3F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV4 divisor high 16 bits&quot;</span><span class="p">),</span>
+    <span class="c1"># Divider input multiplexers</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV1_INP&quot;</span><span class="p">,</span> <span class="mh">0x40</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;DIV1 input source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV2_INP&quot;</span><span class="p">,</span> <span class="mh">0x41</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;DIV2 input source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV3_INP&quot;</span><span class="p">,</span> <span class="mh">0x42</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;DIV3 input source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV4_INP&quot;</span><span class="p">,</span> <span class="mh">0x43</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;DIV4 input source&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Pulse Generator Configuration (PULSE1-PULSE4)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Pulse delay (time from trigger to pulse start)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE1_DLY&quot;</span><span class="p">,</span> <span class="mh">0x44</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE1 delay&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE2_DLY&quot;</span><span class="p">,</span> <span class="mh">0x45</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE2 delay&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE3_DLY&quot;</span><span class="p">,</span> <span class="mh">0x46</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE3 delay&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE4_DLY&quot;</span><span class="p">,</span> <span class="mh">0x47</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE4 delay&quot;</span><span class="p">),</span>
+    <span class="c1"># Pulse width</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE1_WID&quot;</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE1 width&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE2_WID&quot;</span><span class="p">,</span> <span class="mh">0x49</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE2 width&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE3_WID&quot;</span><span class="p">,</span> <span class="mh">0x4A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE3 width&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE4_WID&quot;</span><span class="p">,</span> <span class="mh">0x4B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE4 width&quot;</span><span class="p">),</span>
+    <span class="c1"># Pulse prescaler (time unit selection)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE1_PRE&quot;</span><span class="p">,</span> <span class="mh">0x4C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE1 prescaler&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE2_PRE&quot;</span><span class="p">,</span> <span class="mh">0x4D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE2 prescaler&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE3_PRE&quot;</span><span class="p">,</span> <span class="mh">0x4E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE3 prescaler&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE4_PRE&quot;</span><span class="p">,</span> <span class="mh">0x4F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;PULSE4 prescaler&quot;</span><span class="p">),</span>
+    <span class="c1"># Pulse input multiplexers</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE1_INP&quot;</span><span class="p">,</span> <span class="mh">0x50</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;PULSE1 input source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE2_INP&quot;</span><span class="p">,</span> <span class="mh">0x51</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;PULSE2 input source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE3_INP&quot;</span><span class="p">,</span> <span class="mh">0x52</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;PULSE3 input source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PULSE4_INP&quot;</span><span class="p">,</span> <span class="mh">0x53</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;PULSE4 input source&quot;</span><span class="p">),</span>
+    <span class="c1"># Output polarity control (bitfield)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POLARITY&quot;</span><span class="p">,</span> <span class="mh">0x54</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Output polarity control&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Quadrature Encoder</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;QUAD_DIR&quot;</span><span class="p">,</span> <span class="mh">0x55</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;Quadrature direction input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;QUAD_STEP&quot;</span><span class="p">,</span> <span class="mh">0x56</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;Quadrature step input&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># External Position Compare Inputs</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_ARM_INP&quot;</span><span class="p">,</span> <span class="mh">0x57</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;External arm input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_INP&quot;</span><span class="p">,</span> <span class="mh">0x58</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;External gate input&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_INP&quot;</span><span class="p">,</span> <span class="mh">0x59</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;External pulse input&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Output Multiplexers (OUT1-OUT8)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># OUT1: TTL, NIM, LVDS outputs</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT1_TTL&quot;</span><span class="p">,</span> <span class="mh">0x60</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT1 TTL output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT1_NIM&quot;</span><span class="p">,</span> <span class="mh">0x61</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT1 NIM output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT1_LVDS&quot;</span><span class="p">,</span> <span class="mh">0x62</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT1 LVDS output source&quot;</span><span class="p">),</span>
+    <span class="c1"># OUT2: TTL, NIM, LVDS outputs</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT2_TTL&quot;</span><span class="p">,</span> <span class="mh">0x63</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT2 TTL output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT2_NIM&quot;</span><span class="p">,</span> <span class="mh">0x64</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT2 NIM output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT2_LVDS&quot;</span><span class="p">,</span> <span class="mh">0x65</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT2 LVDS output source&quot;</span><span class="p">),</span>
+    <span class="c1"># OUT3: TTL, OC (open collector), LVDS outputs</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT3_TTL&quot;</span><span class="p">,</span> <span class="mh">0x66</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT3 TTL output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT3_OC&quot;</span><span class="p">,</span> <span class="mh">0x67</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT3 open collector source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT3_LVDS&quot;</span><span class="p">,</span> <span class="mh">0x68</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT3 LVDS output source&quot;</span><span class="p">),</span>
+    <span class="c1"># OUT4: TTL, NIM, PECL outputs</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT4_TTL&quot;</span><span class="p">,</span> <span class="mh">0x69</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT4 TTL output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT4_NIM&quot;</span><span class="p">,</span> <span class="mh">0x6A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT4 NIM output source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT4_PECL&quot;</span><span class="p">,</span> <span class="mh">0x6B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT4 PECL output source&quot;</span><span class="p">),</span>
+    <span class="c1"># OUT5-OUT8: Encoder outputs (ENCA, ENCB, ENCZ, CONN)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT5_ENCA&quot;</span><span class="p">,</span> <span class="mh">0x6C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT5 encoder A source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT5_ENCB&quot;</span><span class="p">,</span> <span class="mh">0x6D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT5 encoder B source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT5_ENCZ&quot;</span><span class="p">,</span> <span class="mh">0x6E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT5 encoder Z source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT5_CONN&quot;</span><span class="p">,</span> <span class="mh">0x6F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT5 connect enable source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT6_ENCA&quot;</span><span class="p">,</span> <span class="mh">0x70</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT6 encoder A source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT6_ENCB&quot;</span><span class="p">,</span> <span class="mh">0x71</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT6 encoder B source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT6_ENCZ&quot;</span><span class="p">,</span> <span class="mh">0x72</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT6 encoder Z source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT6_CONN&quot;</span><span class="p">,</span> <span class="mh">0x73</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT6 connect enable source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT7_ENCA&quot;</span><span class="p">,</span> <span class="mh">0x74</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT7 encoder A source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT7_ENCB&quot;</span><span class="p">,</span> <span class="mh">0x75</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT7 encoder B source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT7_ENCZ&quot;</span><span class="p">,</span> <span class="mh">0x76</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT7 encoder Z source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT7_CONN&quot;</span><span class="p">,</span> <span class="mh">0x77</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT7 connect enable source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT8_ENCA&quot;</span><span class="p">,</span> <span class="mh">0x78</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT8 encoder A source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT8_ENCB&quot;</span><span class="p">,</span> <span class="mh">0x79</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT8 encoder B source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT8_ENCZ&quot;</span><span class="p">,</span> <span class="mh">0x7A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT8 encoder Z source&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;OUT8_CONN&quot;</span><span class="p">,</span> <span class="mh">0x7B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span><span class="p">,</span> <span class="s2">&quot;OUT8 connect enable source&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Divider First Pulse Control</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;DIV_FIRST&quot;</span><span class="p">,</span> <span class="mh">0x7C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Divider first pulse behavior&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># System Control</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_RESET&quot;</span><span class="p">,</span> <span class="mh">0x7E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;System reset command&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SOFT_IN&quot;</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Software inputs (bits 0-3)&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Position Counter Load Commands</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS1_SETLO&quot;</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 1 low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS1_SETHI&quot;</span><span class="p">,</span> <span class="mh">0x81</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 1 high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS2_SETLO&quot;</span><span class="p">,</span> <span class="mh">0x82</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 2 low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS2_SETHI&quot;</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 2 high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS3_SETLO&quot;</span><span class="p">,</span> <span class="mh">0x84</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 3 low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS3_SETHI&quot;</span><span class="p">,</span> <span class="mh">0x85</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 3 high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS4_SETLO&quot;</span><span class="p">,</span> <span class="mh">0x86</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 4 low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;POS4_SETHI&quot;</span><span class="p">,</span> <span class="mh">0x87</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 4 high 16 bits&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Position Compare Configuration</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_ENC&quot;</span><span class="p">,</span> <span class="mh">0x88</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Encoder selection (0-4)&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_TSPRE&quot;</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Timestamp prescaler&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_ARM_SEL&quot;</span><span class="p">,</span> <span class="mh">0x8A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Arm source (0=soft, 1=ext)&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_ARM&quot;</span><span class="p">,</span> <span class="mh">0x8B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Software arm command&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_DISARM&quot;</span><span class="p">,</span> <span class="mh">0x8C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Software disarm command&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span>
+        <span class="s2">&quot;PC_GATE_SEL&quot;</span><span class="p">,</span> <span class="mh">0x8D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate source (0=pos, 1=time, 2=ext)&quot;</span>
+    <span class="p">),</span>
+    <span class="c1"># Gate parameters (32-bit pairs - see _REGISTERS_32BIT)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_STARTLO&quot;</span><span class="p">,</span> <span class="mh">0x8E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate start low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_STARTHI&quot;</span><span class="p">,</span> <span class="mh">0x8F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate start high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_WIDLO&quot;</span><span class="p">,</span> <span class="mh">0x90</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate width low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_WIDHI&quot;</span><span class="p">,</span> <span class="mh">0x91</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate width high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_NGATELO&quot;</span><span class="p">,</span> <span class="mh">0x92</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Number of gates low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_NGATEHI&quot;</span><span class="p">,</span> <span class="mh">0x93</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Number of gates high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_STEPLO&quot;</span><span class="p">,</span> <span class="mh">0x94</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate step low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_GATE_STEPHI&quot;</span><span class="p">,</span> <span class="mh">0x95</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate step high 16 bits&quot;</span><span class="p">),</span>
+    <span class="c1"># Pulse source selection</span>
+    <span class="n">Register</span><span class="p">(</span>
+        <span class="s2">&quot;PC_PULSE_SEL&quot;</span><span class="p">,</span> <span class="mh">0x96</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse source (0=pos, 1=time, 2=ext)&quot;</span>
+    <span class="p">),</span>
+    <span class="c1"># Pulse parameters (32-bit pairs - see _REGISTERS_32BIT)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_STARTLO&quot;</span><span class="p">,</span> <span class="mh">0x97</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse start low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_STARTHI&quot;</span><span class="p">,</span> <span class="mh">0x98</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse start high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_WIDLO&quot;</span><span class="p">,</span> <span class="mh">0x99</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse width low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_WIDHI&quot;</span><span class="p">,</span> <span class="mh">0x9A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse width high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_STEPLO&quot;</span><span class="p">,</span> <span class="mh">0x9B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse step low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_STEPHI&quot;</span><span class="p">,</span> <span class="mh">0x9C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse step high 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_MAXLO&quot;</span><span class="p">,</span> <span class="mh">0x9D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Max pulses low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_MAXHI&quot;</span><span class="p">,</span> <span class="mh">0x9E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Max pulses high 16 bits&quot;</span><span class="p">),</span>
+    <span class="c1"># Capture selection and direction</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_BIT_CAP&quot;</span><span class="p">,</span> <span class="mh">0x9F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Capture bit mask (10 bits)&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_DIR&quot;</span><span class="p">,</span> <span class="mh">0xA0</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Direction (0=pos, 1=neg)&quot;</span><span class="p">),</span>
+    <span class="c1"># Pulse delay (32-bit pair)</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_DLYLO&quot;</span><span class="p">,</span> <span class="mh">0xA1</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse delay low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_DLYHI&quot;</span><span class="p">,</span> <span class="mh">0xA2</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse delay high 16 bits&quot;</span><span class="p">),</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># Status Registers (Read-Only)</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_VER&quot;</span><span class="p">,</span> <span class="mh">0xF0</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;Firmware version&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_STATERR&quot;</span><span class="p">,</span> <span class="mh">0xF1</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System state/error flags&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_STAT1LO&quot;</span><span class="p">,</span> <span class="mh">0xF2</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System bus status bits 0-15&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_STAT1HI&quot;</span><span class="p">,</span> <span class="mh">0xF3</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System bus status bits 16-31&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_STAT2LO&quot;</span><span class="p">,</span> <span class="mh">0xF4</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System bus status bits 32-47&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;SYS_STAT2HI&quot;</span><span class="p">,</span> <span class="mh">0xF5</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System bus status bits 48-63&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_NUM_CAPLO&quot;</span><span class="p">,</span> <span class="mh">0xF6</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;Capture count low 16 bits&quot;</span><span class="p">),</span>
+    <span class="n">Register</span><span class="p">(</span><span class="s2">&quot;PC_NUM_CAPHI&quot;</span><span class="p">,</span> <span class="mh">0xF7</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;Capture count high 16 bits&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># 32-bit Register Pair Definitions</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">_REGISTERS_32BIT</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Register32</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># Divider divisors</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;DIV1_DIV&quot;</span><span class="p">,</span> <span class="mh">0x38</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV1 divisor (32-bit)&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;DIV2_DIV&quot;</span><span class="p">,</span> <span class="mh">0x3A</span><span class="p">,</span> <span class="mh">0x3B</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV2 divisor (32-bit)&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;DIV3_DIV&quot;</span><span class="p">,</span> <span class="mh">0x3C</span><span class="p">,</span> <span class="mh">0x3D</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV3 divisor (32-bit)&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;DIV4_DIV&quot;</span><span class="p">,</span> <span class="mh">0x3E</span><span class="p">,</span> <span class="mh">0x3F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;DIV4 divisor (32-bit)&quot;</span><span class="p">),</span>
+    <span class="c1"># Position counter loads</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;POS1_SET&quot;</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">,</span> <span class="mh">0x81</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 1 position&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;POS2_SET&quot;</span><span class="p">,</span> <span class="mh">0x82</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 2 position&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;POS3_SET&quot;</span><span class="p">,</span> <span class="mh">0x84</span><span class="p">,</span> <span class="mh">0x85</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 3 position&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;POS4_SET&quot;</span><span class="p">,</span> <span class="mh">0x86</span><span class="p">,</span> <span class="mh">0x87</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span><span class="p">,</span> <span class="s2">&quot;Load encoder 4 position&quot;</span><span class="p">),</span>
+    <span class="c1"># Gate parameters</span>
+    <span class="n">Register32</span><span class="p">(</span>
+        <span class="s2">&quot;PC_GATE_START&quot;</span><span class="p">,</span> <span class="mh">0x8E</span><span class="p">,</span> <span class="mh">0x8F</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate start position/time&quot;</span>
+    <span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_GATE_WID&quot;</span><span class="p">,</span> <span class="mh">0x90</span><span class="p">,</span> <span class="mh">0x91</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate width&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_GATE_NGATE&quot;</span><span class="p">,</span> <span class="mh">0x92</span><span class="p">,</span> <span class="mh">0x93</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Number of gates&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_GATE_STEP&quot;</span><span class="p">,</span> <span class="mh">0x94</span><span class="p">,</span> <span class="mh">0x95</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Gate step size&quot;</span><span class="p">),</span>
+    <span class="c1"># Pulse parameters</span>
+    <span class="n">Register32</span><span class="p">(</span>
+        <span class="s2">&quot;PC_PULSE_START&quot;</span><span class="p">,</span> <span class="mh">0x97</span><span class="p">,</span> <span class="mh">0x98</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse start position/time&quot;</span>
+    <span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_WID&quot;</span><span class="p">,</span> <span class="mh">0x99</span><span class="p">,</span> <span class="mh">0x9A</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse width&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_STEP&quot;</span><span class="p">,</span> <span class="mh">0x9B</span><span class="p">,</span> <span class="mh">0x9C</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse step size&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_MAX&quot;</span><span class="p">,</span> <span class="mh">0x9D</span><span class="p">,</span> <span class="mh">0x9E</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Maximum number of pulses&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;PC_PULSE_DLY&quot;</span><span class="p">,</span> <span class="mh">0xA1</span><span class="p">,</span> <span class="mh">0xA2</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RW</span><span class="p">,</span> <span class="s2">&quot;Pulse delay&quot;</span><span class="p">),</span>
+    <span class="c1"># Status (32-bit read-only)</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;SYS_STAT1&quot;</span><span class="p">,</span> <span class="mh">0xF2</span><span class="p">,</span> <span class="mh">0xF3</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System bus 0-31 status&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span><span class="s2">&quot;SYS_STAT2&quot;</span><span class="p">,</span> <span class="mh">0xF4</span><span class="p">,</span> <span class="mh">0xF5</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;System bus 32-63 status&quot;</span><span class="p">),</span>
+    <span class="n">Register32</span><span class="p">(</span>
+        <span class="s2">&quot;PC_NUM_CAP&quot;</span><span class="p">,</span> <span class="mh">0xF6</span><span class="p">,</span> <span class="mh">0xF7</span><span class="p">,</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span><span class="p">,</span> <span class="s2">&quot;Position compare capture count&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Lookup Dictionaries (built at module load time)</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># Map register name to Register object</span>
+<span class="n">REGISTERS_BY_NAME</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">reg</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">reg</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">_REGISTERS</span><span class="p">}</span>
+
+<span class="c1"># Map register address to Register object</span>
+<span class="n">REGISTERS_BY_ADDRESS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Register</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">reg</span><span class="o">.</span><span class="n">address</span><span class="p">:</span> <span class="n">reg</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">_REGISTERS</span><span class="p">}</span>
+
+<span class="c1"># Map 32-bit register name to Register32 object</span>
+<span class="n">REGISTERS_32BIT_BY_NAME</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register32</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">reg</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">reg</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">_REGISTERS_32BIT</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_register">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.get_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_register</span><span class="p">(</span><span class="n">name_or_address</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a register definition by name or address.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name_or_address: Register name (str) or address (int)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Register definition</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If register not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_or_address</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name_or_address</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">REGISTERS_BY_NAME</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown register name: </span><span class="si">{</span><span class="n">name_or_address</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">REGISTERS_BY_NAME</span><span class="p">[</span><span class="n">name_or_address</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name_or_address</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">REGISTERS_BY_ADDRESS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown register address: </span><span class="si">{</span><span class="n">name_or_address</span><span class="si">:</span><span class="s2">#04x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">REGISTERS_BY_ADDRESS</span><span class="p">[</span><span class="n">name_or_address</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_register_32bit">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.get_register_32bit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_register_32bit</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register32</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a 32-bit register pair definition by name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Register name (e.g., &#39;DIV1_DIV&#39;, &#39;PC_GATE_START&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Register32 definition</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If register not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">REGISTERS_32BIT_BY_NAME</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown 32-bit register: </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">REGISTERS_32BIT_BY_NAME</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_registers">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.get_all_registers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_registers</span><span class="p">(</span><span class="n">reg_type</span><span class="p">:</span> <span class="n">RegisterType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Register</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all register definitions, optionally filtered by type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reg_type: If specified, only return registers of this type</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of Register objects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">reg_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_REGISTERS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">reg</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">_REGISTERS</span> <span class="k">if</span> <span class="n">reg</span><span class="o">.</span><span class="n">reg_type</span> <span class="o">==</span> <span class="n">reg_type</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_registers_32bit">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.get_all_registers_32bit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_registers_32bit</span><span class="p">(</span><span class="n">reg_type</span><span class="p">:</span> <span class="n">RegisterType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Register32</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all 32-bit register pair definitions, optionally filtered by type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reg_type: If specified, only return registers of this type</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of Register32 objects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">reg_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_REGISTERS_32BIT</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">reg</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">_REGISTERS_32BIT</span> <span class="k">if</span> <span class="n">reg</span><span class="o">.</span><span class="n">reg_type</span> <span class="o">==</span> <span class="n">reg_type</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="is_mux_register">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.is_mux_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_mux_register</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a register address is a multiplexer (system bus selection).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        address: Register address</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if register is a MUX type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">REGISTERS_BY_ADDRESS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">reg</span><span class="o">.</span><span class="n">reg_type</span> <span class="o">==</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">MUX</span></div>
+
+
+
+<div class="viewcode-block" id="is_readonly_register">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.is_readonly_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_readonly_register</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a register address is read-only.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        address: Register address</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if register is read-only</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">REGISTERS_BY_ADDRESS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">reg</span><span class="o">.</span><span class="n">reg_type</span> <span class="o">==</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">RO</span></div>
+
+
+
+<div class="viewcode-block" id="is_command_register">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.is_command_register">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_command_register</span><span class="p">(</span><span class="n">address</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a register address is a command (write-only) register.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        address: Register address</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if register is a command register</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">REGISTERS_BY_ADDRESS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">reg</span><span class="o">.</span><span class="n">reg_type</span> <span class="o">==</span> <span class="n">RegisterType</span><span class="o">.</span><span class="n">CMD</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Constants for commonly used register addresses</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="RegAddr">
+<a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.RegAddr">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegAddr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constants for commonly used register addresses.</span>
+
+<span class="sd">    Provides convenient access to register addresses without needing</span>
+<span class="sd">    to look them up by name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># System</span>
+    <span class="n">SYS_RESET</span> <span class="o">=</span> <span class="mh">0x7E</span>
+    <span class="n">SOFT_IN</span> <span class="o">=</span> <span class="mh">0x7F</span>
+    <span class="n">SYS_VER</span> <span class="o">=</span> <span class="mh">0xF0</span>
+    <span class="n">SYS_STATERR</span> <span class="o">=</span> <span class="mh">0xF1</span>
+
+    <span class="c1"># System bus status</span>
+    <span class="n">SYS_STAT1LO</span> <span class="o">=</span> <span class="mh">0xF2</span>
+    <span class="n">SYS_STAT1HI</span> <span class="o">=</span> <span class="mh">0xF3</span>
+    <span class="n">SYS_STAT2LO</span> <span class="o">=</span> <span class="mh">0xF4</span>
+    <span class="n">SYS_STAT2HI</span> <span class="o">=</span> <span class="mh">0xF5</span>
+
+    <span class="c1"># Position compare</span>
+    <span class="n">PC_ENC</span> <span class="o">=</span> <span class="mh">0x88</span>
+    <span class="n">PC_TSPRE</span> <span class="o">=</span> <span class="mh">0x89</span>
+    <span class="n">PC_ARM_SEL</span> <span class="o">=</span> <span class="mh">0x8A</span>
+    <span class="n">PC_ARM</span> <span class="o">=</span> <span class="mh">0x8B</span>
+    <span class="n">PC_DISARM</span> <span class="o">=</span> <span class="mh">0x8C</span>
+    <span class="n">PC_GATE_SEL</span> <span class="o">=</span> <span class="mh">0x8D</span>
+    <span class="n">PC_PULSE_SEL</span> <span class="o">=</span> <span class="mh">0x96</span>
+    <span class="n">PC_BIT_CAP</span> <span class="o">=</span> <span class="mh">0x9F</span>
+    <span class="n">PC_DIR</span> <span class="o">=</span> <span class="mh">0xA0</span>
+    <span class="n">PC_NUM_CAPLO</span> <span class="o">=</span> <span class="mh">0xF6</span>
+    <span class="n">PC_NUM_CAPHI</span> <span class="o">=</span> <span class="mh">0xF7</span>
+
+    <span class="c1"># Gate parameters</span>
+    <span class="n">PC_GATE_STARTLO</span> <span class="o">=</span> <span class="mh">0x8E</span>
+    <span class="n">PC_GATE_STARTHI</span> <span class="o">=</span> <span class="mh">0x8F</span>
+    <span class="n">PC_GATE_WIDLO</span> <span class="o">=</span> <span class="mh">0x90</span>
+    <span class="n">PC_GATE_WIDHI</span> <span class="o">=</span> <span class="mh">0x91</span>
+    <span class="n">PC_GATE_NGATELO</span> <span class="o">=</span> <span class="mh">0x92</span>
+    <span class="n">PC_GATE_NGATEHI</span> <span class="o">=</span> <span class="mh">0x93</span>
+    <span class="n">PC_GATE_STEPLO</span> <span class="o">=</span> <span class="mh">0x94</span>
+    <span class="n">PC_GATE_STEPHI</span> <span class="o">=</span> <span class="mh">0x95</span>
+
+    <span class="c1"># Pulse parameters</span>
+    <span class="n">PC_PULSE_STARTLO</span> <span class="o">=</span> <span class="mh">0x97</span>
+    <span class="n">PC_PULSE_STARTHI</span> <span class="o">=</span> <span class="mh">0x98</span>
+    <span class="n">PC_PULSE_WIDLO</span> <span class="o">=</span> <span class="mh">0x99</span>
+    <span class="n">PC_PULSE_WIDHI</span> <span class="o">=</span> <span class="mh">0x9A</span>
+    <span class="n">PC_PULSE_STEPLO</span> <span class="o">=</span> <span class="mh">0x9B</span>
+    <span class="n">PC_PULSE_STEPHI</span> <span class="o">=</span> <span class="mh">0x9C</span>
+    <span class="n">PC_PULSE_MAXLO</span> <span class="o">=</span> <span class="mh">0x9D</span>
+    <span class="n">PC_PULSE_MAXHI</span> <span class="o">=</span> <span class="mh">0x9E</span>
+    <span class="n">PC_PULSE_DLYLO</span> <span class="o">=</span> <span class="mh">0xA1</span>
+    <span class="n">PC_PULSE_DLYHI</span> <span class="o">=</span> <span class="mh">0xA2</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

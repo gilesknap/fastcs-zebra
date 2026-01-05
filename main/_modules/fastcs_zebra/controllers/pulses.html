@@ -2,13 +2,12 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="./" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>How-to Guides &#8212; fastcs-zebra 0.1.dev40+gc8b2733a7 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fastcs_zebra.controllers.pulses &#8212; fastcs-zebra 0.1.dev40+gc8b2733a7 documentation</title>
   
   
   
@@ -27,27 +26,27 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=57d52040"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="_static/copybutton.js?v=30646c52"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'how-to';</script>
+    <script src="../../../_static/documentation_options.js?v=57d52040"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/fastcs_zebra/controllers/pulses';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-zebra/switcher.json';
@@ -55,11 +54,9 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="icon" href="_static/dls-logo.svg"/>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Contribute to the project" href="how-to/contribute.html" />
-    <link rel="prev" title="Installation" href="tutorials/installation.html" />
+    <link rel="icon" href="../../../_static/dls-logo.svg"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="main" />
@@ -81,7 +78,7 @@
   <dialog id="pst-search-dialog">
     
 <form class="bd-search d-flex align-items-center"
-      action="search.html"
+      action="../../../search.html"
       method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
   <input type="search"
@@ -117,7 +114,7 @@
     
   
 
-<a class="navbar-brand logo" href="index.html">
+<a class="navbar-brand logo" href="../../../index.html">
   
   
   
@@ -128,8 +125,8 @@
       
     
     
-    <img src="_static/dls-logo.svg" class="logo__image only-light" alt=""/>
-    <img src="_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+    <img src="../../../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
     <p class="title logo__title">fastcs-zebra</p>
@@ -147,28 +144,28 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="tutorials.html">
+  <a class="nav-link nav-internal" href="../../../tutorials.html">
     Tutorials
   </a>
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../how-to.html">
     How-to Guides
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="explanations.html">
+  <a class="nav-link nav-internal" href="../../../explanations.html">
     Explanations
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="reference.html">
+  <a class="nav-link nav-internal" href="../../../reference.html">
     Reference
   </a>
 </li>
@@ -264,10 +261,6 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
 
     </header>
@@ -278,8 +271,10 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -295,28 +290,28 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="tutorials.html">
+  <a class="nav-link nav-internal" href="../../../tutorials.html">
     Tutorials
   </a>
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../how-to.html">
     How-to Guides
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="explanations.html">
+  <a class="nav-link nav-internal" href="../../../explanations.html">
     Explanations
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="reference.html">
+  <a class="nav-link nav-internal" href="../../../reference.html">
     Reference
   </a>
 </li>
@@ -391,20 +386,6 @@
     
   </div>
   
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="how-to/contribute.html">Contribute to the project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="how-to/generate-phoebus-screens.html">Generate Phoebus Screens</a></li>
-<li class="toctree-l1"><a class="reference internal" href="how-to/run-container.html">Run in a container</a></li>
-</ul>
-</div>
-</nav></div>
-    </div>
-  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -436,11 +417,14 @@
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
-      <a href="index.html" class="nav-link" aria-label="Home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How-to Guides</span></li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">fastcs_zebra.controllers.pulses</span></li>
   </ul>
 </nav>
 </div>
@@ -457,18 +441,76 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="how-to-guides">
-<h1>How-to Guides<a class="headerlink" href="#how-to-guides" title="Link to this heading">#</a></h1>
-<p>Practical step-by-step guides for the more experienced user.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="how-to/contribute.html">Contribute to the project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="how-to/generate-phoebus-screens.html">Generate Phoebus Screens</a></li>
-<li class="toctree-l1"><a class="reference internal" href="how-to/run-container.html">Run in a container</a></li>
-</ul>
-</div>
-</section>
+  <h1>Source code for fastcs_zebra.controllers.pulses</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Pulse generator sub-controllers (PULSE1-4).</span>
 
+<span class="sd">Each pulse generator creates a timed pulse with configurable:</span>
+<span class="sd">- Input trigger source (from 64 system bus signals)</span>
+<span class="sd">- Delay from trigger to pulse start</span>
+<span class="sd">- Pulse width</span>
+<span class="sd">- Prescaler (time unit: 10s, s, or ms)</span>
+
+<span class="sd">The pulse output is available on the system bus for routing to outputs</span>
+<span class="sd">or other logic.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Int</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra.controllers.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prescaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra.controllers.sub_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraSubcontroller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra.register_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraRegisterIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_zebra.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SysBus</span>
+
+
+<div class="viewcode-block" id="PulseController">
+<a class="viewcode-back" href="../../../_api/fastcs_zebra.html#fastcs_zebra.PulseController">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PulseController</span><span class="p">(</span><span class="n">ZebraSubcontroller</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Controller for a single pulse generator (PULSE1-PULSE4).</span>
+
+<span class="sd">    The pulse generator creates a single pulse output:</span>
+<span class="sd">    - Triggered by a rising edge on the input</span>
+<span class="sd">    - After a configurable delay</span>
+<span class="sd">    - With a configurable width</span>
+<span class="sd">    - Time units set by prescaler</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        inp: Input trigger source (0-63 system bus index)</span>
+<span class="sd">        inp_str: Human-readable name of input source</span>
+<span class="sd">        dly: Delay from trigger to pulse start (in time units)</span>
+<span class="sd">        wid: Pulse width (in time units)</span>
+<span class="sd">        pre: Prescaler value (5=ms, 5000=s, 500000=10s)</span>
+<span class="sd">        pre_str: Human-readable prescaler string</span>
+<span class="sd">        out: Current output state of the pulse generator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># Number of pulse generators available</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pulse_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">register_io</span><span class="p">:</span> <span class="n">ZebraRegisterIO</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize pulse generator controller.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pulse_num: Pulse generator number (1-4)</span>
+<span class="sd">            register_io: Shared register IO handler</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pulse_num</span><span class="p">,</span> <span class="n">register_io</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_register</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PULSE</span><span class="si">{</span><span class="n">pulse_num</span><span class="si">}</span><span class="s2">_INP&quot;</span><span class="p">,</span> <span class="n">Enum</span><span class="p">(</span><span class="n">SysBus</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_register</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PULSE</span><span class="si">{</span><span class="n">pulse_num</span><span class="si">}</span><span class="s2">_DLY&quot;</span><span class="p">,</span> <span class="n">Int</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_register</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PULSE</span><span class="si">{</span><span class="n">pulse_num</span><span class="si">}</span><span class="s2">_WID&quot;</span><span class="p">,</span> <span class="n">Int</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_register</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PULSE</span><span class="si">{</span><span class="n">pulse_num</span><span class="si">}</span><span class="s2">_PRE&quot;</span><span class="p">,</span> <span class="n">Enum</span><span class="p">(</span><span class="n">Prescaler</span><span class="p">))</span>
+
+        <span class="c1"># System bus index for this pulse generator&#39;s output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sysbus_index</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">SysBus</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;PULSE</span><span class="si">{</span><span class="n">pulse_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Output state (from system bus status)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Bool</span><span class="p">())</span></div>
+
+</pre></div>
 
                 </article>
               
@@ -479,61 +521,12 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="tutorials/installation.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Installation</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="how-to/contribute.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contribute to the project</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
             </div>
             
             
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/fastcs-zebra/edit/main/docs/how-to.md">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/how-to.md.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
-
-</div></div>
               
             
           </div>
@@ -546,8 +539,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">

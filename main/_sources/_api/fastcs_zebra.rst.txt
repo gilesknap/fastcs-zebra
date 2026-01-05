@@ -8,6 +8,28 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
 .. automodule:: fastcs_zebra
     :members:
@@ -31,5 +53,27 @@
         InterruptHandler
         PositionCompareData
         ZebraController
+        AndGateController
+        OrGateController
+        GateController
+        PulseController
+        DividerController
+        OutputController
+        PositionCompareController
+        ZebraRegisterIO
+        ZebraRegisterIORef
+        Register
+        Register32
+        RegisterType
+        RegAddr
+        SysBus
+        get_register
+        get_register_32bit
+        get_all_registers
+        get_all_registers_32bit
+        is_mux_register
+        is_readonly_register
+        is_command_register
+        signal_index_to_name
     
     

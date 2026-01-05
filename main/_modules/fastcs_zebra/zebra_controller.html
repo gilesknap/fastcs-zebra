@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fastcs_zebra.zebra_controller &#8212; fastcs-zebra 0.1.dev9+g1ba9a1188 documentation</title>
+    <title>fastcs_zebra.zebra_controller &#8212; fastcs-zebra 0.1.dev40+gc8b2733a7 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=160b305b"></script>
+    <script src="../../_static/documentation_options.js?v=57d52040"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -446,88 +446,42 @@
 
 <span class="sd">Provides EPICS PVs for controlling and monitoring the Zebra position compare</span>
 <span class="sd">and logic hardware through the serial protocol layer.</span>
+
+<span class="sd">Phase 3 implements the full controller hierarchy:</span>
+<span class="sd">- AND gates (AND1-4)</span>
+<span class="sd">- OR gates (OR1-4)</span>
+<span class="sd">- Gate generators (GATE1-4)</span>
+<span class="sd">- Pulse generators (PULSE1-4)</span>
+<span class="sd">- Pulse dividers (DIV1-4)</span>
+<span class="sd">- Output routing (OUT1-8)</span>
+<span class="sd">- Position compare subsystem</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeVar</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributeIO</span><span class="p">,</span> <span class="n">AttributeIORef</span><span class="p">,</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONCE</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.controllers.dividers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DividerController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.controllers.gates</span><span class="w"> </span><span class="kn">import</span> <span class="n">GateController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.controllers.logic</span><span class="w"> </span><span class="kn">import</span> <span class="n">AndGateController</span><span class="p">,</span> <span class="n">OrGateController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.controllers.outputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.controllers.position_compare</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositionCompareController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.controllers.pulses</span><span class="w"> </span><span class="kn">import</span> <span class="n">PulseController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.interrupts</span><span class="w"> </span><span class="kn">import</span> <span class="n">InterruptHandler</span><span class="p">,</span> <span class="n">PositionCompareData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraProtocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.register_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraRegisterIO</span><span class="p">,</span> <span class="n">ZebraRegisterIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.registers</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTERS_BY_NAME</span><span class="p">,</span> <span class="n">SysBus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZebraTransport</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">NumberT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;NumberT&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
-
-
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ZebraRegisterIORef</span><span class="p">(</span><span class="n">AttributeIORef</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reference for Zebra register IO operations.&quot;&quot;&quot;</span>
-
-    <span class="n">register</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Register address (0x00-0xFF)</span>
-    <span class="n">is_32bit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># True if this is a 32-bit register pair</span>
-    <span class="n">register_hi</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># High register for 32-bit values</span>
-    <span class="n">update_period</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Poll every second by default</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">ZebraRegisterIO</span><span class="p">(</span><span class="n">AttributeIO</span><span class="p">[</span><span class="n">NumberT</span><span class="p">,</span> <span class="n">ZebraRegisterIORef</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handles reading from and writing to Zebra registers.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">ZebraProtocol</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">protocol</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">ZebraProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the protocol instance for register I/O operations.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">protocol</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read value from Zebra register and update attribute.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">is_32bit</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register_hi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">read_register_32bit</span><span class="p">(</span>
-                    <span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register_hi</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register</span><span class="p">)</span>
-
-            <span class="k">await</span> <span class="n">attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error reading register 0x</span><span class="si">{</span><span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register</span><span class="si">:</span><span class="s2">02X</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write attribute value to Zebra register.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">int_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">is_32bit</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register_hi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># Write 32-bit value as LO/HI pair</span>
-                <span class="n">lo_value</span> <span class="o">=</span> <span class="n">int_value</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span>
-                <span class="n">hi_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">int_value</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFFFF</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register</span><span class="p">,</span> <span class="n">lo_value</span><span class="p">)</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register_hi</span><span class="p">,</span> <span class="n">hi_value</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register</span><span class="p">,</span> <span class="n">int_value</span><span class="p">)</span>
-
-            <span class="c1"># Read back and update the attribute to reflect actual hardware state</span>
-            <span class="c1"># Only if this is a read-write attribute (AttrRW has update method)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">AttrRW</span><span class="p">):</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
-
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error writing register 0x</span><span class="si">{</span><span class="n">attr</span><span class="o">.</span><span class="n">io_ref</span><span class="o">.</span><span class="n">register</span><span class="si">:</span><span class="s2">02X</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># Re-export for backward compatibility</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ZebraController&quot;</span><span class="p">,</span> <span class="s2">&quot;ZebraRegisterIO&quot;</span><span class="p">,</span> <span class="s2">&quot;ZebraRegisterIORef&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ZebraController">
@@ -535,8 +489,33 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ZebraController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Top-level controller for Zebra hardware.</span>
 
-<span class="sd">    Exposes connection management, firmware version, and register access</span>
-<span class="sd">    for testing Phase 1 serial communication functionality.</span>
+<span class="sd">    Provides a complete controller hierarchy for the Zebra hardware:</span>
+<span class="sd">    - System status and configuration (top level)</span>
+<span class="sd">    - Logic gates: AND1-4, OR1-4</span>
+<span class="sd">    - Gate generators: GATE1-4</span>
+<span class="sd">    - Pulse generators: PULSE1-4</span>
+<span class="sd">    - Pulse dividers: DIV1-4</span>
+<span class="sd">    - Output routing: OUT1-8</span>
+<span class="sd">    - Position compare subsystem: PC</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        connected: Connection status</span>
+<span class="sd">        sys_ver: Firmware version</span>
+<span class="sd">        sys_staterr: System state/error flags</span>
+<span class="sd">        sys_stat1/2: System bus status (32-bit each)</span>
+<span class="sd">        soft_in: Software inputs (4 bits)</span>
+<span class="sd">        div_first: Divider first pulse behavior</span>
+<span class="sd">        polarity: Output polarity control</span>
+<span class="sd">        status_msg: Human-readable status message</span>
+
+<span class="sd">    Sub-controllers:</span>
+<span class="sd">        and1-4: AND gate controllers</span>
+<span class="sd">        or1-4: OR gate controllers</span>
+<span class="sd">        gate1-4: Gate generator controllers</span>
+<span class="sd">        pulse1-4: Pulse generator controllers</span>
+<span class="sd">        div1-4: Pulse divider controllers</span>
+<span class="sd">        out1-8: Output routing controllers</span>
+<span class="sd">        pc: Position compare controller</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -547,53 +526,100 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span><span class="p">:</span> <span class="n">ZebraTransport</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="p">:</span> <span class="n">ZebraProtocol</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="p">:</span> <span class="n">ZebraProtocol</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_handler</span> <span class="o">=</span> <span class="n">InterruptHandler</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_task</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks_registered</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sys_stat_update_task</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Create IO handler (will be set to actual protocol after connect)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span> <span class="o">=</span> <span class="n">ZebraRegisterIO</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ios</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">])</span>
 
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># System Status and Configuration (Top Level)</span>
+        <span class="c1"># =====================================================================</span>
+
         <span class="c1"># Connection status (no IO, updated manually)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connected</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Bool</span><span class="p">())</span>
 
         <span class="c1"># Firmware version (register 0xF0)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sys_ver</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
-            <span class="n">Int</span><span class="p">(),</span> <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0xF0</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+            <span class="n">Int</span><span class="p">(),</span> <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0xF0</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="c1"># System state/error (register 0xF1)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sys_staterr</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
-            <span class="n">Int</span><span class="p">(),</span> <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0xF1</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0xF1</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">),</span>
         <span class="p">)</span>
 
+        <span class="c1"># System bus status (32-bit registers)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys_stat1</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys_stat2</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
+
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># System Bus Individual Bits (derived from sys_stat1/2)</span>
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Create sub-controllers for system bus bits</span>
+        <span class="c1"># sysbus1: bits 0-31 from sys_stat1</span>
+        <span class="c1"># sysbus2: bits 32-63 from sys_stat2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sysbit_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">SysBus</span><span class="p">:</span>
+            <span class="n">attr_name</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sysbit_attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">signal</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">32</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Bool</span><span class="p">(),</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;SysBus2&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Bool</span><span class="p">(),</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;SysBus1&quot;</span><span class="p">))</span>
+
         <span class="c1"># Number of position compare captures (registers 0xF6/0xF7)</span>
+        <span class="c1"># Kept for backward compatibility</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pc_num_cap</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
             <span class="n">Int</span><span class="p">(),</span>
             <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span>
-                <span class="n">register</span><span class="o">=</span><span class="mh">0xF6</span><span class="p">,</span> <span class="n">is_32bit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">register_hi</span><span class="o">=</span><span class="mh">0xF7</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="mf">1.0</span>
+                <span class="n">register</span><span class="o">=</span><span class="mh">0xF6</span><span class="p">,</span>
+                <span class="n">is_32bit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">register_hi</span><span class="o">=</span><span class="mh">0xF7</span><span class="p">,</span>
+                <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
 
         <span class="c1"># Position compare encoder selection (register 0x88)</span>
+        <span class="c1"># Kept for backward compatibility</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pc_enc</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
-            <span class="n">Int</span><span class="p">(),</span> <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x88</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x88</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="c1"># Position compare timestamp prescaler (register 0x89)</span>
+        <span class="c1"># Kept for backward compatibility</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pc_tspre</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
-            <span class="n">Int</span><span class="p">(),</span> <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x89</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x89</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="c1"># Soft inputs (register 0x7F)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">soft_in</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
-            <span class="n">Int</span><span class="p">(),</span> <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x7F</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x7F</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Divider first pulse behavior (register 0x7C)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">div_first</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x7C</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Output polarity control (register 0x54)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polarity</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ZebraRegisterIORef</span><span class="p">(</span><span class="n">register</span><span class="o">=</span><span class="mh">0x54</span><span class="p">,</span> <span class="n">update_period</span><span class="o">=</span><span class="n">ONCE</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="c1"># Last captured position compare data (updated via interrupts, no IO)</span>
+        <span class="c1"># Kept for backward compatibility</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pc_time_last</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pc_enc1_last</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pc_enc2_last</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
@@ -603,6 +629,56 @@
         <span class="c1"># Status message (no IO)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">String</span><span class="p">())</span>
 
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Sub-controllers</span>
+        <span class="c1"># =====================================================================</span>
+
+        <span class="c1"># Logic gates (AND1-4)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">and1</span> <span class="o">=</span> <span class="n">AndGateController</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">and2</span> <span class="o">=</span> <span class="n">AndGateController</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">and3</span> <span class="o">=</span> <span class="n">AndGateController</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">and4</span> <span class="o">=</span> <span class="n">AndGateController</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Logic gates (OR1-4)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">or1</span> <span class="o">=</span> <span class="n">OrGateController</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">or2</span> <span class="o">=</span> <span class="n">OrGateController</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">or3</span> <span class="o">=</span> <span class="n">OrGateController</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">or4</span> <span class="o">=</span> <span class="n">OrGateController</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Gate generators (GATE1-4)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate1</span> <span class="o">=</span> <span class="n">GateController</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate2</span> <span class="o">=</span> <span class="n">GateController</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate3</span> <span class="o">=</span> <span class="n">GateController</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate4</span> <span class="o">=</span> <span class="n">GateController</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Pulse generators (PULSE1-4)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pulse1</span> <span class="o">=</span> <span class="n">PulseController</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pulse2</span> <span class="o">=</span> <span class="n">PulseController</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pulse3</span> <span class="o">=</span> <span class="n">PulseController</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pulse4</span> <span class="o">=</span> <span class="n">PulseController</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Pulse dividers (DIV1-4)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">div1</span> <span class="o">=</span> <span class="n">DividerController</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">div2</span> <span class="o">=</span> <span class="n">DividerController</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">div3</span> <span class="o">=</span> <span class="n">DividerController</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">div4</span> <span class="o">=</span> <span class="n">DividerController</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Output routing (OUT1-8)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out1</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out2</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out3</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out4</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out5</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out6</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out7</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out8</span> <span class="o">=</span> <span class="n">OutputController</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Position compare subsystem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc</span> <span class="o">=</span> <span class="n">PositionCompareController</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="p">)</span>
+
+        <span class="c1"># Register interrupt handler with PC controller so it gets bit_cap updates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">register_interrupt_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_handler</span><span class="p">)</span>
+
 <div class="viewcode-block" id="ZebraController.connect">
 <a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.ZebraController.connect">[docs]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -610,10 +686,10 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span> <span class="o">=</span> <span class="n">ZebraTransport</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">ZebraProtocol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transport</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span> <span class="o">=</span> <span class="n">ZebraProtocol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transport</span><span class="p">)</span>
 
             <span class="c1"># Update the IO handler with the actual protocol</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="o">.</span><span class="n">set_protocol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_register_io</span><span class="o">.</span><span class="n">set_protocol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="p">)</span>
 
             <span class="c1"># Update connection status</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -626,6 +702,15 @@
 
             <span class="c1"># Start interrupt monitoring</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitor_interrupts</span><span class="p">())</span>
+
+            <span class="c1"># Read initial PC_BIT_CAP value to configure interrupt handler</span>
+            <span class="n">bit_cap</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span>
+                <span class="n">REGISTERS_BY_NAME</span><span class="p">[</span><span class="s2">&quot;PC_BIT_CAP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">address</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_handler</span><span class="o">.</span><span class="n">set_bit_cap</span><span class="p">(</span><span class="n">bit_cap</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Initialized interrupt handler with PC_BIT_CAP=</span><span class="si">{</span><span class="n">bit_cap</span><span class="si">:</span><span class="s2">#06x</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to Zebra on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -640,6 +725,9 @@
 <a class="viewcode-back" href="../../_api/fastcs_zebra.html#fastcs_zebra.ZebraController.disconnect">[docs]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Disconnect from Zebra hardware.&quot;&quot;&quot;</span>
+        <span class="c1"># Cancel background tasks</span>
+        <span class="c1"># (sys_stat_update_task removed - using callbacks instead)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_task</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interrupt_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
@@ -651,7 +739,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_transport</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Disconnected from Zebra&quot;</span><span class="p">)</span>
@@ -668,7 +756,7 @@
 
         <span class="nd">@self</span><span class="o">.</span><span class="n">_interrupt_handler</span><span class="o">.</span><span class="n">on_data</span>
         <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">PositionCompareData</span><span class="p">):</span>
-            <span class="c1"># Update last captured values</span>
+            <span class="c1"># Update last captured values (top-level for backward compatibility)</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_time_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">encoder1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_enc1_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder1</span><span class="p">)</span>
@@ -678,6 +766,17 @@
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_enc3_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder3</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">encoder4</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc_enc4_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder4</span><span class="p">)</span>
+
+            <span class="c1"># Also update position compare controller</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">time_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">encoder1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">enc1_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">encoder2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">enc2_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">encoder3</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">enc3_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">encoder4</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="o">.</span><span class="n">enc4_last</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encoder4</span><span class="p">)</span>
 
         <span class="nd">@self</span><span class="o">.</span><span class="n">_interrupt_handler</span><span class="o">.</span><span class="n">on_end</span>
         <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_end</span><span class="p">():</span>
@@ -711,7 +810,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if connected and raise RuntimeError if not.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not connected to Zebra hardware&quot;</span><span class="p">)</span>
 
     <span class="c1"># Commands</span>
@@ -720,7 +819,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pc_arm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Arm position compare (write 0x8B).&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_connected</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x8B</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x8B</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Position compare armed&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;PC Armed&quot;</span><span class="p">)</span>
 
@@ -728,7 +827,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pc_disarm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Disarm position compare (write 0x8C).&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_connected</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x8C</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x8C</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Position compare disarmed&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;PC Disarmed&quot;</span><span class="p">)</span>
 
@@ -736,7 +835,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_to_flash</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save configuration to flash memory.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_connected</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">flash_command</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="o">.</span><span class="n">flash_command</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuration saved to flash&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Saved to flash&quot;</span><span class="p">)</span>
 
@@ -744,7 +843,7 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">load_from_flash</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load configuration from flash memory.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_connected</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">flash_command</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">flash_command</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuration loaded from flash&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Loaded from flash&quot;</span><span class="p">)</span>
 
@@ -752,9 +851,63 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">sys_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset Zebra system (write 0x7E).&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_connected</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x7E</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="mh">0x7E</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;System reset&quot;</span><span class="p">)</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;System reset&quot;</span><span class="p">)</span></div>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_msg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;System reset&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ,</span>
+    <span class="c1">#             io_ref=ZebraRegisterIORef(</span>
+    <span class="c1">#                 register=0xF2,</span>
+    <span class="c1">#                 is_32bit=True,</span>
+    <span class="c1">#                 register_hi=0xF3,</span>
+    <span class="c1">#                 update_period=FAST_UPDATE,</span>
+    <span class="c1">#             ),</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#         self.sys_stat2 = AttrR(</span>
+    <span class="c1">#             Int(),</span>
+    <span class="c1">#             io_ref=ZebraRegisterIORef(</span>
+    <span class="c1">#                 register=0xF4,</span>
+    <span class="c1">#                 is_32bit=True,</span>
+    <span class="c1">#                 register_hi=0xF5,</span>
+    <span class="c1">#                 update_period=FAST_UPDATE,</span>
+    <span class="c1">#             ),</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZebraProtocol</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the ZebraProtocol instance.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If not connected</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not connected to Zebra hardware&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__protocol</span>  <span class="c1"># type: ignore[return-value]</span>
+
+    <span class="nd">@scan</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_sys_stat_update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when sys_stat1 or sys_stat2 updates.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sys_stat1</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">read_register_32bit</span><span class="p">(</span><span class="mh">0xF2</span><span class="p">,</span> <span class="mh">0xF3</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys_stat1</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sys_stat1</span><span class="p">)</span>
+            <span class="n">sys_stat2</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="o">.</span><span class="n">read_register_32bit</span><span class="p">(</span><span class="mh">0xF4</span><span class="p">,</span> <span class="mh">0xF5</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys_stat2</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sys_stat2</span><span class="p">)</span>
+
+            <span class="c1"># Update individual system bus bit attributes in sub-controllers</span>
+            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">SysBus</span><span class="p">:</span>
+                <span class="n">bit_index</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">value</span>
+
+                <span class="n">attr_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sysbit_attrs</span><span class="p">[</span><span class="n">bit_index</span><span class="p">]</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bit_index</span> <span class="o">&lt;</span> <span class="mi">32</span><span class="p">:</span>
+                    <span class="c1"># Bit is in sys_stat1 -&gt; update sysbus1 controller</span>
+                    <span class="n">bit_value</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">sys_stat1</span> <span class="o">&gt;&gt;</span> <span class="n">bit_index</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Bit is in sys_stat2 -&gt; update sysbus2 controller</span>
+                    <span class="n">bit_value</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">sys_stat2</span> <span class="o">&gt;&gt;</span> <span class="p">(</span><span class="n">bit_index</span> <span class="o">-</span> <span class="mi">32</span><span class="p">))</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="p">:</span>
+                    <span class="k">await</span> <span class="n">attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bit_value</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating derived values: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 
